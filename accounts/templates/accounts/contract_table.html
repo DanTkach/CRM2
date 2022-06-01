@@ -1,0 +1,251 @@
+{%  extends 'accounts/my_main.html' %}
+
+{% block content %}
+
+
+
+    <br>
+
+    <div class="card card-body w-25 text-center">
+        <h5>Client: {{client.first_name}} {{client.last_name}}</h5>
+        <h5>Contract: #{{contract.id}}</h5>
+    </div>
+    <br>
+    <ul class="nav nav-pills nav-fill">
+    <li class="nav-item">
+      <a class="nav-link active" data-toggle="tab" href="#repayment_plan">Repayment Planning</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-toggle="tab" href="#repayment_schedule">Repayment Schedule</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-toggle="tab" href="#payments">Payments</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-toggle="tab" href="#penalties">Penalties</a>
+    </li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane active" id = "repayment_plan">
+            <br>
+            <div class="card card-body">
+                <table class="table table-bordered">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">Today</th>
+                            <th scope="col">Loan</th>
+                            <th scope="col">Interest Rate</th>
+                            <th scope="col">Current Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in profile %}
+                            <tr>
+                                <td>{{row.0}}</td>
+                                <td>{{row.1}}</td>
+                                <td>{{row.2}}</td>
+                                <td>{{row.3}}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <br><hr><br><br>
+                <table class="table table-bordered">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Original</th>
+                            <th scope="col">Paid</th>
+                            <th scope="col">Waived</th>
+                            <th scope="col">Outstanding</th>
+                            <th scope="col">Closure</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="table-secondary">Principal</td>
+                            <td>{{profile.0.10}}</td>
+                            <td>{{profile.0.7}}</td>
+                            <td>0</td>
+                            <td>{{profile.0.12}}</td>
+                            <td>{{profile.0.12}}</td>
+                        </tr>
+                        <tr>
+                            <td class="table-secondary">Interest</td>
+                            <td>{{profile.0.11}}</td>
+                            <td>{{profile.0.8}}</td>
+                            <td>{{profile.0.23}}</td>
+                            <td>{{profile.0.13}}</td>
+                            <td>{{profile.0.5}}</td>
+                        </tr>
+                        <tr>
+                            <td class="table-secondary">Penalties</td>
+                            <td>0</td>
+                            <td>{{profile.0.9}}</td>
+                            <td>{{profile.0.24}}</td>
+                            <td>{{profile.0.14}}</td>
+                            <td>{{profile.0.14}}</td>
+                        </tr>
+                        <tr>
+                            <td class="table-secondary">TOTAL</td>
+                            <td>{{profile.0.15}}</td>
+                            <td>{{profile.0.16}}</td>
+                            <td>{{profile.0.17}}</td>
+                            <td>{{profile.0.19}}</td>
+                            <td>{{profile.0.18}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <br><br><br>
+                <table class="table table-bordered">
+                    {% for row in profile %}
+                    <tr>
+                        <td>Principal To Pay: </td>
+                        <td>{{row.4}}</td>
+                    </tr>
+                    <tr>
+                        <td>Interest To Pay: </td>
+                        <td>{{row.5}}</td>
+                    </tr>
+                    <tr>
+                        <td>Penalties To Pay: </td>
+                        <td>{{row.6}}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+
+                <br><br>
+                <a class="btn btn-sm btn-info" href="{% url 'create_payment' contract.id %}">Process Payment</a>
+
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id = "repayment_schedule">
+            <br>
+            <a class="btn btn-info" href="{% url 'downloadContract' contract.id %}">Download Schedule</a>
+            <br>
+            <br>
+            <div class="card card-body table-responsive">
+                <table class="table table-bordered">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Repayment Date</th>
+                            <th scope="col">Remaining Credit</th>
+                            <th scope="col">Principal</th>
+                            <th scope="col">Interest</th>
+                            <th scope="col">Total</th>
+                            <th scope="col">Penalty</th>
+                            <th scope="col">Repaid Principal</th>
+                            <th scope="col">Repaid Interest</th>
+                            <th scope="col">Repaid Penalty</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in table %}
+                                <tr>
+                                    <td>{{row.0}}</td>
+                                    <td>{{row.1}}</td>
+                                    <td>{{row.2}}</td>
+                                    <td>{{row.3}}</td>
+                                    <td>
+                                        <div class="row">
+                                            <div class="col-sm pr-0">
+                                                {{row.4}}
+                                            </div>
+                                            {% if row.10 %}
+                                            <div class="col-sm px-0">
+                                                <a class="btn-sm btn-danger" href="{% url 'delete_i_waive' contract.id row.0%}">Waived</a>
+                                            </div>
+                                            {% else %}
+                                            <div class="col-sm px-0">
+                                                <a class="btn-sm btn-success" href="{% url 'interest_waive' contract.id row.0%}">Waive</a>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>{{row.5}}</td>
+                                    <td>
+                                        <div class="row">
+                                            <div class="col-sm pr-0">
+                                                {{row.6}}
+                                            </div>
+                                            {% if row.11 %}
+                                            <div class="col-sm px-0">
+                                                <a class="btn-sm btn-danger" href="{% url 'delete_p_waive' contract.id row.0%}">Waived</a>
+                                            </div>
+                                            {% else %}
+                                            <div class="col-sm px-0">
+                                                <a class="btn-sm btn-success" href="{% url 'penalty_waive' contract.id row.0%}">Waive</a>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>{{row.7}}</td>
+                                    <td>{{row.8}}</td>
+                                    <td>{{row.9}}</td>
+                                </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id = "payments">
+            <br>
+            <div class="card card-body">
+
+			<table class="table table-bordered">
+                <thead class="thead-dark">
+				    <tr>
+				    	<th>Date</th>
+				    	<th>Sum</th>
+				    	<th></th>
+				    </tr>
+                </thead>
+                <tbody>
+				    {% for payment in all_payments %}
+				    	<tr>
+				    		<td>{{payment.date_paid|date:"d/m/Y"}}</td>
+				    		<td>{{payment.sum}}</td>
+				    		<td><a class="btn btn-sm btn-danger" href="{% url 'delete_payment' payment.id %}">Delete</a></td>
+				    	</tr>
+                    {% empty %}
+				    {% endfor %}
+                </tbody>
+			</table>
+		    </div>
+        </div>
+
+        <div class="tab-pane fade" id="penalties">
+            <br>
+            <div class="card card-body">
+                <table class="table table-bordered">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Penalty</th>
+                            <th scope="col">Days Delinquent</th>
+                            <th scope="col">Paid</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in penalties %}
+                                <tr>
+                                    <td>{{row.0}}</td>
+                                    <td>{{row.1}}</td>
+                                    <td>{{row.2}}</td>
+                                    <td>{{row.3}}</td>
+                                    <td>{{row.4}}</td>
+                                </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}

@@ -1,0 +1,73 @@
+{%  extends 'accounts/my_main.html' %}
+
+{% block content %}
+
+	<br>
+
+<div class="row">
+	<div class="col-md">
+		<div class="card card-body">
+			<h5>Client: {{client.first_name}} {{client.last_name}}</h5>
+			<hr>
+			<a class="btn btn-outline-info  btn-sm btn-block" href="{% url 'update_client' client.id %}">Update Client</a>
+			<a class="btn btn-outline-info  btn-sm btn-block" href="{% url 'create_contract' client.id %}">Add Contract</a>
+
+		</div>
+	</div>
+
+	<div class="col-md">
+		<div class="card card-body">
+			<h5>Contact Information</h5>
+			<hr>
+			<p>Location: {{client.location}} <br> Phone: {{client.phone_num}}</p>
+		</div>
+	</div>
+
+	<div class="col-md">
+		<div class="card card-body">
+			<h5>Total Contracts</h5>
+			<hr>
+			<h1 style="text-align: center;padding: 10px">{{contracts_count}}</h1>
+		</div>
+	</div>
+</div>
+
+<br>
+
+<div class="row">
+	<div class="col-md">
+		<div class="card card-body">
+			<table class="table table-sm">
+				<tr>
+					<th>Contract Code</th>
+					<th>Date Created</th>
+					<th>Product</th>
+					<th>Loan</th>
+					<th>Principal Paid</th>
+					<th>Total Balance</th>
+					<th>Status</th>
+					<th></th>
+					<th></th>
+				</tr>
+
+				{% for contract in contracts %}
+
+				<tr>
+					<td>{{contract.0}}</td>
+					<td>{{contract.1|date:"d/m/Y"}}</td>
+					<td>{{contract.2}}</td>
+					<td>{{contract.3}}</td>
+					<td>{{contract.5.0.7}}</td>
+					<td>{{contract.5.0.3}}</td>
+					<td>{{contract.4}}</td>
+					<td><a class="btn btn-sm btn-info" href="{% url 'view_contract' contract.0 %}">View</a></td>
+					<td><a class="btn btn-sm btn-danger" href="{% url 'delete_contract' contract.0 %}">Delete</a></td>
+				</tr>
+				{% endfor %}
+
+			</table>
+		</div>
+	</div>
+</div>
+
+{% endblock %}

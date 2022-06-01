@@ -1,0 +1,71 @@
+{%  extends 'accounts/my_main.html' %}
+
+{% block content %}
+
+		<br>
+
+		<div class="row">
+			<div class="col-md">
+				<div class="card card-body">
+					<h5>Arrears</h5>
+				</div>
+
+				<div class="card card-body">
+                <table class="table table-bordered">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">Total Principal</th>
+                            <th scope="col">Total Outstanding Principal</th>
+                            <th scope="col">Total Overdue Principal 30+</th>
+                            <th scope="col">Danger Rate</th>
+							<th scope="col">Total Overdue Interest</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+						<tr>
+							<td>{{profile.0}}</td>
+							<td>{{profile.1}}</td>
+							<td>{{profile.2}}</td>
+							<td>{{profile.3}}%</td>
+							<td>{{profile.4}}</td>
+						</tr>
+
+                    </tbody>
+                </table>
+                <br><hr><br><br>
+
+
+					<table class="table table-bordered">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Original Principal</th>
+                            <th scope="col">Outstanding Principal</th>
+							<th scope="col">Days Delinquent</th>
+							<th scope="col">Principal Overdue</th>
+							<th scope="col">Interest Overdue</th>
+							<th scope="col">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+						{% for contract in contracts %}
+							<tr>
+								<td>{{contract.0}}</td>
+								<td>{{contract.1}}</td>
+								<td>{{contract.2.0.10}}</td>
+								<td>{{contract.2.0.12}}</td>
+								<td>{{contract.2.0.21}}</td>
+								<td>{{contract.2.0.4}}</td>
+								<td>{{contract.2.0.5}}</td>
+								<td>{{contract.2.0.22}}</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+{% endblock content %}

@@ -1,0 +1,59 @@
+{%  extends 'accounts/my_main.html' %}
+
+{% block content %}
+<br>
+<style type="text/css">
+    table {
+        padding-top: 2px;
+        text-align: center;
+        height: 15px;
+    }
+    .num {
+        width: 30px;
+    }
+
+</style>
+<table style="border: 1px solid black; border-collapse:collapse;">
+    <thead class="thead-dark">
+    <tr>
+        <th scope="col" class="num">#</th>
+        <th scope="col">Repayment Date</th>
+        <th scope="col">Remaining Credit</th>
+        <th scope="col">Principal</th>
+        <th scope="col">Interest</th>
+        <th scope="col">Sum</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for row in table %}
+    <tr>
+        <td>{{row.0}}</td>
+        <td>{{row.1}}</td>
+        <td>{{row.2}}</td>
+        <td>{{row.3}}</td>
+        <td>{{row.4}}</td>
+        <td>{{row.5}}</td>
+    </tr>
+    {% endfor %}
+    <tr>
+        <td>    </td>
+        <td>    </td>
+        <td>    </td>
+        <td>    </td>
+        <td>    </td>
+        <td>    </td>
+    </tr>
+    <tr class="total">
+        <td></td>
+        <td><b>Total:</b></td>
+        <td></td>
+        <td>{{profile.0.10}}</td>
+        <td>{{profile.0.11}}</td>
+        <td>{{profile.0.15}}</td>
+    </tr>
+    </tbody>
+</table>
+
+
+
+{% endblock %}
