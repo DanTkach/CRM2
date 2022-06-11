@@ -9,6 +9,7 @@
     <div class="card card-body w-25 text-center">
         <h5>Client: {{client.first_name}} {{client.last_name}}</h5>
         <h5>Contract: #{{contract.id}}</h5>
+        <a class="btn btn-outline-info  btn-sm btn-block" href="{% url 'update_contract' contract.id %}">Update</a>
     </div>
     <br>
     <ul class="nav nav-pills nav-fill">
