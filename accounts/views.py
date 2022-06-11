@@ -140,7 +140,8 @@ def arrears(request):
                 contract_data.grace_period,
                 [int(waive.month) for waive in penalty_waives],
                 [int(waive.month) for waive in interest_waives]
-            )[1]
+            )[1],
+            contract_data.client_id
         ])
         contracts.sort(key=lambda x: x[2][0][21])
         profile = [0, 0, 0, 0, 0]
@@ -218,7 +219,6 @@ def createContract(request, pk):
 def updateContract(request, pk):
     contract = Contract.objects.get(id=pk)
     form = ContractForm(instance=contract)
-    print('Contract:', contract)
     if request.method == 'POST':
 
         form = ContractForm(request.POST, instance=contract)
@@ -383,7 +383,6 @@ def createPayment(request, pk):
             new_form.penalties_paid = round(float(penalties_paid), 2)
             new_form.interest_paid = round(float(interest_paid), 2)
             new_form.principal_paid = round(float(principal_paid), 2)
-            print(new_form)
             new_form.save()
             return redirect('/view_contract/' + str(contract_id) + '/')
 

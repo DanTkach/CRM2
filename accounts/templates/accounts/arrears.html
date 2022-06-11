@@ -52,8 +52,8 @@
                     <tbody>
 						{% for contract in contracts %}
 							<tr>
-								<td>{{contract.0}}</td>
-								<td>{{contract.1}}</td>
+								<td><a href="{% url 'view_contract' contract.0 %}">{{contract.0}}</a></td>
+								<td><a href="{% url 'client' contract.3 %}">{{contract.1}}</a></td>
 								<td>{{contract.2.0.10}}</td>
 								<td>{{contract.2.0.12}}</td>
 								<td>{{contract.2.0.21}}</td>
