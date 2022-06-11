@@ -151,6 +151,8 @@ def arrears(request):
                 profile[2] += contract[2][0][4]
             profile[4] += contract[2][0][5]
         profile[3] = round((profile[2] / profile[1]) * 100, 2)
+        for i in range(len(profile)):
+            profile[i] = round(profile[i], 2)
 
     context = {'contracts': contracts, 'profile': profile}
     return render(request, 'accounts/arrears.html', context)
