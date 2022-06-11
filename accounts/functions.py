@@ -59,7 +59,7 @@ def create_spread_sheet(repayment_start, period, payments_per_year, loan, intere
     for i in range(nr_of_payments - 1):
         days_range = payment_date[i + 1] - payment_date[i]
         month_range.append(days_range.days)
-
+    print(month_range)
     for i in range(nr_of_payments):
         if today < penalty_date[i]:
             today_date_index = i
@@ -88,7 +88,7 @@ def create_spread_sheet(repayment_start, period, payments_per_year, loan, intere
         penalty_days_temp = penalty_days
         penalty_date_index = last_paid_date_index
         while penalty_days_temp > 0:
-            if penalty_days_temp > month_range[penalty_date_index]:
+            if penalty_date_index < nr_of_payments - 1 and penalty_days_temp > month_range[penalty_date_index]:
                 penalty_days_table[penalty_date_index] = month_range[penalty_date_index]
                 for i in range(month_range[penalty_date_index]):
                     penalty_sum[penalty_date_index] += 0.005 * principal_table[penalty_date_index]
