@@ -11,6 +11,8 @@
 						{% if filter.0 %}: All
 						{% elif filter.1 %}: Active
 						{% elif filter.2 %}: Closed
+						{% elif filter.3 %}: Colectare
+						{% elif filter.4 %}: Judecata
 					{% endif %}</h5>
 				</div>
 
@@ -23,6 +25,8 @@
 							<a class="dropdown-item" href="{% url 'arrears' %}">All</a>
 							<a class="dropdown-item" href="{% url 'arrears_active' %}">Active</a>
   						  	<a class="dropdown-item" href="{% url 'arrears_closed' %}">Closed</a>
+							<a class="dropdown-item" href="{% url 'arrears_collection' %}">Colectare</a>
+							<a class="dropdown-item" href="{% url 'arrears_suing' %}">Judecata</a>
   						</div>
 					</div>
 					<br>

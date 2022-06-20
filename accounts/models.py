@@ -15,6 +15,8 @@ class Contract(models.Model):
 	STATUS = (
 		('Active', 'Active'),
 		('Closed', 'Closed'),
+		('Colectare', 'Colectare'),
+		('Judecata', 'Judecata')
 	)
 	CALC_METHOD = (
 		('Declining Balance', 'Declining Balance'),

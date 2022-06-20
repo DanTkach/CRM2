@@ -21,7 +21,7 @@ class ContractForm(ModelForm):
 	class Meta:
 		model = Contract
 		fields = '__all__'
-		exclude = ['status']
+		exclude = []
 		widgets = {
 			'date_created': DateInput()
 		}
