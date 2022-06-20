@@ -461,7 +461,7 @@ def deleteContract(request, pk):
 @login_required(login_url='login')
 @allowed_users(allowed_roles=['admin'])
 def createClient(request):
-    ClientForms = modelform_factory(Client, form=ClientForm, fields=["first_name", "last_name", "location", "phone_num"])
+    ClientForms = modelform_factory(Client, form=ClientForm, fields='__all__')
     form = ClientForms()
     # form = OrderForm(initial={'customer':customer})
     if request.method == 'POST':
