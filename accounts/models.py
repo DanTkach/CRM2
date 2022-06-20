@@ -6,6 +6,12 @@ class Client(models.Model):
 	last_name = models.CharField(max_length=200, null=True)
 	location = models.CharField(max_length=200, null=True)
 	phone_num = models.CharField(max_length=20, null=True)
+	idnp = models.IntegerField(null=True)
+	birth_date = models.DateField(null=True)
+	scope = models.CharField(max_length=200, null=True)
+	bank_name = models.CharField(max_length=200, null=True)
+	bank_code = models.CharField(max_length=200, null=True)
+	bank_account = models.CharField(max_length=200, null=True)
 
 	def __str__(self):
 		return self.first_name
