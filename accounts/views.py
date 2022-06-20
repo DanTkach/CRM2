@@ -119,6 +119,8 @@ def home(request):
 def arrears(request):
     contracts_list = Contract.objects.all()
     contracts = []
+    profile = [0, 0, 0, 0, 0]
+    filter = [1, 0, 0]
     for contract_data in contracts_list:
         payments = Payment.objects.filter(contract_id=contract_data.id)
         client = Client.objects.get(id=contract_data.client_id)
@@ -144,7 +146,6 @@ def arrears(request):
             contract_data.client_id
         ])
         contracts.sort(key=lambda x: x[2][0][21])
-        profile = [0, 0, 0, 0, 0]
         for contract in contracts:
             profile[0] += contract[2][0][10]
             profile[1] += contract[2][0][12]
@@ -155,7 +156,96 @@ def arrears(request):
         for i in range(len(profile)):
             profile[i] = round(profile[i], 2)
 
-    context = {'contracts': contracts, 'profile': profile}
+    context = {'contracts': contracts, 'profile': profile, 'filter': filter}
+    return render(request, 'accounts/arrears.html', context)
+
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['admin'])
+def arrearsActive(request):
+    contracts_list = Contract.objects.filter(status="Active")
+    contracts = []
+    profile = [0, 0, 0, 0, 0]
+    filter = [0, 1, 0]
+    for contract_data in contracts_list:
+        payments = Payment.objects.filter(contract_id=contract_data.id)
+        client = Client.objects.get(id=contract_data.client_id)
+        penalty_waives = PenaltyWaive.objects.filter(contract_id=contract_data.id)
+        interest_waives = InterestWaive.objects.filter(contract_id=contract_data.id)
+        contracts.append([
+            contract_data.id,
+            str(client.last_name) + " " + str(client.first_name),
+            create_spread_sheet(
+                str(contract_data.date_created).split(" ")[0],
+                contract_data.months,
+                contract_data.annual_payments,
+                float(contract_data.loan),
+                float(contract_data.interest_rate),
+                contract_data.calc_method,
+                str(date.today()),
+                [(float(payment.sum), payment.date_paid) for payment in payments],
+                float(contract_data.month_sum),
+                contract_data.grace_period,
+                [int(waive.month) for waive in penalty_waives],
+                [int(waive.month) for waive in interest_waives]
+            )[1],
+            contract_data.client_id
+        ])
+        contracts.sort(key=lambda x: x[2][0][21])
+        for contract in contracts:
+            profile[0] += contract[2][0][10]
+            profile[1] += contract[2][0][12]
+            if contract[2][0][21] > 30:
+                profile[2] += contract[2][0][4]
+            profile[4] += contract[2][0][5]
+        profile[3] = round((profile[2] / profile[1]) * 100, 2)
+        for i in range(len(profile)):
+            profile[i] = round(profile[i], 2)
+
+    context = {'contracts': contracts, 'profile': profile, 'filter': filter}
+    return render(request, 'accounts/arrears.html', context)
+
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['admin'])
+def arrearsClosed(request):
+    contracts_list = Contract.objects.filter(status="Closed")
+    profile = [0, 0, 0, 0, 0]
+    filter = [0, 0, 1]
+    contracts = []
+    for contract_data in contracts_list:
+        payments = Payment.objects.filter(contract_id=contract_data.id)
+        client = Client.objects.get(id=contract_data.client_id)
+        penalty_waives = PenaltyWaive.objects.filter(contract_id=contract_data.id)
+        interest_waives = InterestWaive.objects.filter(contract_id=contract_data.id)
+        contracts.append([
+            contract_data.id,
+            str(client.last_name) + " " + str(client.first_name),
+            create_spread_sheet(
+                str(contract_data.date_created).split(" ")[0],
+                contract_data.months,
+                contract_data.annual_payments,
+                float(contract_data.loan),
+                float(contract_data.interest_rate),
+                contract_data.calc_method,
+                str(date.today()),
+                [(float(payment.sum), payment.date_paid) for payment in payments],
+                float(contract_data.month_sum),
+                contract_data.grace_period,
+                [int(waive.month) for waive in penalty_waives],
+                [int(waive.month) for waive in interest_waives]
+            )[1],
+            contract_data.client_id
+        ])
+        contracts.sort(key=lambda x: x[2][0][21])
+        for contract in contracts:
+            profile[0] += contract[2][0][10]
+            profile[1] += contract[2][0][12]
+            if contract[2][0][21] > 30:
+                profile[2] += contract[2][0][4]
+            profile[4] += contract[2][0][5]
+        profile[3] = round((profile[2] / profile[1]) * 100, 2)
+        for i in range(len(profile)):
+            profile[i] = round(profile[i], 2)
+    context = {'contracts': contracts, 'profile': profile, 'filter': filter}
     return render(request, 'accounts/arrears.html', context)
 
 

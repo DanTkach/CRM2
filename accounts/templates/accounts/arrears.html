@@ -7,10 +7,25 @@
 		<div class="row">
 			<div class="col-md">
 				<div class="card card-body">
-					<h5>Arrears</h5>
+					<h5>Arrears
+						{% if filter.0 %}: All
+						{% elif filter.1 %}: Active
+						{% elif filter.2 %}: Closed
+					{% endif %}</h5>
 				</div>
 
 				<div class="card card-body">
+					<div class="dropdown">
+  						<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+  						  Status
+  						</button>
+  						<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+							<a class="dropdown-item" href="{% url 'arrears' %}">All</a>
+							<a class="dropdown-item" href="{% url 'arrears_active' %}">Active</a>
+  						  	<a class="dropdown-item" href="{% url 'arrears_closed' %}">Closed</a>
+  						</div>
+					</div>
+					<br>
                 <table class="table table-bordered">
                     <thead class="thead-dark">
                         <tr>
