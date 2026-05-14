@@ -3,128 +3,194 @@
 {% block content %}
 
 
+<br>
 
-    <br>
-
-    <div class="card card-body w-25 text-center">
-        <h5>Client: {{client.first_name}} {{client.last_name}}</h5>
-        <h5>Contract: #{{contract.id}}</h5>
-        <a class="btn btn-outline-info  btn-sm btn-block" href="{% url 'update_contract' contract.id %}">Update</a>
-    </div>
-    <br>
-    <ul class="nav nav-pills nav-fill">
-    <li class="nav-item">
-      <a class="nav-link active" data-toggle="tab" href="#repayment_plan">Repayment Planning</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" data-toggle="tab" href="#repayment_schedule">Repayment Schedule</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" data-toggle="tab" href="#payments">Payments</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" data-toggle="tab" href="#penalties">Penalties</a>
-    </li>
-    </ul>
-
-    <div class="tab-content">
-        <div class="tab-pane active" id = "repayment_plan">
-            <br>
+<div class="card card-body">
+    <div class="row">
+        <div class="col">
             <div class="card card-body">
+                <div class="text-center">
+			<h5>Client: <a href="{% url 'client' contract.client_id %}">
+					{% if client.person == "Physical" %}
+					{{client.first_name}} {{client.last_name}}
+					{% else %}
+					{{client.company_name}}
+					{% endif %}</a></h5>
+
+                    <h5>Contract: #{{contract.id}} - {{contract.status | upper}}</h5>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <a class="btn btn-outline-info  btn-sm btn-block mb-3" href="{% url 'update_contract' contract.id %}">Update Contract</a>
+                    </div>
+                    <div class="col">
+                        <a class="btn btn-outline-success  btn-sm btn-block mb-3" href="{% url 'create_payment' contract.id %}">Process Payment</a>
+                    </div>
+                    <div class="col">
+                        <a class="btn btn-outline-info  btn-sm btn-block" href="{% url 'download_chestionar' contract.id %}">Application Form</a>
+                    </div>
+                </div>
                 <table class="table table-bordered">
                     <thead class="thead-dark">
                         <tr>
                             <th scope="col">Today</th>
+                            <th scope="col">Date Created</th>
+                            {% if closed %}
+                            <th scope="col">Date Closed</th>
+                            {% endif %}
                             <th scope="col">Loan</th>
                             <th scope="col">Interest Rate</th>
                             <th scope="col">Current Balance</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for row in profile %}
-                            <tr>
-                                <td>{{row.0}}</td>
-                                <td>{{row.1}}</td>
-                                <td>{{row.2}}</td>
-                                <td>{{row.3}}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                <br><hr><br><br>
-                <table class="table table-bordered">
-                    <thead class="thead-dark">
                         <tr>
-                            <th scope="col">ID</th>
-                            <th scope="col">Original</th>
-                            <th scope="col">Paid</th>
-                            <th scope="col">Waived</th>
-                            <th scope="col">Outstanding</th>
-                            <th scope="col">Closure</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="table-secondary">Principal</td>
-                            <td>{{profile.0.10}}</td>
-                            <td>{{profile.0.7}}</td>
-                            <td>0</td>
-                            <td>{{profile.0.12}}</td>
-                            <td>{{profile.0.12}}</td>
-                        </tr>
-                        <tr>
-                            <td class="table-secondary">Interest</td>
-                            <td>{{profile.0.11}}</td>
-                            <td>{{profile.0.8}}</td>
-                            <td>{{profile.0.23}}</td>
-                            <td>{{profile.0.13}}</td>
-                            <td>{{profile.0.5}}</td>
-                        </tr>
-                        <tr>
-                            <td class="table-secondary">Penalties</td>
-                            <td>0</td>
-                            <td>{{profile.0.9}}</td>
-                            <td>{{profile.0.24}}</td>
-                            <td>{{profile.0.14}}</td>
-                            <td>{{profile.0.14}}</td>
-                        </tr>
-                        <tr>
-                            <td class="table-secondary">TOTAL</td>
-                            <td>{{profile.0.15}}</td>
-                            <td>{{profile.0.16}}</td>
-                            <td>{{profile.0.17}}</td>
-                            <td>{{profile.0.19}}</td>
-                            <td>{{profile.0.18}}</td>
+                            <td>{{profile.0.0}}</td>
+                            <td>{{contract.date_created|date:"d/m/Y"}}</td>
+                            {% if closed %}
+                            <td>{{contract.date_closed|date:"d/m/Y"}}</td>
+                            {% endif %}
+                            <td>{{profile.0.1|floatformat:2}}</td>
+                            <td>{{profile.0.2}}</td>
+                            <td>{{profile.0.3|floatformat:2}}</td>
                         </tr>
                     </tbody>
                 </table>
-                <br><br><br>
-                <table class="table table-bordered">
-                    {% for row in profile %}
+            </div>
+            <br>
+        </div>
+        <div class="card card-body">
+            <table class="table table-bordered my-auto">
+                <thead class="thead-dark">
                     <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Original</th>
+                        <th scope="col">Paid</th>
+                        <th scope="col">Waived</th>
+                        <th scope="col">Outstanding</th>
+                        <th scope="col">Closure</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="table-secondary">Principal</td>
+                        <td>{{profile.0.10|floatformat:2}}</td>
+                        <td>{{profile.0.7|floatformat:2}}</td>
+                        <td>0</td>
+                        <td>{{profile.0.12|floatformat:2}}</td>
+                        <td>{{profile.0.12|floatformat:2}}</td>
+                    </tr>
+                    <tr>
+                        <td class="table-secondary">Interest</td>
+                        <td>{{profile.0.11|floatformat:2}}</td>
+                        <td>{{profile.0.8|floatformat:2}}</td>
+                        <td>{{profile.0.23|floatformat:2}}</td>
+                        <td>{{profile.0.13|floatformat:2}}</td>
+                        <td>{{profile.0.5|floatformat:2}}</td>
+                    </tr>
+                    <tr>
+                        <td class="table-secondary">Penalties</td>
+                        <td>0</td>
+                        <td>{{profile.0.9|floatformat:2}}</td>
+                        <td>{{profile.0.24|floatformat:2}}</td>
+                        <td>{{profile.0.14|floatformat:2}}</td>
+                        <td>{{profile.0.14|floatformat:2}}</td>
+                    </tr>
+                    <tr>
+                        <td class="table-secondary">TOTAL</td>
+                        <td>{{profile.0.15|floatformat:2}}</td>
+                        <td>{{profile.0.16|floatformat:2}}</td>
+                        <td>{{profile.0.17|floatformat:2}}</td>
+                        <td>{{profile.0.19|floatformat:2}}</td>
+                        <td>{{profile.0.18|floatformat:2}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<br>
+<div class="card card-body">
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    <ul class="nav nav-pills nav-fill">
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#repayment_plan">Repayment Planning</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" data-toggle="tab" href="#repayment_schedule">Repayment Schedule</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#payments">Payments</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#penalties">Penalties</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#comments">Comments</a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane fade" id = "repayment_plan">
+            <br>
+
+            <table class="table table-bordered w-50">
+                {% for row in profile %}
+                <tr>
                         <td>Principal To Pay: </td>
-                        <td>{{row.4}}</td>
+                        <td>{{row.4|floatformat:2}}</td>
+                        <td class="w-25"></td>
                     </tr>
                     <tr>
                         <td>Interest To Pay: </td>
-                        <td>{{row.5}}</td>
+                        <td>{{row.5|floatformat:2}}</td>
+                        <td class="w-25">
+                            {% if row.27 %}
+                                <a class="btn-sm btn-danger" href="{% url 'delete_all_i' contract.id %}">Delete All Waives</a>
+                            {% else %}
+                                <a class="btn-sm btn-success" href="{% url 'waive_all_i' contract.id %}">Waive All</a>
+                            {% endif %}
+                        </td>
                     </tr>
                     <tr>
                         <td>Penalties To Pay: </td>
-                        <td>{{row.6}}</td>
+                        <td>{{row.6|floatformat:2}}</td>
+                        <td class="w-25">
+                            {% if row.26 %}
+                                <a class="btn-sm btn-danger" href="{% url 'delete_all_p' contract.id %}">Delete All Waives</a>
+                            {% else %}
+                                <a class="btn-sm btn-success" href="{% url 'waive_all_p' contract.id %}">Waive All</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr class="table-secondary">
+                        <td>TOTAL: </td>
+                        <td>{{row.28|floatformat:2}}</td>
+                        <td></td>
                     </tr>
                     {% endfor %}
                 </table>
-
-                <br><br>
-                <a class="btn btn-sm btn-info" href="{% url 'create_payment' contract.id %}">Process Payment</a>
-
-            </div>
         </div>
 
-        <div class="tab-pane fade" id = "repayment_schedule">
+
+        <div class="tab-pane active" id = "repayment_schedule">
             <br>
-            <a class="btn btn-info" href="{% url 'downloadContract' contract.id %}">Download Schedule</a>
+            <a class="btn btn-sm btn-outline-info" href="{% url 'downloadContract' contract.id %}">Download Contract</a>
+            {% for guarantor in guarantors %}
+            <a class="btn btn-sm btn-outline-info" href="{% url 'downloadFideContract' guarantor.id %}">Download Fid. Contract {{guarantor.num}}</a>
+            {% endfor %}
+            {% for lienholder in lienholders %}
+            <a class="btn btn-sm btn-outline-info" href="{% url 'download_gaj_contract' lienholder.id %}">Download Gaj Contract {{lienholder.num}}</a>
+            <a class="btn btn-sm btn-outline-info" href="{% url 'download_gaj_aviz' lienholder.id %}">Download Gaj Aviz {{lienholder.num}}</a>
+            {% endfor %}
             <br>
             <br>
             <div class="card card-body table-responsive">
@@ -148,12 +214,12 @@
                                 <tr>
                                     <td>{{row.0}}</td>
                                     <td>{{row.1}}</td>
-                                    <td>{{row.2}}</td>
-                                    <td>{{row.3}}</td>
+                                    <td>{{row.2|floatformat:2}}</td>
+                                    <td>{{row.3|floatformat:2}}</td>
                                     <td>
                                         <div class="row">
                                             <div class="col-sm pr-0">
-                                                {{row.4}}
+                                                {{row.4|floatformat:2}}
                                             </div>
                                             {% if row.10 %}
                                             <div class="col-sm px-0">
@@ -166,11 +232,11 @@
                                             {% endif %}
                                         </div>
                                     </td>
-                                    <td>{{row.5}}</td>
+                                    <td>{{row.5|floatformat:2}}</td>
                                     <td>
                                         <div class="row">
                                             <div class="col-sm pr-0">
-                                                {{row.6}}
+                                                {{row.6|floatformat:2}}
                                             </div>
                                             {% if row.11 %}
                                             <div class="col-sm px-0">
@@ -183,9 +249,9 @@
                                             {% endif %}
                                         </div>
                                     </td>
-                                    <td>{{row.7}}</td>
-                                    <td>{{row.8}}</td>
-                                    <td>{{row.9}}</td>
+                                    <td>{{row.7|floatformat:2}}</td>
+                                    <td>{{row.8|floatformat:2}}</td>
+                                    <td>{{row.9|floatformat:2}}</td>
                                 </tr>
                         {% endfor %}
                     </tbody>
@@ -195,25 +261,56 @@
 
         <div class="tab-pane fade" id = "payments">
             <br>
+            <a class="btn btn-outline-success btn-sm" href="{% url 'download_payments' contract.id %}">Download Payment Info</a>
+            <br>
+            <br>
             <div class="card card-body">
-
-			<table class="table table-bordered">
+			<table class="table table-bordered w-75">
                 <thead class="thead-dark">
 				    <tr>
+                        <th>#</th>
 				    	<th>Date</th>
-				    	<th>Sum</th>
+                        {% if all_payments.0.2 %}
+                        <th>Sum(MDL)</th>
+                        <th>Rate</th>
+                        <th>Sum(EUR)</th>
+                        {% else %}
+                        <th>Sum</th>
+                        {% endif %}
 				    	<th></th>
+                        <th></th>
 				    </tr>
                 </thead>
                 <tbody>
 				    {% for payment in all_payments %}
 				    	<tr>
-				    		<td>{{payment.date_paid|date:"d/m/Y"}}</td>
-				    		<td>{{payment.sum}}</td>
-				    		<td><a class="btn btn-sm btn-danger" href="{% url 'delete_payment' payment.id %}">Delete</a></td>
+                            <td>{{payment.1}}</td>
+				    		<td>{{payment.0.date_paid|date:"d/m/Y"}}</td>
+                            {% if payment.2 %}
+                            <td>{{payment.0.sum|floatformat:2}}</td>
+                            <td>{{payment.3|floatformat:3}}</td>
+                            <td>{{payment.4|floatformat:2}}</td>
+                            {% else %}
+                            <td>{{payment.0.sum|floatformat:2}}</td>
+                            {% endif %}
+                            <td><a class="btn btn-sm btn-info" href="{% url 'update_payment' payment.0.id %}">Update Payment</a></td>
+				    		<td><a class="btn btn-sm btn-danger" href="{% url 'delete_payment' payment.0.id %}">Delete Payment</a></td>
 				    	</tr>
                     {% empty %}
 				    {% endfor %}
+                    <tr>
+                        <td class="table-secondary"></td>
+                        <td class="table-secondary">TOTAL:</td>
+                        {% if all_payments.0.2 %}
+                        <td>{{total_payments.0}}</td>
+                        <td></td>
+                        <td>{{total_payments.1}}</td>
+                        {% else %}
+                        <td>{{total_payments.0}}</td>
+                        {% endif %}
+                        <td></td>
+                        <td></td>
+                    </tr>
                 </tbody>
 			</table>
 		    </div>
@@ -222,7 +319,7 @@
         <div class="tab-pane fade" id="penalties">
             <br>
             <div class="card card-body">
-                <table class="table table-bordered">
+                <table class="table table-bordered w-50">
                     <thead class="thead-dark">
                         <tr>
                             <th scope="col">#</th>
@@ -237,15 +334,28 @@
                                 <tr>
                                     <td>{{row.0}}</td>
                                     <td>{{row.1}}</td>
-                                    <td>{{row.2}}</td>
+                                    <td>{{row.2|floatformat:2}}</td>
                                     <td>{{row.3}}</td>
-                                    <td>{{row.4}}</td>
+                                    <td>{{row.4|floatformat:2}}</td>
                                 </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
+        <div class="tab-pane fade" id = "comments">
+            <br>
+
+			<form action="" method="POST">
+				{% csrf_token %}
+				{{ commentForm.management_form }}
+				{% for field in commentForm %}
+                    <div>{{field}}</div>
+				{% endfor %}
+                <div><button class="btn btn-primary btn-sm mb-3" type="submit" />Save Comments</div>
+			</form>
+        </div>
+    </div>
     </div>
 
 

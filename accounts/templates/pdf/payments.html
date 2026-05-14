@@ -1,0 +1,79 @@
+
+<head>
+<style>
+    table {
+        padding-top: 2px;
+        text-align: center;
+        height: 15px;
+        width: 50%;
+    }
+    .num {
+        width: 30px;
+    }
+    body {
+        font-family: Arial
+    }
+</style>
+</head>
+<h2>Contract #{{contract.id}}</h2>
+<h2>Payments:</h2>
+<br>
+<body>
+
+<div class="container-fluid">
+    {% block content %}
+<br>
+<div class="card card-body">
+    <table style="border: 1px solid black; border-collapse:collapse;">
+        <thead class="thead-dark">
+        <tr>
+            <th>#</th>
+            <th>Date</th>
+            {% if all_payments.0.2 %}
+            <th>Sum(MDL)</th>
+            <th>Rate</th>
+            <th>Sum(EUR)</th>
+            {% else %}
+            <th>Sum</th>
+            {% endif %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for payment in all_payments %}
+        <tr>
+            <td>{{payment.1}}</td>
+            <td>{{payment.0.date_paid|date:"d/m/Y"}}</td>
+            {% if payment.2 %}
+            <td>{{payment.0.sum}}</td>
+            <td>{{payment.3}}</td>
+            <td>{{payment.4}}</td>
+            {% else %}
+            <td>{{payment.0.sum}}</td>
+            {% endif %}
+        </tr>
+        {% empty %}
+        {% endfor %}
+        <tr>
+            <td></td>
+            <td>TOTAL:</td>
+            {% if all_payments.0.2 %}
+            <td>{{total_payments.0}}</td>
+            <td></td>
+            <td>{{total_payments.1}}</td>
+            {% else %}
+            <td>{{total_payments.0}}</td>
+            {% endif %}
+        </tr>
+        </tbody>
+    </table>
+</div>
+    {% endblock %}
+</div>
+
+</body>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</html>
+

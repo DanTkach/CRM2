@@ -1,90 +1,137 @@
 {%  extends 'accounts/my_main.html' %}
-
+{% load widget_tweaks %}
 {% block content %}
 
-		<br>
-
-		<div class="row">
-			<div class="col-md">
-				<div class="card card-body">
-					<h5>Arrears
-						{% if filter.0 %}: All
-						{% elif filter.1 %}: Active
-						{% elif filter.2 %}: Closed
-						{% elif filter.3 %}: Colectare
-						{% elif filter.4 %}: Judecata
-					{% endif %}</h5>
-				</div>
-
-				<div class="card card-body">
-					<div class="dropdown">
-  						<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-  						  Status
-  						</button>
-  						<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-							<a class="dropdown-item" href="{% url 'arrears' %}">All</a>
-							<a class="dropdown-item" href="{% url 'arrears_active' %}">Active</a>
-  						  	<a class="dropdown-item" href="{% url 'arrears_closed' %}">Closed</a>
-							<a class="dropdown-item" href="{% url 'arrears_collection' %}">Colectare</a>
-							<a class="dropdown-item" href="{% url 'arrears_suing' %}">Judecata</a>
-  						</div>
+<br>
+<div class="row">
+	<div class="col-md">
+		<div class="card card-body">
+			<div class="row">
+				<div class="col">
+					<div class="card card-body">
+						<form method="GET">
+                            <div class="row">
+                                {% csrf_token %}
+                                {{ form.management_form }}
+                                <div class="form-group col-sm col-md-1">
+                                    <div class="mb-2">Contract Count: </div>
+                                    <h4>{{count}}</h4>
+                                </div>
+                                <div class="form-group col-sm col-md-1 mr-3">
+                                    {{ myFilter.form.product.label_tag }}
+                                    {% render_field myFilter.form.product class="form-control" %}
+                                </div>
+                                <div class="form-group col-sm col-md-1 mr-3">
+                                    {{ myFilter.form.status.label_tag }}
+                                    {% render_field myFilter.form.status class="form-control" %}
+                                </div>
+                                <div class="form-group col-sm col-md-1 mr-3">
+                                    {{additionalForm.person.label_tag}}
+                                    {% render_field additionalForm.person class="form-control" %}
+                                </div>
+                                <div class="form-group col-sm col-md-1 mr-3">
+                                    <label>Contract Nr: </label>
+                                    {% render_field myFilter.form.id class="form-control" %}
+                                </div>
+                                <div class="form-group col-sm col-md-2 mr-3">
+                                    {{additionalForm.date.label_tag}}
+                                    {% render_field additionalForm.date class="form-control" %}
+                                </div>
+                                <div class="col-sm mt-3 align-self-center">
+                                    <button class="btn btn-primary" type="submit">Update</button>
+                                </div>
+                            </div>
+                        </form>
 					</div>
-					<br>
-                <table class="table table-bordered">
-                    <thead class="thead-dark">
-                        <tr>
-                            <th scope="col">Total Principal</th>
-                            <th scope="col">Total Outstanding Principal</th>
-                            <th scope="col">Total Overdue Principal 30+</th>
-                            <th scope="col">Danger Rate</th>
-							<th scope="col">Total Overdue Interest</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-
-						<tr>
-							<td>{{profile.0}}</td>
-							<td>{{profile.1}}</td>
-							<td>{{profile.2}}</td>
-							<td>{{profile.3}}%</td>
-							<td>{{profile.4}}</td>
-						</tr>
-
-                    </tbody>
-                </table>
-                <br><hr><br><br>
-
-
-					<table class="table table-bordered">
-                    <thead class="thead-dark">
-                        <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Name</th>
-                            <th scope="col">Original Principal</th>
-                            <th scope="col">Outstanding Principal</th>
-							<th scope="col">Days Delinquent</th>
-							<th scope="col">Principal Overdue</th>
-							<th scope="col">Interest Overdue</th>
-							<th scope="col">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-						{% for contract in contracts %}
-							<tr>
-								<td><a href="{% url 'view_contract' contract.0 %}">{{contract.0}}</a></td>
-								<td><a href="{% url 'client' contract.3 %}">{{contract.1}}</a></td>
-								<td>{{contract.2.0.10}}</td>
-								<td>{{contract.2.0.12}}</td>
-								<td>{{contract.2.0.21}}</td>
-								<td>{{contract.2.0.4}}</td>
-								<td>{{contract.2.0.5}}</td>
-								<td>{{contract.2.0.22}}</td>
-							</tr>
-						{% endfor %}
-					</tbody>
-					</table>
 				</div>
 			</div>
 		</div>
+		<br>
+		<div class="card card-body">
+			<table class="table table-bordered">
+				<thead class="thead-dark">
+				<tr>
+					<th scope="col">Total Principal</th>
+					<th scope="col">Total Outstanding Principal</th>
+					<th scope="col">Total Overdue Principal 30+</th>
+					<th scope="col">Danger Rate</th>
+					<th scope="col">Total Overdue Interest</th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr>
+					<td>{{profile.0|floatformat:2}}</td>
+					<td>{{profile.1|floatformat:2}}</td>
+					<td>{{profile.2|floatformat:2}}</td>
+					<td>{{profile.3|floatformat:2}}%</td>
+					<td>{{profile.4|floatformat:2}}</td>
+				</tr>
+				</tbody>
+			</table>
+			<br>
 
-{% endblock content %}
+
+
+			<table id="main-table" class="table table-bordered">
+				<thead class="thead-dark">
+				<tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Date Created</th>
+                        {% if closed %}
+                            <th>Date Closed</th>
+                        {% else %}
+                            <th>Repayment Date</th>
+                        {% endif %}
+                        <th>Original Principal</th>
+                        <th>Outstanding Principal</th>
+                        <th>Day Delinquent</th>
+                        <th>Principal Overdue</th>
+                        <th>Interest Overdue</th>
+                        <th>Total</th>
+				</tr>
+				</thead>
+				<tbody>
+				{% for contract in contracts %}
+				<tr>
+					<td><a href="{% url 'view_contract' contract.0 %}">{{contract.0}}</a></td>
+					<td><a href="{% url 'client' contract.3 %}">{{contract.1}}</a></td>
+                        <td data-order={{contract.4|date:"U"}}>{{contract.4|date:"d/m/Y"}}</td>
+                    {% if closed %}
+                        <td data-order={{contract.5|date:"U"}}>{{contract.5|date:"d/m/Y"}}</td>
+                    {% else %}
+                        <td data-order={{contract.6|date:"U"}}>{{contract.6|date:"d/m/Y"}}</td>
+                    {% endif %}
+					<td>{{contract.2.0.10|floatformat:2}}</td>
+					<td>{{contract.2.0.12|floatformat:2}}</td>
+					<td>{{contract.2.0.21}}</td>
+					<td>{{contract.2.0.4|floatformat:2}}</td>
+					<td>{{contract.2.0.5|floatformat:2}}</td>
+					<td>{{contract.2.0.22|floatformat:2}}</td>
+				</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+{% block js %}
+
+<script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
+<script>
+        $('#main-table').DataTable( {
+            "paging": false,
+            "searching": false,
+            "autoWidth": false,
+            "ordering": true,
+            "columnDefs": [
+                {"width": "50px", "targets": 0},
+                {"width": "250px", "targets": 1},
+            ],
+        }
+        );
+</script>
+{% endblock js %}

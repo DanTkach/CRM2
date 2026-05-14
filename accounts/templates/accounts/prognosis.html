@@ -1,0 +1,83 @@
+{%  extends 'accounts/my_main.html' %}
+{% load widget_tweaks %}
+{% block content %}
+
+<br>
+<div class="row">
+	<div class="col-md">
+		<div class="card card-body">
+			<div class="card card-body">
+				<form action="" method="POST">
+				<div class="row">
+						{% csrf_token %}
+						{{ form.management_form }}
+						<div class="col-sm col-md-2">
+							<div class="mb-2">Contract Count: </div>
+							<h4>{{total.3}}</h4>
+						</div>
+						<div class="form-group col-sm col-md-2 mr-3">
+							{{form.product.label_tag}}
+							{% render_field form.product class="form-control" %}
+						</div>
+						<div class="form-group col-sm col-md-2 mr-3">
+							{{form.start_date.label_tag}}
+							{% render_field form.start_date class="form-control" %}
+						</div>
+						<div class="form-group col-sm col-md-2 mr-3">
+							{{form.end_date.label_tag}}
+							{% render_field form.end_date class="form-control" %}
+						</div>
+						<div class="col-sm mt-3 align-self-center">
+							<button class="btn btn-primary mx-3" type="submit">Generate</button>
+						</div>
+
+					</div>
+				</form>
+			</div>
+		</div>
+		<br>
+		<div class="card card-body">
+			<table class="table table-bordered">
+				<thead class="thead-dark">
+				<tr>
+					<th scope="col">Principal</th>
+					<th scope="col">Interest</th>
+					<th scope="col">Total</th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr>
+                    <td>{{total.0|floatformat:2}}</td>
+                    <td>{{total.1|floatformat:2}}</td>
+                    <td>{{total.2|floatformat:2}}</td>
+				</tr>
+				</tbody>
+			</table>
+			<br>
+			<table class="table table-bordered">
+				<thead class="thead-dark">
+				<tr>
+					<th scope="col">Contract</th>
+					<th scope="col">Name</th>
+					<th scope="col">Principal</th>
+					<th scope="col">Interest</th>
+					<th scope="col">Total</th>
+				</tr>
+				</thead>
+				<tbody>
+				{% for item in data %}
+				<tr>
+					<td><a href="{% url 'view_contract' item.0 %}">{{item.0}}</a></td>
+					<td>{{item.1}}</td>
+					<td>{{item.2.0|floatformat:2}}</td>
+					<td>{{item.2.1|floatformat:2}}</td>
+					<td>{{item.2.2|floatformat:2}}</td>
+				</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+{% endblock %}

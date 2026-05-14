@@ -1,0 +1,70 @@
+{%  extends 'accounts/my_main.html' %}
+{% load widget_tweaks %}
+{% block content %}
+
+<br>
+<form method="GET">
+  <div class="row">
+    {% csrf_token %}
+    {{ form.management_form }}
+    <div class="form-group col-sm col-md-2 mr-3">
+      {{form.start_date.label_tag}}
+      {% render_field form.start_date class="form-control" %}
+    </div>
+    <div class="form-group col-sm col-md-2 mr-3">
+      {{form.end_date.label_tag}}
+      {% render_field form.end_date class="form-control" %}
+    </div>
+    <div class="col-sm mt-3 align-self-center">
+      <button class="btn btn-primary" type="submit">Update</button>
+    </div>
+  </div>
+</form>
+<div class="row">
+  <div class="card card-body">
+    <br>
+    <table id="main-table" class="table table-bordered">
+      <thead class="thead-dark">
+        <tr>
+          <th>Payment Date</th>
+          <th>Paid Sum</th>
+          <th>Contract Nr</th>
+          <th>Client</th>
+          <th>Contract Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for payment in payments %}
+        <tr>
+          <td data-order={{payment.date_paid|date:"U"}}>{{ payment.date_paid|date:"d/m/Y" }}</td>
+          <td>{{ payment.sum|floatformat:2 }}</td>
+					<td><a href="{% url 'view_contract' payment.contract.id %}">{{payment.contract.id}}</a></td>
+					<td><a href="{% url 'client' payment.contract.client.id %}">{{payment.contract.client}}</a></td>
+          <td data-order={{payment.contract.date_created|date:"U"}}>{{ payment.contract.date_created|date:"d/m/Y" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+{% endblock %}
+{% block js %}
+
+<script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
+<script>
+$('#main-table').DataTable( {
+  "paging": true,
+  "searching": false,
+  "autoWidth": false,
+  "ordering": true,
+  "columnDefs": [
+    {"width": "50px", "targets": 0},
+    {"width": "250px", "targets": 1},
+  ],
+}
+);
+</script>
+{% endblock js %}

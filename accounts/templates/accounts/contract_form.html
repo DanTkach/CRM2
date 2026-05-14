@@ -1,11 +1,15 @@
 {%  extends 'accounts/my_main.html' %}
 {% load static %}
 {% block content %}
-
+<br>
+{% if created %}
+<a class="btn btn-outline-info btn-sm-3" href="{% url 'view_contract' contract.id %}">Back To Contract</a>
+{% endif %}
+<br>
+<br>
 <div class="row">
 	<div class="col-md-6">
 		<div class="card card-body">
-
 			<form action="" method="POST">
 				{% csrf_token %}
 				{{ form.management_form }}
@@ -14,17 +18,69 @@
 					<div class="col text-left">{{field.label}} : </div>
 					<div class="col">{{field}}</div>
 					<hr>
-					</div>
+				</div>
 				{% endfor %}
 				<br>
 				<div class="row">
-				<div class="col"></div>
-				<div class="col"><input type="submit" name="Submit"></div>
+					<div class="col"></div>
+					<div class="col"><input type="submit" name="Submit"></div>
 				</div>
 			</form>
 
 		</div>
 	</div>
+
+	{% if created %}
+	<div class="col-md-3">
+		<h5>Guarantors: {{count}}</h5>
+		<a class="btn btn-outline-success  btn-sm btn-block" href="{% url 'create_guarantor' contract.id %}">Add Guarantor</a>
+		<hr>
+		<div class="card card-body">
+			<table class="table table-sm">
+				<tr>
+					<th>Nr.</th>
+					<th>Name</th>
+					<th></th>
+					<th></th>
+				</tr>
+
+				{% for guarantor in guarantors %}
+				<tr>
+					<td>{{guarantor.num}}</td>
+					<td>{{guarantor.last_name}} {{guarantor.first_name}}</td>
+					<td><a class="btn btn-sm btn-success" href="{% url 'update_guarantor' guarantor.id %}">Update</a></td>
+					<td><a class="btn btn-sm btn-danger" href="{% url 'delete_guarantor' guarantor.id %}">Delete</a></td>
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
+	</div>
+	<div class="col-md-3">
+		<h5>Gaj: {{lienholders.count}}</h5>
+		<a class="btn btn-outline-success  btn-sm btn-block" href="{% url 'create_lienholder' contract.id %}">Add Gaj</a>
+		<hr>
+		<div class="card card-body">
+			<table class="table table-sm">
+				<tr>
+					<th>Nr.</th>
+					<th>Name</th>
+					<th></th>
+					<th></th>
+				</tr>
+
+				{% for lienholder in lienholders %}
+				<tr>
+					<td>{{lienholder.num}}</td>
+					<td>{{lienholder.last_name}} {{lienholder.first_name}}</td>
+					<td><a class="btn btn-sm btn-success" href="{% url 'update_lienholder' lienholder.id %}">Update</a></td>
+					<td><a class="btn btn-sm btn-danger" href="{% url 'delete_lienholder' lienholder.id %}">Delete</a></td>
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
+	</div>
+	{% endif %}
+
 </div>
 
 {% endblock %}

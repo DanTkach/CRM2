@@ -20,14 +20,26 @@
     <ul class="navbar-nav">
       {% if request.user.is_staff %}
         <li class="nav-item">
-        <a class="nav-link" href="{% url 'createClient' %}">New Client</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'home' %}">Clients</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'arrears' %}">Arrears</a>
-      </li>
+            <a class="nav-link" href="{% url 'createClient' %}">New Client</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'home' %}">Clients</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/arrears/?status=Active">Arrears</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'download_statistics' %}">Statistics</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/prognosis/2000-01-01/2000-01-01/Classic/">Prognosis</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/report/{% now "Y-m-d" %}/All/">Report</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/payments/">Payments</a>
+        </li>
       {% endif %}
     </ul>
   </div>

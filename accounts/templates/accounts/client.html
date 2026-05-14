@@ -7,7 +7,11 @@
 <div class="row">
 	<div class="col-md">
 		<div class="card card-body">
-			<h5>Client: {{client.first_name}} {{client.last_name}}</h5>
+			{% if client.person == "Physical" %}
+				<h5>Client: {{client.first_name}} {{client.last_name}}</h5>
+			{% elif client.person == "Juridical" %}
+				<h5>Client: {{client.company_name}}</h5>
+			{% endif %}
 			<hr>
 			<a class="btn btn-outline-info  btn-sm btn-block" href="{% url 'update_client' client.id %}">Update Client</a>
 			<a class="btn btn-outline-info  btn-sm btn-block" href="{% url 'create_contract' client.id %}">Add Contract</a>

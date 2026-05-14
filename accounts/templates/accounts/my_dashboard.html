@@ -1,54 +1,71 @@
 {%  extends 'accounts/my_main.html' %}
-
+{% load widget_tweaks %}
 {% block content %}
 
 <br>
 
 <div class="row">
 	<div class="col-md">
-		<h5>Clients:</h5>
-		<hr>
-		<div class="row">
-			<div class="col">
-				<div class="card card-body">
 
-					<form method="get">
-						{{myFilter.form}}
-
-				    <button class="btn btn-primary" type="submit">Search</button>
-				  </form>
-
+		<div class="card card-body">
+			<div class="row">
+				<div class="col">
+					<div class="card card-body">
+						<form method="get">
+							<div class="row">
+								<div class="col-sm col-md-2">
+									<div class="mb-2">Client Count: </div>
+									<h4>{{total_clients}}</h4>
+								</div>
+								{%for field in myFilter.form %}
+								<div class="form-group col-sm col-md-2 mr-3">
+									{{ field.label}}
+									{{field}}
+								</div>
+								{% endfor %}
+								<div class="col-sm mt-3 align-self-center">
+									<button class="btn btn-primary" type="submit">Search</button>
+								</div>
+							</div>
+					  	</form>
+					</div>
 				</div>
 			</div>
 		</div>
-
-
 		<br>
-
-		<div class="card card-body">
-			<table class="table table-sm">
-				<tr>
-					<th>Client Code</th>
-					<th>First Name</th>
-					<th>Last Name</th>
-					<th>Location</th>
-					<th></th>
-					<th></th>
-				</tr>
-
-				{% for client in clients %}
+			<div class="card card-body">
+				<table class="table table-sm table-bordered">
+					<thead class="thead-dark text-center">
 					<tr>
-						<td>{{client.id}}</td>
-						<td>{{client.first_name}}</td>
-						<td>{{client.last_name}}</td>
-						<td>{{client.location}}</td>
-						<td><a class="btn btn-sm btn-info" href="{% url 'client' client.id %}">View</a></td>
-						<td><a class="btn btn-sm btn-danger" href="{% url 'delete_client' client.id %}">Delete</a></td>
+						<th class="col-1">ID</th>
+						<th class="col-2">First / Company Name</th>
+						<th class="col-2">Last Name</th>
+						<th class="col-2">Location</th>
+						<th class="col-1">Phone Num.</th>
+						<th class="col-1"></th>
+						<th class="col-1"></th>
 					</tr>
-				{% endfor %}
+					</thead>
+					<tbody>
+					{% for client in clients %}
+						<tr>
+							<td class="text-center">{{client.id}}</td>
+							{% if client.person == "Physical" %}
+								<td>{{client.first_name}}</td>
+							{% elif client.person == "Juridical" %}
+								<td>{{client.company_name}}</td>
+							{% endif %}
+							<td>{{client.last_name}}</td>
+							<td>{{client.location}}</td>
+							<td>{{client.phone_num}}</td>
+							<td><a class="btn btn-sm btn-block btn-info" href="{% url 'client' client.id %}">View</a></td>
+							<td><a class="btn btn-sm btn-block btn-danger" href="{% url 'delete_client' client.id %}">Del.</a></td>
+						</tr>
+					{% endfor %}
+					</tbody>
+				</table>
+			</div>
 
-			</table>
-		</div>
 	</div>
 </div>
 

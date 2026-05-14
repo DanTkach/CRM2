@@ -5,25 +5,76 @@
 <div class="row">
 	<div class="col-md-6">
 		<div class="card card-body">
+		{% if form %}
 
-			<form action="" method="POST">
-				{% csrf_token %}
-				{{ form.management_form }}
-				{% for field in form %}
-				<div class="row">
-					<div class="col text-left">{{field.label}} : </div>
-					<div class="col">{{field}}</div>
-					<hr>
-					</div>
-				{% endfor %}
-				<br>
-				<div class="row">
+		<form action="" method="POST">
+			{% csrf_token %}
+			{{ form.management_form }}
+			{% for field in form %}
+			<div class="row">
+				<div class="col text-left">{{field.label}} : </div>
+				<div class="col">{{field}}</div>
+				<hr>
+			</div>
+			{% endfor %}
+			<br>
+			<div class="row">
 				<div class="col"></div>
 				<div class="col"><input type="submit" name="Submit"></div>
+			</div>
+		</form>
+		{% else %}
+			<ul class="nav nav-pills nav-fill">
+				<li class="nav-item">
+					<a class="nav-link active" data-toggle="tab" href="#physical">Physical Person</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" data-toggle="tab" href="#juridical">Juridical Person</a>
+				</li>
+			</ul>
+
+			<div class="tab-content">
+				<div class="tab-pane active" id = "physical">
+					<br>
+					<form action="" method="POST">
+						{% csrf_token %}
+						{{ physical_form.management_form }}
+						{% for field in physical_form %}
+						<div class="row">
+							<div class="col text-left">{{field.label}} : </div>
+							<div class="col">{{field}}</div>
+							<hr>
+						</div>
+						{% endfor %}
+						<br>
+						<div class="row">
+							<div class="col"></div>
+							<div class="col"><input type="submit" name="Submit"></div>
+						</div>
+					</form>
 				</div>
 
-			</form>
-
+				<div class="tab-pane fade" id = "juridical">
+					<br>
+					<form action="" method="POST">
+						{% csrf_token %}
+						{{ juridical_form.management_form }}
+						{% for field in juridical_form %}
+						<div class="row">
+							<div class="col text-left">{{field.label}} : </div>
+							<div class="col">{{field}}</div>
+							<hr>
+						</div>
+						{% endfor %}
+						<br>
+						<div class="row">
+							<div class="col"></div>
+							<div class="col"><input type="submit" name="Submit"></div>
+						</div>
+					</form>
+				</div>
+			</div>
+			{% endif %}
 		</div>
 	</div>
 </div>
