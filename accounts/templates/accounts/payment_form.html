@@ -1,30 +1,55 @@
 {%  extends 'accounts/my_main.html' %}
-{% load static %}
+{% load static widget_tweaks l10n %}
 {% block content %}
 
+<br>
 <div class="row">
-	<div class="col-md-6">
-		<div class="card card-body">
+    <div class="col-md-6 col-lg-5 offset-lg-1">
+        <div style="background:white;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);padding:28px;max-width:440px;">
 
-			<form action="" method="POST">
-				{% csrf_token %}
-				{{ form.management_form }}
-				{% for field in form %}
-				<div class="row">
-					<div class="col text-left">{{field.label}} : </div>
-					<div class="col">{{field}}</div>
-					<hr>
-					</div>
-				{% endfor %}
-				<br>
-				<div class="row">
-				<div class="col"></div>
-				<div class="col"><input type="submit" name="Submit"></div>
-				</div>
-			</form>
+            <div style="font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;display:flex;align-items:center;gap:6px;">
+                <svg width="11" height="11" fill="#475569" viewBox="0 0 24 24"><path d="M12 22V12M12 12L8 16M12 12l4 4M3 17h18"/></svg>
+                Plată înregistrată
+            </div>
+            {% if contract %}
+            <div style="font-size:13px;color:#718096;margin-bottom:20px;">
+                Contract #{{ contract.id }}{% if client %} —
+                {% if client.person == "Physical" %}{{ client.first_name }} {{ client.last_name }}{% else %}{{ client.company_name }}{% endif %}
+                {% endif %}
+            </div>
+            {% endif %}
 
-		</div>
-	</div>
+            <form action="" method="POST">
+                {% csrf_token %}
+                {{ form.contract.as_hidden }}
+                {% localize off %}
+
+                <!-- Main amount input — highlighted -->
+                <div style="background:#475569;border-radius:10px;padding:12px 14px;margin-bottom:14px;">
+                    <div style="font-size:10px;font-weight:700;color:#cbd5e1;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:5px;">Suma plătită</div>
+                    <div style="display:flex;align-items:baseline;gap:6px;">
+                        {% render_field form.sum style="background:transparent;border:none;outline:none;color:white;font-size:22px;font-weight:800;width:100%;letter-spacing:-0.5px;padding:0;" placeholder="0.00" %}
+                        <span style="color:#94a3b8;font-size:13px;font-weight:700;flex-shrink:0;">{{ contract.currency|default:"MDL" }}</span>
+                    </div>
+                </div>
+
+                <div style="margin-bottom:14px;">
+                    <label style="display:block;font-size:11px;font-weight:600;color:#4a5568;margin-bottom:6px;">Data plății</label>
+                    {% render_field form.date_paid style="width:100%;padding:11px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:15px;color:#1a202c;outline:none;background:white;" %}
+                </div>
+
+                <div style="margin-bottom:22px;">
+                    <label style="display:block;font-size:11px;font-weight:600;color:#4a5568;margin-bottom:6px;">Curs BNM (MDL/EUR)</label>
+                    {% render_field form.exchange_rate style="width:100%;padding:11px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:15px;color:#1a202c;outline:none;background:white;" placeholder="19.234" %}
+                </div>
+
+                {% endlocalize %}
+
+                <button type="submit" style="width:100%;padding:14px;background:#1a202c;color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:background 0.15s;" onmouseenter="this.style.background='#2d3748'" onmouseleave="this.style.background='#1a202c'">Distribuie Plata →</button>
+            </form>
+
+        </div>
+    </div>
 </div>
 
 {% endblock %}

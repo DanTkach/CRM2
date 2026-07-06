@@ -8,8 +8,10 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .process import render_to_pdf
 from django.views.generic import View
-from django.http import HttpResponse, StreamingHttpResponse
+from django.http import HttpResponse, StreamingHttpResponse, JsonResponse
 import os
+import urllib.request
+import xml.etree.ElementTree as ET
 
 # Create your views here.
 from .models import *
@@ -25,6 +27,11 @@ from dateutil.relativedelta import relativedelta
 
 
 production = False
+
+
+@login_required(login_url='login')
+def credit_calculator(request):
+    return render(request, 'accounts/credit_calculator.html')
 
 
 class ExportXlsx(View):
@@ -93,10 +100,6 @@ class ExportXlsx(View):
                 else:
                     alte_ju += int(contract.loan * contract.exchange_rate)
             payments = Payment.objects.filter(contract_id=contract.id)
-            penalty_waives = PenaltyWaive.objects.filter(
-                contract_id=contract.id)
-            interest_waives = InterestWaive.objects.filter(
-                contract_id=contract.id)
             table, profile, penalties = create_spread_sheet(
                 str(contract.date_created).split(" ")[0],
                 contract.months,
@@ -105,12 +108,12 @@ class ExportXlsx(View):
                 float(contract.interest_rate),
                 contract.calc_method,
                 str(date.today()),
-                [(float(round(payment.sum / payment.exchange_rate, 2)),
-                  payment.date_paid) for payment in payments],
+                [(float(round(payment.sum / payment.exchange_rate, 2)), payment.date_paid, float(payment.penalty or 0)) for payment in payments],
                 float(contract.month_sum),
                 contract.grace_period,
-                [int(waive.month) for waive in penalty_waives],
-                [int(waive.month) for waive in interest_waives]
+                float(contract.fee_issue or 0),
+                int(contract.fee_issue_months or 1),
+                float(contract.comission or 0)
             )
             if profile[0][21] > 360 or contract.client_id in compromise:
                 compromise.append(contract.client_id)
@@ -226,8 +229,6 @@ class ExportDocx(View):
             document = DocxTemplate(
                 document_dir + 'template_jur_contract.docx')
         payments = Payment.objects.filter(contract_id=pk)
-        penalty_waives = PenaltyWaive.objects.filter(contract_id=pk)
-        interest_waives = InterestWaive.objects.filter(contract_id=pk)
         guarantors = contract.fidejusor_set.all()
         lienholders = contract.gajist_set.all()
         table, profile, penalties = create_spread_sheet(
@@ -238,12 +239,12 @@ class ExportDocx(View):
             float(contract.interest_rate),
             contract.calc_method,
             str(date.today()),
-            [(float(round(payment.sum / payment.exchange_rate, 2)),
-              payment.date_paid) for payment in payments],
+            [(float(round(payment.sum / payment.exchange_rate, 2)), payment.date_paid, float(payment.penalty or 0)) for payment in payments],
             float(contract.month_sum),
             contract.grace_period,
-            [int(waive.month) for waive in penalty_waives],
-            [int(waive.month) for waive in interest_waives]
+            float(contract.fee_issue or 0),
+            int(contract.fee_issue_months or 1),
+            float(contract.comission or 0)
         )
         ptotal = 0
         itotal = 0
@@ -382,8 +383,6 @@ class ExportDocxChestionar(View):
         contract = Contract.objects.get(id=pk)
         client = Client.objects.get(id=contract.client_id)
         payments = Payment.objects.filter(contract_id=pk)
-        penalty_waives = PenaltyWaive.objects.filter(contract_id=pk)
-        interest_waives = InterestWaive.objects.filter(contract_id=pk)
         guarantors = contract.fidejusor_set.all()
         table, profile, penalties = create_spread_sheet(
             str(contract.date_created).split(" ")[0],
@@ -393,12 +392,12 @@ class ExportDocxChestionar(View):
             float(contract.interest_rate),
             contract.calc_method,
             str(date.today()),
-            [(float(round(payment.sum / payment.exchange_rate, 2)),
-              payment.date_paid) for payment in payments],
+            [(float(round(payment.sum / payment.exchange_rate, 2)), payment.date_paid, float(payment.penalty or 0)) for payment in payments],
             float(contract.month_sum),
             contract.grace_period,
-            [int(waive.month) for waive in penalty_waives],
-            [int(waive.month) for waive in interest_waives]
+            float(contract.fee_issue or 0),
+            int(contract.fee_issue_months or 1),
+            float(contract.comission or 0)
         )
         ptotal = 0
         itotal = 0
@@ -522,8 +521,6 @@ class ExportDocxPaymentsMDL(View):
         contract = Contract.objects.get(id=pk)
         client = Client.objects.get(id=contract.client_id)
         payments = Payment.objects.filter(contract_id=pk)
-        penalty_waives = PenaltyWaive.objects.filter(contract_id=pk)
-        interest_waives = InterestWaive.objects.filter(contract_id=pk)
         table, profile, penalties = create_spread_sheet(
             str(contract.date_created).split(" ")[0],
             contract.months,
@@ -532,12 +529,12 @@ class ExportDocxPaymentsMDL(View):
             float(contract.interest_rate),
             contract.calc_method,
             str(date.today()),
-            [(float(round(payment.sum / payment.exchange_rate, 2)),
-              payment.date_paid) for payment in payments],
+            [(float(round(payment.sum / payment.exchange_rate, 2)), payment.date_paid, float(payment.penalty or 0)) for payment in payments],
             float(contract.month_sum),
             contract.grace_period,
-            [int(waive.month) for waive in penalty_waives],
-            [int(waive.month) for waive in interest_waives]
+            float(contract.fee_issue or 0),
+            int(contract.fee_issue_months or 1),
+            float(contract.comission or 0)
         )
 
         tbl_contents = []
@@ -598,8 +595,6 @@ class ExportDocx_Fide(View):
         print(guarantor.num)
 
         payments = Payment.objects.filter(contract_id=contract.id)
-        penalty_waives = PenaltyWaive.objects.filter(contract_id=contract.id)
-        interest_waives = InterestWaive.objects.filter(contract_id=contract.id)
 
         table, profile, penalties = create_spread_sheet(
             str(contract.date_created).split(" ")[0],
@@ -609,12 +604,12 @@ class ExportDocx_Fide(View):
             float(contract.interest_rate),
             contract.calc_method,
             str(date.today()),
-            [(float(round(payment.sum / payment.exchange_rate, 2)),
-              payment.date_paid) for payment in payments],
+            [(float(round(payment.sum / payment.exchange_rate, 2)), payment.date_paid, float(payment.penalty or 0)) for payment in payments],
             float(contract.month_sum),
             contract.grace_period,
-            [int(waive.month) for waive in penalty_waives],
-            [int(waive.month) for waive in interest_waives]
+            float(contract.fee_issue or 0),
+            int(contract.fee_issue_months or 1),
+            float(contract.comission or 0)
         )
 
         context = {
@@ -739,8 +734,6 @@ class ExportDocx_LienAviz(View):
         client = contract.client
 
         payments = Payment.objects.filter(contract_id=contract.id)
-        penalty_waives = PenaltyWaive.objects.filter(contract_id=contract.id)
-        interest_waives = InterestWaive.objects.filter(contract_id=contract.id)
 
         table, profile, penalties = create_spread_sheet(
             str(contract.date_created).split(" ")[0],
@@ -750,12 +743,12 @@ class ExportDocx_LienAviz(View):
             float(contract.interest_rate),
             contract.calc_method,
             str(date.today()),
-            [(float(round(payment.sum / payment.exchange_rate, 2)),
-              payment.date_paid) for payment in payments],
+            [(float(round(payment.sum / payment.exchange_rate, 2)), payment.date_paid, float(payment.penalty or 0)) for payment in payments],
             float(contract.month_sum),
             contract.grace_period,
-            [int(waive.month) for waive in penalty_waives],
-            [int(waive.month) for waive in interest_waives]
+            float(contract.fee_issue or 0),
+            int(contract.fee_issue_months or 1),
+            float(contract.comission or 0)
         )
 
         context = {
@@ -848,9 +841,6 @@ class GeneratePDF(View):
             total_eur += payment.sum / payment.exchange_rate
         totals = (round(float(total_mdl), 2),
                   round(float(total_eur), 2))
-
-        penalty_waives = PenaltyWaive.objects.filter(contract_id=pk)
-        interest_waives = InterestWaive.objects.filter(contract_id=pk)
         table, profile, penalties = create_spread_sheet(
             str(contract.date_created).split(" ")[0],
             contract.months,
@@ -859,12 +849,12 @@ class GeneratePDF(View):
             float(contract.interest_rate),
             contract.calc_method,
             str(date.today()),
-            [(float(round(payment.sum / payment.exchange_rate, 2)),
-              payment.date_paid) for payment in payments],
+            [(float(round(payment.sum / payment.exchange_rate, 2)), payment.date_paid, float(payment.penalty or 0)) for payment in payments],
             float(contract.month_sum),
             contract.grace_period,
-            [int(waive.month) for waive in penalty_waives],
-            [int(waive.month) for waive in interest_waives]
+            float(contract.fee_issue or 0),
+            int(contract.fee_issue_months or 1),
+            float(contract.comission or 0)
         )
         context = {'client': client,
                    'table': table,
@@ -977,10 +967,6 @@ def arrears(request):
             continue
         if contract_data.date_created > proc_date:
             continue
-        penalty_waives = PenaltyWaive.objects.filter(
-            contract_id=contract_data.id)
-        interest_waives = InterestWaive.objects.filter(
-            contract_id=contract_data.id)
         contract_info = create_spread_sheet(
             str(contract_data.date_created).split(" ")[0],
             contract_data.months,
@@ -989,12 +975,12 @@ def arrears(request):
             float(contract_data.interest_rate),
             contract_data.calc_method,
             str(proc_date),
-            [(float(round(payment.sum / payment.exchange_rate, 2)),
-              payment.date_paid) for payment in payments],
+            [(float(round(payment.sum / payment.exchange_rate, 2)), payment.date_paid, float(payment.penalty or 0)) for payment in payments],
             float(contract_data.month_sum),
             contract_data.grace_period,
-            [int(waive.month) for waive in penalty_waives],
-            [int(waive.month) for waive in interest_waives]
+            float(contract_data.fee_issue or 0),
+            int(contract_data.fee_issue_months or 1),
+            float(contract_data.comission or 0)
         )
         if client.person == "Physical":
             name = str(client.last_name) + " " + str(client.first_name)
@@ -1069,10 +1055,6 @@ def client(request, pk_test):
     contracts = []
     for contract_data in contracts_list:
         payments = Payment.objects.filter(contract_id=contract_data.id)
-        penalty_waives = PenaltyWaive.objects.filter(
-            contract_id=contract_data.id)
-        interest_waives = InterestWaive.objects.filter(
-            contract_id=contract_data.id)
         contracts.append([
             contract_data.id,
             contract_data.date_created,
@@ -1087,12 +1069,12 @@ def client(request, pk_test):
                 float(contract_data.interest_rate),
                 contract_data.calc_method,
                 str(date.today()),
-                [(float(round(payment.sum / payment.exchange_rate, 2)),
-                  payment.date_paid) for payment in payments],
+                [(float(round(payment.sum / payment.exchange_rate, 2)), payment.date_paid, float(payment.penalty or 0)) for payment in payments],
                 float(contract_data.month_sum),
                 contract_data.grace_period,
-                [int(waive.month) for waive in penalty_waives],
-                [int(waive.month) for waive in interest_waives]
+                float(contract_data.fee_issue or 0),
+                int(contract_data.fee_issue_months or 1),
+                float(contract_data.comission or 0)
             )[1]
         ])
     context = {'client': client, 'contracts': contracts,
@@ -1154,9 +1136,49 @@ def viewContract(request, pk):
     guarantors = Fidejusor.objects.filter(contract=contract)
     lienholders = Gajist.objects.filter(contract=contract)
 
+    # Per-payment distribution breakdown (Penalitate -> Dobandă -> Corp), mirroring
+    # the priority cascade used both by create_spread_sheet and the index-eur calculator.
+    sorted_payments = list(payments.order_by('date_paid', 'id'))
+    payment_breakdown = {}
+    prev_principal_paid = 0.0
+    prev_interest_paid = 0.0
+    prev_penalty_paid = 0.0
+    prev_commission_paid = 0.0
+    for i, sorted_payment in enumerate(sorted_payments):
+        subset = sorted_payments[:i + 1]
+        _, prefix_profile, _ = create_spread_sheet(
+            str(contract.date_created).split(" ")[0],
+            contract.months,
+            contract.annual_payments,
+            float(contract.loan),
+            float(contract.interest_rate),
+            contract.calc_method,
+            str(sorted_payment.date_paid),
+            [(float(round(pp.sum / pp.exchange_rate, 2)), pp.date_paid, float(pp.penalty or 0)) for pp in subset],
+            float(contract.month_sum),
+            contract.grace_period,
+            float(contract.fee_issue or 0),
+            int(contract.fee_issue_months or 1),
+            float(contract.comission or 0)
+        )
+        row = prefix_profile[0]
+        payment_breakdown[sorted_payment.id] = {
+            'to_penalty': round(row[9] - prev_penalty_paid, 2),
+            'to_commission': round(row[17] - prev_commission_paid, 2),
+            'to_interest': round(row[8] - prev_interest_paid, 2),
+            'to_principal': round(row[7] - prev_principal_paid, 2),
+            'corp_remaining': row[12],
+            'interest_remaining': row[13],
+        }
+        prev_penalty_paid = row[9]
+        prev_commission_paid = row[17]
+        prev_interest_paid = row[8]
+        prev_principal_paid = row[7]
+
     all_payments = []
     for payment in payments:
         count += 1
+        breakdown = payment_breakdown.get(payment.id, {})
         if contract.currency == "EUR":
             all_payments.append([
                 payment,
@@ -1164,12 +1186,16 @@ def viewContract(request, pk):
                 True,
                 round(float(payment.exchange_rate), 2),
                 round(float(payment.sum / payment.exchange_rate), 2),
+                breakdown,
             ])
         else:
             all_payments.append([
                 payment,
                 count,
-                False
+                False,
+                None,
+                None,
+                breakdown,
             ])
 
     total_mdl = 0
@@ -1180,8 +1206,6 @@ def viewContract(request, pk):
     totals = (round(float(total_mdl), 2),
               round(float(total_eur), 2))
 
-    penalty_waives = PenaltyWaive.objects.filter(contract_id=pk)
-    interest_waives = InterestWaive.objects.filter(contract_id=pk)
     table, profile, penalties = create_spread_sheet(
         str(contract.date_created).split(" ")[0],
         contract.months,
@@ -1190,12 +1214,13 @@ def viewContract(request, pk):
         float(contract.interest_rate),
         contract.calc_method,
         str(date.today()),
-        [(float(round(payment.sum / payment.exchange_rate, 2)), payment.date_paid)
+        [(float(round(payment.sum / payment.exchange_rate, 2)), payment.date_paid, float(payment.penalty or 0))
          for payment in payments],
         float(contract.month_sum),
         contract.grace_period,
-        [int(waive.month) for waive in penalty_waives],
-        [int(waive.month) for waive in interest_waives]
+        float(contract.fee_issue or 0),
+        int(contract.fee_issue_months or 1),
+        float(contract.comission or 0)
     )
     comments = contract.comments
     commentForm = CommentsForm(instance=contract, initial={
@@ -1211,6 +1236,54 @@ def viewContract(request, pk):
             form.save()
             return redirect('/')
 
+    PaymentForms = modelform_factory(Payment, form=PaymentForm)
+    payment_form = PaymentForms(initial={'contract': contract, 'date_paid': date.today()})
+
+    tracker_rows = []
+    for _row in table:
+        _is_ca     = _row[0] == 'CA'
+        _plan_corp = _row[3]
+        _plan_dob  = _row[4]
+        _plan_com  = _row[6]
+        _paid_corp = _row[7]
+        _paid_dob  = _row[8]
+        _paid_com  = _row[9]
+        _total_paid = round(_paid_corp + _paid_dob + _paid_com, 2)
+        if _is_ca:
+            _corp_done = True
+            _dob_done  = True
+            _fully_closed = _paid_com >= _plan_com - 0.005
+            _partial      = _paid_com > 0.005 and not _fully_closed
+        else:
+            _corp_done    = _paid_corp >= _plan_corp - 0.005
+            _dob_done     = _paid_dob  >= _plan_dob  - 0.005
+            _fully_closed = _corp_done and _dob_done
+            _partial      = _total_paid > 0.005 and not _fully_closed
+        if _fully_closed:
+            _status = 'closed'
+        elif _partial:
+            _status = 'partial'
+        else:
+            _status = 'pending'
+        tracker_rows.append({
+            'n':          _row[0],
+            'date':       _row[1],
+            'is_ca':      _is_ca,
+            'plan_corp':  _plan_corp,
+            'paid_corp':  _paid_corp,
+            'corp_done':  _corp_done,
+            'plan_dob':   _plan_dob,
+            'paid_dob':   _paid_dob,
+            'dob_done':   _dob_done,
+            'plan_com':   _plan_com,
+            'paid_com':   _paid_com,
+            'total_paid': _total_paid,
+            'status':     _status,
+        })
+    tracker_total = len(tracker_rows)
+    tracker_paid  = sum(1 for r in tracker_rows if r['status'] == 'closed')
+    tracker_total_paid = round(sum(r['total_paid'] for r in tracker_rows), 2)
+
     context = {'client': client,
                'table': table,
                'profile': profile,
@@ -1221,7 +1294,12 @@ def viewContract(request, pk):
                'guarantors': guarantors,
                'closed': closed,
                'commentForm': commentForm,
-               'lienholders': lienholders
+               'lienholders': lienholders,
+               'payment_form': payment_form,
+               'tracker_rows': tracker_rows,
+               'tracker_paid': tracker_paid,
+               'tracker_total': tracker_total,
+               'tracker_total_paid': tracker_total_paid,
                }
     return render(request, 'accounts/contract_table.html', context)
 
@@ -1306,6 +1384,7 @@ def deleteClient(request, pk):
 @ allowed_users(allowed_roles=['admin'])
 def createPayment(request, pk):
     contract = Contract.objects.get(id=pk)
+    client = contract.client
     PaymentForms = modelform_factory(Payment, form=PaymentForm)
     form = PaymentForms(initial={'contract': contract})
     contract_id = contract.pk
@@ -1315,7 +1394,7 @@ def createPayment(request, pk):
         if form.is_valid():
             form.save()
             return redirect('/view_contract/' + str(contract_id) + '/')
-    context = {'form': form}
+    context = {'form': form, 'contract': contract, 'client': client}
     return render(request, 'accounts/payment_form.html', context)
 
 
@@ -1522,10 +1601,6 @@ def prognosis(request, pk, pj, pl):
     for contract_data in contracts_list:
         payments = Payment.objects.filter(contract_id=contract_data.id)
         client = Client.objects.get(id=contract_data.client_id)
-        penalty_waives = PenaltyWaive.objects.filter(
-            contract_id=contract_data.id)
-        interest_waives = InterestWaive.objects.filter(
-            contract_id=contract_data.id)
         table, profile, penalties = create_spread_sheet(
             str(contract_data.date_created).split(" ")[0],
             contract_data.months,
@@ -1534,12 +1609,12 @@ def prognosis(request, pk, pj, pl):
             float(contract_data.interest_rate),
             contract_data.calc_method,
             str(date.today()),
-            [(float(round(payment.sum / payment.exchange_rate, 2)),
-              payment.date_paid) for payment in payments],
+            [(float(round(payment.sum / payment.exchange_rate, 2)), payment.date_paid, float(payment.penalty or 0)) for payment in payments],
             float(contract_data.month_sum),
             contract_data.grace_period,
-            [int(waive.month) for waive in penalty_waives],
-            [int(waive.month) for waive in interest_waives]
+            float(contract_data.fee_issue or 0),
+            int(contract_data.fee_issue_months or 1),
+            float(contract_data.comission or 0)
         )
         state = False
         data = [0, 0, 0]
@@ -1603,10 +1678,6 @@ def report(request, pk, pj):
     for contract_data in contracts_list:
         payments = Payment.objects.filter(contract_id=contract_data.id)
         client = Client.objects.get(id=contract_data.client_id)
-        penalty_waives = PenaltyWaive.objects.filter(
-            contract_id=contract_data.id)
-        interest_waives = InterestWaive.objects.filter(
-            contract_id=contract_data.id)
         table, profile, penalties = create_spread_sheet(
             str(contract_data.date_created).split(" ")[0],
             contract_data.months,
@@ -1615,12 +1686,12 @@ def report(request, pk, pj):
             float(contract_data.interest_rate),
             contract_data.calc_method,
             str(date.today()),
-            [(float(round(payment.sum / payment.exchange_rate, 2)),
-              payment.date_paid) for payment in payments],
+            [(float(round(payment.sum / payment.exchange_rate, 2)), payment.date_paid, float(payment.penalty or 0)) for payment in payments],
             float(contract_data.month_sum),
             contract_data.grace_period,
-            [int(waive.month) for waive in penalty_waives],
-            [int(waive.month) for waive in interest_waives]
+            float(contract_data.fee_issue or 0),
+            int(contract_data.fee_issue_months or 1),
+            float(contract_data.comission or 0)
         )
 
         for month_add in range(12):
@@ -1658,3 +1729,23 @@ def report(request, pk, pj):
         'graph_data': graph_data
     }
     return render(request, 'accounts/report.html', context)
+
+
+@login_required(login_url='login')
+def bnm_rate(request):
+    try:
+        today = date.today().strftime('%d.%m.%Y')
+        url = f'https://www.bnm.md/ro/export-official-exchange-rates?date={today}'
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            text = resp.read().decode('utf-8')
+        # Response is semicolon-separated CSV: Valuta;Cod;Abr;Rata;Cursul
+        # EUR row example: Euro;978;EUR;1;20,1491
+        for line in text.splitlines():
+            parts = line.split(';')
+            if len(parts) >= 5 and parts[2].strip().strip('"') == 'EUR':
+                rate = float(parts[4].strip().replace(',', '.'))
+                return JsonResponse({'success': True, 'rate': rate})
+        return JsonResponse({'success': False, 'error': 'EUR not found'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})

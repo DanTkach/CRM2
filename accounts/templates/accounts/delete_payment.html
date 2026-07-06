@@ -7,15 +7,14 @@
 	<div class="col-md-6">
 		<div class="card card-body">
 
-
-			<p>Are you sure you want to delete payment #{{item.id}}?</p>
+			<p>Sigur doriți să ștergeți plata #{{item.id}}?</p>
 
 			<form action="{% url 'delete_payment' item.id  %}" method="POST">
 
 				{% csrf_token %}
-				<a class="btn btn-warning" href="{% url 'view_contract' item.contract.id %}">Cancel</a>
+				<a class="btn btn-warning" href="{% url 'view_contract' item.contract.id %}">Anulare</a>
 
-				<input class="btn btn-danger" type="submit" name="Confirm">
+				<input class="btn btn-danger" type="submit" name="Confirmă">
 			</form>
 		</div>
 	</div>

@@ -73,6 +73,8 @@ urlpatterns = [
          views.updateLienholder, name="update_lienholder"),
 
     path('payments/', views.payments, name="payments"),
+    path('calculator/', views.credit_calculator, name="credit_calculator"),
+    path('bnm-rate/', views.bnm_rate, name="bnm_rate"),
 
     path('reset_password/',
          auth_views.PasswordResetView.as_view(

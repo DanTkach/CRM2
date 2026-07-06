@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
-    
+
 <head>
-	<title>Login</title>
+	<title>Autentificare</title>
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
@@ -39,7 +39,7 @@
 
 		#form-title{
 			color: #fff;
-			
+
 		}
 
 		.login_btn {
@@ -82,7 +82,7 @@
 				<div class="d-flex justify-content-center">
 
 
-					<h3 id="form-title">LOGIN</h3>
+					<h3 id="form-title">AUTENTIFICARE</h3>
 				</div>
 				<div class="d-flex justify-content-center form_container">
 					<form method="POST" action="">
@@ -92,7 +92,7 @@
 								<span class="input-group-text"><i class="fas fa-user"></i></span>
 							</div>
 
-							<input type="text" name="username" placeholder="Username..." class="form-control">
+							<input type="text" name="username" placeholder="Utilizator..." class="form-control">
 						</div>
 
 						<div class="input-group mb-2">
@@ -100,11 +100,11 @@
 								<span class="input-group-text"><i class="fas fa-key"></i></span>
 							</div>
 
-								<input type="password" name="password" placeholder="Password..." class="form-control" >
+								<input type="password" name="password" placeholder="Parolă..." class="form-control" >
 						</div>
 
 							<div class="d-flex justify-content-center mt-3 login_container">
-				 				<input class="btn login_btn" type="submit" value="Login">
+				 				<input class="btn login_btn" type="submit" value="Autentificare">
 				   			</div>
 					</form>
 
@@ -112,16 +112,16 @@
 
 				{% for message in messages %}
 					<p id="messages">{{message}}</p>
-				{% endfor %}			
-		
+				{% endfor %}
+
 				<div class="mt-4">
 					<div class="d-flex justify-content-center links">
-						Don't have an account? <a href="{% url 'register' %}" class="ml-2">Sign Up</a>
+						Nu ai cont? <a href="{% url 'register' %}" class="ml-2">Înregistrare</a>
 					</div>
 					<div class="d-flex justify-content-center links">
-						Forgot password? <a href="{% url 'reset_password' %}" class="ml-2">Reset password</a>
+						Ai uitat parola? <a href="{% url 'reset_password' %}" class="ml-2">Resetare parolă</a>
 					</div>
-			
+
 				</div>
 			</div>
 		</div>

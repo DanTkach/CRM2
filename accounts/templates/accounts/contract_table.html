@@ -1,4 +1,5 @@
 {%  extends 'accounts/my_main.html' %}
+{% load widget_tweaks l10n %}
 
 {% block content %}
 
@@ -8,104 +9,130 @@
 <div class="card card-body">
     <div class="row">
         <div class="col">
-            <div class="card card-body">
-                <div class="text-center">
-			<h5>Client: <a href="{% url 'client' contract.client_id %}">
-					{% if client.person == "Physical" %}
-					{{client.first_name}} {{client.last_name}}
-					{% else %}
-					{{client.company_name}}
-					{% endif %}</a></h5>
-
-                    <h5>Contract: #{{contract.id}} - {{contract.status | upper}}</h5>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <a class="btn btn-outline-info  btn-sm btn-block mb-3" href="{% url 'update_contract' contract.id %}">Update Contract</a>
-                    </div>
-                    <div class="col">
-                        <a class="btn btn-outline-success  btn-sm btn-block mb-3" href="{% url 'create_payment' contract.id %}">Process Payment</a>
-                    </div>
-                    <div class="col">
-                        <a class="btn btn-outline-info  btn-sm btn-block" href="{% url 'download_chestionar' contract.id %}">Application Form</a>
-                    </div>
-                </div>
-                <table class="table table-bordered">
-                    <thead class="thead-dark">
-                        <tr>
-                            <th scope="col">Today</th>
-                            <th scope="col">Date Created</th>
-                            {% if closed %}
-                            <th scope="col">Date Closed</th>
+            <div style="background:white;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);padding:20px;">
+                <div style="text-align:center;margin-bottom:12px;">
+                    <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;">Client</div>
+                    <h5 style="margin:0 0 10px 0;font-size:16px;font-weight:700;">
+                        <a href="{% url 'client' contract.client_id %}" style="color:#1a202c;text-decoration:none;">
+                            {% if client.person == "Physical" %}
+                            {{client.first_name}} {{client.last_name}}
+                            {% else %}
+                            {{client.company_name}}
                             {% endif %}
-                            <th scope="col">Loan</th>
-                            <th scope="col">Interest Rate</th>
-                            <th scope="col">Current Balance</th>
+                        </a>
+                    </h5>
+                    <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;">Contract</div>
+                    <h5 style="margin:0;font-size:16px;font-weight:700;color:#d97706;">#{{contract.id}} — {{contract.status|upper}}</h5>
+                </div>
+
+                <div style="display:flex;gap:8px;margin-bottom:14px;">
+                    <a href="{% url 'update_contract' contract.id %}" style="flex:1;text-align:center;background:#1a202c;color:white;font-size:12px;font-weight:600;padding:8px 12px;border-radius:10px;text-decoration:none;">Actualizare contract</a>
+                    <a href="{% url 'download_chestionar' contract.id %}" style="flex:1;text-align:center;background:#1a202c;color:white;font-size:12px;font-weight:600;padding:8px 12px;border-radius:10px;text-decoration:none;">Cerere de credit</a>
+                </div>
+
+                <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;padding-left:2px;">Detalii contract</div>
+                <table style="width:100%;border-collapse:collapse;font-size:12px;">
+                    <thead>
+                        <tr>
+                            <th style="border:1px solid #cbd5e1;background:#f8fafc;color:#475569;font-weight:700;padding:6px 8px;text-align:left;">Azi</th>
+                            <th style="border:1px solid #cbd5e1;background:#f8fafc;color:#475569;font-weight:700;padding:6px 8px;text-align:left;">Data acordării</th>
+                            {% if closed %}
+                            <th style="border:1px solid #cbd5e1;background:#f8fafc;color:#475569;font-weight:700;padding:6px 8px;text-align:left;">Data închiderii</th>
+                            {% endif %}
+                            <th style="border:1px solid #cbd5e1;background:#f8fafc;color:#475569;font-weight:700;padding:6px 8px;text-align:left;">Sumă credit</th>
+                            <th style="border:1px solid #cbd5e1;background:#f8fafc;color:#475569;font-weight:700;padding:6px 8px;text-align:left;">Rata dobânzii</th>
+                            <th style="border:1px solid #cbd5e1;background:#f8fafc;color:#475569;font-weight:700;padding:6px 8px;text-align:left;">Sold curent</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>{{profile.0.0}}</td>
-                            <td>{{contract.date_created|date:"d/m/Y"}}</td>
+                            <td style="border:1px solid #e2e8f0;padding:6px 8px;color:#1a202c;">{{profile.0.0}}</td>
+                            <td style="border:1px solid #e2e8f0;padding:6px 8px;color:#1a202c;">{{contract.date_created|date:"d/m/Y"}}</td>
                             {% if closed %}
-                            <td>{{contract.date_closed|date:"d/m/Y"}}</td>
+                            <td style="border:1px solid #e2e8f0;padding:6px 8px;color:#1a202c;">{{contract.date_closed|date:"d/m/Y"}}</td>
                             {% endif %}
-                            <td>{{profile.0.1|floatformat:2}}</td>
-                            <td>{{profile.0.2}}</td>
-                            <td>{{profile.0.3|floatformat:2}}</td>
+                            <td style="border:1px solid #e2e8f0;padding:6px 8px;color:#1a202c;font-weight:700;">{{profile.0.1|floatformat:2}} {{contract.currency}}</td>
+                            <td style="border:1px solid #e2e8f0;padding:6px 8px;color:#1a202c;">{{profile.0.2}}</td>
+                            <td style="border:1px solid #e2e8f0;padding:6px 8px;color:#d97706;font-weight:700;">{{profile.0.3|floatformat:2}} {{contract.currency}}</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
             <br>
         </div>
-        <div class="card card-body">
-            <table class="table table-bordered my-auto">
-                <thead class="thead-dark">
-                    <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">Original</th>
-                        <th scope="col">Paid</th>
-                        <th scope="col">Waived</th>
-                        <th scope="col">Outstanding</th>
-                        <th scope="col">Closure</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="table-secondary">Principal</td>
-                        <td>{{profile.0.10|floatformat:2}}</td>
-                        <td>{{profile.0.7|floatformat:2}}</td>
-                        <td>0</td>
-                        <td>{{profile.0.12|floatformat:2}}</td>
-                        <td>{{profile.0.12|floatformat:2}}</td>
-                    </tr>
-                    <tr>
-                        <td class="table-secondary">Interest</td>
-                        <td>{{profile.0.11|floatformat:2}}</td>
-                        <td>{{profile.0.8|floatformat:2}}</td>
-                        <td>{{profile.0.23|floatformat:2}}</td>
-                        <td>{{profile.0.13|floatformat:2}}</td>
-                        <td>{{profile.0.5|floatformat:2}}</td>
-                    </tr>
-                    <tr>
-                        <td class="table-secondary">Penalties</td>
-                        <td>0</td>
-                        <td>{{profile.0.9|floatformat:2}}</td>
-                        <td>{{profile.0.24|floatformat:2}}</td>
-                        <td>{{profile.0.14|floatformat:2}}</td>
-                        <td>{{profile.0.14|floatformat:2}}</td>
-                    </tr>
-                    <tr>
-                        <td class="table-secondary">TOTAL</td>
-                        <td>{{profile.0.15|floatformat:2}}</td>
-                        <td>{{profile.0.16|floatformat:2}}</td>
-                        <td>{{profile.0.17|floatformat:2}}</td>
-                        <td>{{profile.0.19|floatformat:2}}</td>
-                        <td>{{profile.0.18|floatformat:2}}</td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="card card-body" style="display:flex;flex-direction:column;">
+            <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;padding-left:2px;">Sold curent rămas</div>
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(2,1fr);gap:8px;flex:1;">
+
+                {% with paid=profile.0.7 rem=profile.0.12 %}
+                {% with tot=paid|add:rem %}
+                <div style="background:white;border-radius:10px;padding:10px 12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);border-top:3px solid #276749;{% if rem <= 0 %}opacity:0.6;{% endif %}">
+                    <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Corp credit</div>
+                    <div style="font-size:14px;font-weight:800;color:{% if rem <= 0 %}#276749{% else %}#1a202c{% endif %};">
+                        {% if rem <= 0 %}✓ Achitat{% else %}{{ rem|floatformat:2 }} {{ contract.currency }}{% endif %}
+                    </div>
+                    {% if rem > 0 and tot > 0 %}
+                    <div style="margin-top:6px;height:3px;background:#e2e8f0;border-radius:4px;overflow:hidden;">
+                        <div style="height:100%;width:{% widthratio paid tot 100 %}%;background:#276749;border-radius:4px;"></div>
+                    </div>
+                    <div style="font-size:10px;color:#94a3b8;margin-top:2px;">{% widthratio paid tot 100 %}% achitat</div>
+                    {% endif %}
+                </div>
+                {% endwith %}
+                {% endwith %}
+
+                {% with paid=profile.0.8 rem=profile.0.13 %}
+                {% with tot=paid|add:rem %}
+                <div style="background:white;border-radius:10px;padding:10px 12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);border-top:3px solid #d97706;{% if rem <= 0 %}opacity:0.6;{% endif %}">
+                    <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Dobândă</div>
+                    <div style="font-size:14px;font-weight:800;color:{% if rem <= 0 %}#276749{% else %}#d97706{% endif %};">
+                        {% if rem <= 0 %}✓ Achitat{% else %}{{ rem|floatformat:2 }} {{ contract.currency }}{% endif %}
+                    </div>
+                    {% if rem > 0 and tot > 0 %}
+                    <div style="margin-top:6px;height:3px;background:#e2e8f0;border-radius:4px;overflow:hidden;">
+                        <div style="height:100%;width:{% widthratio paid tot 100 %}%;background:#d97706;border-radius:4px;"></div>
+                    </div>
+                    <div style="font-size:10px;color:#94a3b8;margin-top:2px;">{% widthratio paid tot 100 %}% achitat</div>
+                    {% endif %}
+                </div>
+                {% endwith %}
+                {% endwith %}
+
+                {% with paid=profile.0.17 rem=profile.0.14 %}
+                {% with tot=paid|add:rem %}
+                <div style="background:white;border-radius:10px;padding:10px 12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);border-top:3px solid #7c3aed;{% if rem <= 0 and profile.0.20 <= 0 %}opacity:0.6;{% endif %}">
+                    <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Comision</div>
+                    <div style="font-size:14px;font-weight:800;color:{% if rem <= 0 %}#276749{% else %}#7c3aed{% endif %};">
+                        {% if rem <= 0 and profile.0.20 <= 0 %}—{% elif rem <= 0 %}✓ Achitat{% else %}{{ rem|floatformat:2 }} {{ contract.currency }}{% endif %}
+                    </div>
+                    {% if rem > 0 and tot > 0 %}
+                    <div style="margin-top:6px;height:3px;background:#e2e8f0;border-radius:4px;overflow:hidden;">
+                        <div style="height:100%;width:{% widthratio paid tot 100 %}%;background:#7c3aed;border-radius:4px;"></div>
+                    </div>
+                    <div style="font-size:10px;color:#94a3b8;margin-top:2px;">{% widthratio paid tot 100 %}% achitat</div>
+                    {% endif %}
+                </div>
+                {% endwith %}
+                {% endwith %}
+
+                {% with paid=profile.0.16 rem=profile.0.19 %}
+                {% with tot=paid|add:rem %}
+                <div style="background:#1a202c;border-radius:10px;padding:10px 12px;box-shadow:0 2px 8px rgba(0,0,0,0.1);border-top:3px solid #0f172a;">
+                    <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Total rămas</div>
+                    <div style="font-size:14px;font-weight:800;color:{% if rem <= 0 %}#4ade80{% else %}#f87171{% endif %};">
+                        {% if rem <= 0 %}✓ Achitat complet{% else %}{{ rem|floatformat:2 }} {{ contract.currency }}{% endif %}
+                    </div>
+                    {% if rem > 0 and tot > 0 %}
+                    <div style="margin-top:6px;height:3px;background:#334155;border-radius:4px;overflow:hidden;">
+                        <div style="height:100%;width:{% widthratio paid tot 100 %}%;background:#94a3b8;border-radius:4px;"></div>
+                    </div>
+                    <div style="font-size:10px;color:#64748b;margin-top:2px;">{% widthratio paid tot 100 %}% achitat</div>
+                    {% endif %}
+                </div>
+                {% endwith %}
+                {% endwith %}
+
+            </div>
         </div>
     </div>
 </div>
@@ -120,21 +147,32 @@
         {% endfor %}
     </ul>
     {% endif %}
-    <ul class="nav nav-pills nav-fill">
+    <style>
+        .crm-tabs { display: flex; gap: 8px; padding-left: 0; margin-bottom: 0; list-style: none; flex-wrap: wrap; }
+        .crm-tabs .nav-item { flex: 1; min-width: 140px; }
+        .crm-tab-btn {
+            display: block; text-align: center; padding: 12px 16px; border-radius: 12px;
+            border: 2px solid #e2e8f0; background: white; color: #718096;
+            font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; text-decoration: none;
+        }
+        .crm-tab-btn:hover { background: #f8fafc; color: #4a5568; text-decoration: none; }
+        .crm-tab-btn.active { border-color: #d97706; background: #d97706; color: white; }
+    </style>
+    <ul class="nav nav-fill crm-tabs">
         <li class="nav-item">
-            <a class="nav-link" data-toggle="tab" href="#repayment_plan">Repayment Planning</a>
+            <a class="nav-link crm-tab-btn" data-toggle="tab" href="#repayment_plan">Plan de rambursare</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link active" data-toggle="tab" href="#repayment_schedule">Repayment Schedule</a>
+            <a class="nav-link crm-tab-btn active" data-toggle="tab" href="#repayment_schedule">Grafic de rambursare</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="tab" href="#payments">Payments</a>
+            <a class="nav-link crm-tab-btn" data-toggle="tab" href="#payments">Plăți</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="tab" href="#penalties">Penalties</a>
+            <a class="nav-link crm-tab-btn" data-toggle="tab" href="#tracker">Tracker Rambursări</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="tab" href="#comments">Comments</a>
+            <a class="nav-link crm-tab-btn" data-toggle="tab" href="#comments">Comentarii</a>
         </li>
     </ul>
 
@@ -142,120 +180,303 @@
         <div class="tab-pane fade" id = "repayment_plan">
             <br>
 
-            <table class="table table-bordered w-50">
-                {% for row in profile %}
-                <tr>
-                        <td>Principal To Pay: </td>
-                        <td>{{row.4|floatformat:2}}</td>
-                        <td class="w-25"></td>
-                    </tr>
-                    <tr>
-                        <td>Interest To Pay: </td>
-                        <td>{{row.5|floatformat:2}}</td>
-                        <td class="w-25">
-                            {% if row.27 %}
-                                <a class="btn-sm btn-danger" href="{% url 'delete_all_i' contract.id %}">Delete All Waives</a>
-                            {% else %}
-                                <a class="btn-sm btn-success" href="{% url 'waive_all_i' contract.id %}">Waive All</a>
+            {% with row=profile.0 %}
+            <div style="display:flex;gap:24px;align-items:stretch;">
+
+                <!-- LEFT: Datorie curentă + penalitate manuală -->
+                <div style="flex:1;background:white;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);padding:28px;">
+                    <div style="display:grid;grid-template-columns:1fr 1px 1fr;gap:0;align-items:start;height:100%;">
+
+                        <!-- COL 1: Corp + Dobândă + Comision -->
+                        <div style="padding-right:28px;">
+                            <div style="font-size:11px;font-weight:700;color:#a0aec0;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:14px;">Datorie curentă</div>
+
+                            <div style="margin-bottom:14px;">
+                                <label style="display:block;font-size:12px;font-weight:600;color:#4a5568;margin-bottom:6px;">Corp de plată ({{ contract.currency }})</label>
+                                <div style="padding:11px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:15px;font-weight:700;color:#1a202c;background:#f8fafc;">{{ row.4|floatformat:2 }}</div>
+                            </div>
+
+                            <div style="margin-bottom:14px;">
+                                <label style="display:block;font-size:12px;font-weight:600;color:#4a5568;margin-bottom:6px;">Dobândă de plată ({{ contract.currency }})</label>
+                                <div style="padding:11px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:15px;font-weight:700;color:#1a202c;background:#f8fafc;">{{ row.5|floatformat:2 }}</div>
+                            </div>
+
+                            {% if row.6 > 0 or row.20 > 0 %}
+                            <div>
+                                <label style="display:block;font-size:12px;font-weight:600;color:#7c3aed;margin-bottom:6px;">Comision de plată ({{ contract.currency }})</label>
+                                <div style="padding:11px 14px;border:2px solid #ede9fe;border-radius:10px;font-size:15px;font-weight:700;color:#7c3aed;background:#f5f3ff;">{{ row.6|floatformat:2 }}</div>
+                            </div>
                             {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Penalties To Pay: </td>
-                        <td>{{row.6|floatformat:2}}</td>
-                        <td class="w-25">
-                            {% if row.26 %}
-                                <a class="btn-sm btn-danger" href="{% url 'delete_all_p' contract.id %}">Delete All Waives</a>
-                            {% else %}
-                                <a class="btn-sm btn-success" href="{% url 'waive_all_p' contract.id %}">Waive All</a>
+                        </div>
+
+                        <div style="background:#f0f4f8;width:1px;align-self:stretch;margin:0 4px;"></div>
+
+                        <!-- COL 2: Penalitate manuală + Total -->
+                        <div style="padding-left:28px;display:flex;flex-direction:column;">
+                            <div style="font-size:11px;font-weight:700;color:#a0aec0;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:14px;">Penalitate</div>
+
+                            <div style="margin-bottom:12px;">
+                                <label style="display:block;font-size:12px;font-weight:600;color:#4a5568;margin-bottom:6px;">Penalitate ({{ contract.currency }})</label>
+                                <input type="number" id="penalty-input" step="0.01" min="0" placeholder="0.00"
+                                    style="width:100%;padding:11px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:15px;color:#1a202c;outline:none;background:white;"
+                                    oninput="updateTotal()" />
+                            </div>
+
+                            <button type="button" onclick="document.getElementById('penalty-modal').style.display='flex'"
+                                style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:#fee2e2;color:#dc2626;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:16px;align-self:flex-start;">
+                                Calcul Penalitate ▸
+                            </button>
+
+                            <div style="display:flex;flex-direction:column;background:#fff7ed;border:2px solid #fcd34d;border-radius:12px;padding:14px 18px;margin-top:auto;">
+                                <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #fde68a;">
+                                    <span style="font-size:10px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:0.5px;">Corp</span>
+                                    <span style="font-size:14px;font-weight:800;color:#1a202c;">{{ row.4|floatformat:2 }} {{ contract.currency }}</span>
+                                </div>
+                                <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #fde68a;">
+                                    <span style="font-size:10px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:0.5px;">Dobândă</span>
+                                    <span style="font-size:14px;font-weight:800;color:#1a202c;">{{ row.5|floatformat:2 }} {{ contract.currency }}</span>
+                                </div>
+                                {% if row.6 > 0 or row.20 > 0 %}
+                                <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #fde68a;">
+                                    <span style="font-size:10px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:0.5px;">Comision</span>
+                                    <span style="font-size:14px;font-weight:800;color:#7c3aed;" id="total-commission-display">{{ row.6|floatformat:2 }} {{ contract.currency }}</span>
+                                </div>
+                                {% endif %}
+                                <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #fde68a;">
+                                    <span style="font-size:10px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:0.5px;">Penalitate</span>
+                                    <span style="font-size:14px;font-weight:800;color:#1a202c;" id="total-penalty-display">0.00 {{ contract.currency }}</span>
+                                </div>
+                                <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0 4px;">
+                                    <span style="font-size:10px;font-weight:800;color:#92400e;text-transform:uppercase;letter-spacing:0.5px;">Total datorat</span>
+                                    <span style="font-size:17px;font-weight:800;color:#dc2626;" id="total-datorat-display">{{ row.28|floatformat:2 }} {{ contract.currency }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- RIGHT: Procesare plată -->
+                <div style="flex:1;background:white;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);padding:28px;display:flex;flex-direction:column;">
+                    <div style="font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:16px;">Procesare plată</div>
+                    <form action="{% url 'create_payment' contract.id %}" method="POST" style="display:flex;flex-direction:column;flex:1;">
+                        {% csrf_token %}
+                        {{ payment_form.contract.as_hidden }}
+                        {% localize off %}
+
+                        <input type="hidden" id="penalty-form-field" name="penalty" value="0.00">
+
+                        <div style="background:#475569;border-radius:10px;padding:12px 14px;margin-bottom:14px;">
+                            <div style="font-size:10px;font-weight:700;color:#cbd5e1;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:5px;">Suma plătită</div>
+                            <div style="display:flex;align-items:baseline;gap:6px;">
+                                {% render_field payment_form.sum style="background:transparent;border:none;outline:none;color:white;font-size:22px;font-weight:800;width:100%;letter-spacing:-0.5px;padding:0;" placeholder="0.00" oninput="updateEurPreview()" %}
+                                <span style="color:#94a3b8;font-size:13px;font-weight:700;flex-shrink:0;">MDL</span>
+                            </div>
+                            {% if contract.currency == "EUR" %}
+                            <div style="border-top:1px solid #64748b;margin-top:8px;padding-top:7px;font-size:12px;color:#94a3b8;">
+                                = <b id="eur-preview" style="color:#f1f5f9;font-size:13px;font-weight:700;">—</b> EUR
+                            </div>
                             {% endif %}
-                        </td>
-                    </tr>
-                    <tr class="table-secondary">
-                        <td>TOTAL: </td>
-                        <td>{{row.28|floatformat:2}}</td>
-                        <td></td>
-                    </tr>
-                    {% endfor %}
-                </table>
+                        </div>
+
+                        <div style="margin-bottom:14px;">
+                            <label style="display:block;font-size:11px;font-weight:600;color:#4a5568;margin-bottom:6px;">Data plății</label>
+                            {% render_field payment_form.date_paid style="width:100%;padding:11px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:15px;color:#1a202c;outline:none;background:white;" %}
+                        </div>
+
+                        <div style="margin-bottom:22px;">
+                            <label style="display:block;font-size:11px;font-weight:600;color:#4a5568;margin-bottom:6px;">Curs BNM (MDL/EUR)</label>
+                            {% render_field payment_form.exchange_rate style="width:100%;padding:11px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:15px;color:#1a202c;outline:none;background:white;" placeholder="19.234" oninput="updateEurPreview()" %}
+                            <div id="bnm-status" style="font-size:11px;color:#94a3b8;margin-top:4px;"></div>
+                        </div>
+
+                        {% endlocalize %}
+
+                        <button type="submit" style="width:100%;padding:14px;background:#1a202c;color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:background 0.15s;margin-top:auto;" onmouseenter="this.style.background='#2d3748'" onmouseleave="this.style.background='#1a202c'">Distribuie Plata →</button>
+                    </form>
+                </div>
+
+            </div>
+
+            <!-- Calcul Penalitate Modal -->
+            <div id="penalty-modal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.55);justify-content:center;align-items:flex-start;padding:60px 16px;" onclick="if(event.target===this)this.style.display='none'">
+                <div style="background:white;border-radius:20px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.25);position:relative;margin:auto;">
+                    <div style="padding:22px 28px 18px;border-bottom:2px solid #f0f4f8;">
+                        <div style="font-size:18px;font-weight:800;color:#1a202c;margin:0;">Calcul Penalitate</div>
+                        <div style="color:#718096;font-size:13px;margin-top:4px;">Corp × 0,04% × zile întârziere</div>
+                        <button onclick="document.getElementById('penalty-modal').style.display='none'" style="position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;color:#a0aec0;font-size:22px;line-height:1;padding:2px 6px;">×</button>
+                    </div>
+                    <div style="padding:22px 28px 28px;">
+                        <div style="margin-bottom:14px;">
+                            <label style="display:block;font-size:12px;font-weight:600;color:#4a5568;margin-bottom:6px;">Corp ({{ contract.currency }})</label>
+                            <input type="number" id="pc-corp" placeholder="0.00" step="0.01" value="{{ row.4|floatformat:2 }}"
+                                style="width:100%;padding:11px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:15px;color:#1a202c;outline:none;" oninput="calcPenalty()" />
+                        </div>
+                        <div style="margin-bottom:14px;">
+                            <label style="display:block;font-size:12px;font-weight:600;color:#4a5568;margin-bottom:6px;">Zile întârziere</label>
+                            <input type="number" id="pc-days" placeholder="0" min="0" value="{{ row.21 }}"
+                                style="width:100%;padding:11px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:15px;color:#1a202c;outline:none;" oninput="calcPenalty()" />
+                        </div>
+                        <div id="pc-result" style="display:none;background:#fff7ed;border:2px solid #fcd34d;border-radius:12px;padding:18px 20px;text-align:center;margin-bottom:14px;">
+                            <div style="font-size:12px;color:#92400e;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:6px;">Penalitate calculată</div>
+                            <div style="font-size:28px;font-weight:800;color:#dc2626;" id="pc-result-val">0,00</div>
+                            <div style="font-size:11px;color:#92400e;margin-top:6px;" id="pc-result-formula"></div>
+                        </div>
+                        <button onclick="usePenalty()" style="width:100%;padding:14px;background:#dc2626;color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;">
+                            Folosește această sumă →
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+            (function() {
+                var corpBase   = parseFloat("{{ row.4|floatformat:2 }}") || 0;
+                var dobanda    = parseFloat("{{ row.5|floatformat:2 }}") || 0;
+                var commission = parseFloat("{{ row.6|floatformat:2 }}") || 0;
+                var currency   = "{{ contract.currency }}";
+
+                function fmt(n) { return n.toFixed(2).replace('.', ','); }
+
+                window.calcPenalty = function() {
+                    var corp = parseFloat(document.getElementById('pc-corp').value) || 0;
+                    var days = parseInt(document.getElementById('pc-days').value) || 0;
+                    var result = corp * 0.0004 * days;
+                    var box = document.getElementById('pc-result');
+                    if (corp > 0 && days > 0) {
+                        document.getElementById('pc-result-val').textContent = fmt(result) + ' ' + currency;
+                        document.getElementById('pc-result-formula').textContent =
+                            fmt(corp) + ' × 0,04% × ' + days + ' zile';
+                        box.style.display = 'block';
+                    } else {
+                        box.style.display = 'none';
+                    }
+                };
+
+                window.usePenalty = function() {
+                    var corp = parseFloat(document.getElementById('pc-corp').value) || 0;
+                    var days = parseInt(document.getElementById('pc-days').value) || 0;
+                    var result = (corp * 0.0004 * days).toFixed(2);
+                    document.getElementById('penalty-input').value = result;
+                    document.getElementById('penalty-form-field').value = result;
+                    document.getElementById('penalty-modal').style.display = 'none';
+                    updateTotal();
+                };
+
+                window.updateTotal = function() {
+                    var pen = parseFloat(document.getElementById('penalty-input').value) || 0;
+                    document.getElementById('penalty-form-field').value = pen.toFixed(2);
+                    var total = corpBase + dobanda + commission + pen;
+                    document.getElementById('total-penalty-display').textContent = pen.toFixed(2) + ' ' + currency;
+                    document.getElementById('total-datorat-display').textContent = total.toFixed(2) + ' ' + currency;
+                };
+
+                window.updateEurPreview = function() {
+                    var mdl = parseFloat(document.getElementById('id_sum').value) || 0;
+                    var rate = parseFloat(document.getElementById('id_exchange_rate').value) || 0;
+                    var preview = document.getElementById('eur-preview');
+                    if (!preview) return;
+                    preview.textContent = (mdl > 0 && rate > 0) ? (mdl / rate).toFixed(2).replace('.', ',') : '—';
+                };
+
+                // Auto-fetch today's BNM EUR/MDL rate
+                (function() {
+                    var rateField = document.getElementById('id_exchange_rate');
+                    if (!rateField) return;
+                    fetch("{% url 'bnm_rate' %}")
+                        .then(function(r) { return r.json(); })
+                        .then(function(data) {
+                            if (data.success) {
+                                rateField.value = data.rate.toFixed(4);
+                                var status = document.getElementById('bnm-status');
+                                if (status) status.textContent = 'Actualizat automat (' + data.rate.toFixed(4) + ' MDL/EUR)';
+                                updateEurPreview();
+                            }
+                        })
+                        .catch(function() {});
+                })();
+
+                // Init calc with pre-filled values
+                calcPenalty();
+            })();
+            </script>
+
+            {% endwith %}
         </div>
 
 
         <div class="tab-pane active" id = "repayment_schedule">
             <br>
-            <a class="btn btn-sm btn-outline-info" href="{% url 'downloadContract' contract.id %}">Download Contract</a>
-            {% for guarantor in guarantors %}
-            <a class="btn btn-sm btn-outline-info" href="{% url 'downloadFideContract' guarantor.id %}">Download Fid. Contract {{guarantor.num}}</a>
-            {% endfor %}
-            {% for lienholder in lienholders %}
-            <a class="btn btn-sm btn-outline-info" href="{% url 'download_gaj_contract' lienholder.id %}">Download Gaj Contract {{lienholder.num}}</a>
-            <a class="btn btn-sm btn-outline-info" href="{% url 'download_gaj_aviz' lienholder.id %}">Download Gaj Aviz {{lienholder.num}}</a>
-            {% endfor %}
-            <br>
-            <br>
-            <div class="card card-body table-responsive">
-                <table class="table table-bordered">
-                    <thead class="thead-dark">
-                        <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Repayment Date</th>
-                            <th scope="col">Remaining Credit</th>
-                            <th scope="col">Principal</th>
-                            <th scope="col">Interest</th>
-                            <th scope="col">Total</th>
-                            <th scope="col">Penalty</th>
-                            <th scope="col">Repaid Principal</th>
-                            <th scope="col">Repaid Interest</th>
-                            <th scope="col">Repaid Penalty</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for row in table %}
-                                <tr>
-                                    <td>{{row.0}}</td>
-                                    <td>{{row.1}}</td>
-                                    <td>{{row.2|floatformat:2}}</td>
-                                    <td>{{row.3|floatformat:2}}</td>
-                                    <td>
-                                        <div class="row">
-                                            <div class="col-sm pr-0">
-                                                {{row.4|floatformat:2}}
-                                            </div>
-                                            {% if row.10 %}
-                                            <div class="col-sm px-0">
-                                                <a class="btn-sm btn-danger" href="{% url 'delete_i_waive' contract.id row.0%}">Waived</a>
-                                            </div>
-                                            {% else %}
-                                            <div class="col-sm px-0">
-                                                <a class="btn-sm btn-success" href="{% url 'interest_waive' contract.id row.0%}">Waive</a>
-                                            </div>
-                                            {% endif %}
-                                        </div>
-                                    </td>
-                                    <td>{{row.5|floatformat:2}}</td>
-                                    <td>
-                                        <div class="row">
-                                            <div class="col-sm pr-0">
-                                                {{row.6|floatformat:2}}
-                                            </div>
-                                            {% if row.11 %}
-                                            <div class="col-sm px-0">
-                                                <a class="btn-sm btn-danger" href="{% url 'delete_p_waive' contract.id row.0%}">Waived</a>
-                                            </div>
-                                            {% else %}
-                                            <div class="col-sm px-0">
-                                                <a class="btn-sm btn-success" href="{% url 'penalty_waive' contract.id row.0%}">Waive</a>
-                                            </div>
-                                            {% endif %}
-                                        </div>
-                                    </td>
-                                    <td>{{row.7|floatformat:2}}</td>
-                                    <td>{{row.8|floatformat:2}}</td>
-                                    <td>{{row.9|floatformat:2}}</td>
-                                </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div style="margin-bottom:16px;">
+                <a class="btn btn-sm btn-outline-info" href="{% url 'downloadContract' contract.id %}">Download Contract</a>
+                {% for guarantor in guarantors %}
+                <a class="btn btn-sm btn-outline-info" href="{% url 'downloadFideContract' guarantor.id %}">Download Fid. Contract {{guarantor.num}}</a>
+                {% endfor %}
+                {% for lienholder in lienholders %}
+                <a class="btn btn-sm btn-outline-info" href="{% url 'download_gaj_contract' lienholder.id %}">Download Gaj Contract {{lienholder.num}}</a>
+                <a class="btn btn-sm btn-outline-info" href="{% url 'download_gaj_aviz' lienholder.id %}">Download Gaj Aviz {{lienholder.num}}</a>
+                {% endfor %}
+            </div>
+
+            <style>
+                .sched-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+                .sched-table thead th {
+                    background: #f8fafc; padding: 10px 12px; text-align: center;
+                    font-size: 11px; font-weight: 700; color: #1a202c;
+                    white-space: nowrap; border: 1px solid #cbd5e1;
+                }
+                .sched-table tbody td {
+                    padding: 8px 12px; text-align: center; color: #2d3748;
+                    border: 1px solid #e2e8f0; white-space: nowrap;
+                }
+                .sched-table tbody tr:hover { background: #f8fafc; }
+            </style>
+
+            <div style="background:white;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);overflow:hidden;">
+                <div style="padding:16px 20px;border-bottom:1px solid #f0f4f8;display:flex;justify-content:space-between;align-items:center;">
+                    <h3 style="font-size:15px;font-weight:700;color:#1a202c;margin:0;">Graficul de rambursare</h3>
+                    <span style="background:#fef3c7;color:#d97706;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;">{{ contract.calc_method }}</span>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="sched-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Data</th>
+                                <th>Sold rămas</th>
+                                <th>Corp</th>
+                                <th>Dobândă</th>
+                                <th>Total</th>
+                                {% if profile.0.20 > 0 %}<th>Comision</th>{% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in table %}
+                            {% if row.0 == 'CA' %}
+                            <tr style="background:#fff7ed;">
+                                <td style="color:#c05621;font-weight:700;">CA</td>
+                                <td style="color:#c05621;">{{ row.1 }}</td>
+                                <td style="color:#a0aec0;">—</td>
+                                <td style="color:#a0aec0;">—</td>
+                                <td style="color:#a0aec0;">—</td>
+                                <td style="color:#a0aec0;">—</td>
+                                {% if profile.0.20 > 0 %}<td style="color:#c05621;font-weight:700;">{{ row.6|floatformat:2 }}</td>{% endif %}
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td>{{ row.0 }}</td>
+                                <td>{{ row.1 }}</td>
+                                <td>{{ row.2|floatformat:2 }}</td>
+                                <td>{{ row.3|floatformat:2 }}</td>
+                                <td>{{ row.4|floatformat:2 }}</td>
+                                <td>{{ row.5|floatformat:2 }}</td>
+                                {% if profile.0.20 > 0 %}<td>{{ row.6|floatformat:2 }}</td>{% endif %}
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -264,85 +485,228 @@
             <a class="btn btn-outline-success btn-sm" href="{% url 'download_payments' contract.id %}">Download Payment Info</a>
             <br>
             <br>
-            <div class="card card-body">
-			<table class="table table-bordered w-75">
-                <thead class="thead-dark">
-				    <tr>
-                        <th>#</th>
-				    	<th>Date</th>
-                        {% if all_payments.0.2 %}
-                        <th>Sum(MDL)</th>
-                        <th>Rate</th>
-                        <th>Sum(EUR)</th>
-                        {% else %}
-                        <th>Sum</th>
-                        {% endif %}
-				    	<th></th>
-                        <th></th>
-				    </tr>
-                </thead>
-                <tbody>
-				    {% for payment in all_payments %}
-				    	<tr>
-                            <td>{{payment.1}}</td>
-				    		<td>{{payment.0.date_paid|date:"d/m/Y"}}</td>
-                            {% if payment.2 %}
-                            <td>{{payment.0.sum|floatformat:2}}</td>
-                            <td>{{payment.3|floatformat:3}}</td>
-                            <td>{{payment.4|floatformat:2}}</td>
-                            {% else %}
-                            <td>{{payment.0.sum|floatformat:2}}</td>
-                            {% endif %}
-                            <td><a class="btn btn-sm btn-info" href="{% url 'update_payment' payment.0.id %}">Update Payment</a></td>
-				    		<td><a class="btn btn-sm btn-danger" href="{% url 'delete_payment' payment.0.id %}">Delete Payment</a></td>
-				    	</tr>
-                    {% empty %}
-				    {% endfor %}
-                    <tr>
-                        <td class="table-secondary"></td>
-                        <td class="table-secondary">TOTAL:</td>
-                        {% if all_payments.0.2 %}
-                        <td>{{total_payments.0}}</td>
-                        <td></td>
-                        <td>{{total_payments.1}}</td>
-                        {% else %}
-                        <td>{{total_payments.0}}</td>
-                        {% endif %}
-                        <td></td>
-                        <td></td>
-                    </tr>
-                </tbody>
-			</table>
-		    </div>
-        </div>
-
-        <div class="tab-pane fade" id="penalties">
-            <br>
-            <div class="card card-body">
-                <table class="table table-bordered w-50">
-                    <thead class="thead-dark">
-                        <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Date</th>
-                            <th scope="col">Penalty</th>
-                            <th scope="col">Days Delinquent</th>
-                            <th scope="col">Paid</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for row in penalties %}
-                                <tr>
-                                    <td>{{row.0}}</td>
-                                    <td>{{row.1}}</td>
-                                    <td>{{row.2|floatformat:2}}</td>
-                                    <td>{{row.3}}</td>
-                                    <td>{{row.4|floatformat:2}}</td>
-                                </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <style>
+                .istoric-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+                .istoric-table thead th {
+                    background: #f8fafc; padding: 10px 12px; text-align: center; font-size: 11px;
+                    font-weight: 700; color: #1a202c; white-space: nowrap; border: 1px solid #cbd5e1;
+                }
+                .istoric-table tbody td {
+                    padding: 8px 12px; text-align: center; color: #2d3748; border: 1px solid #e2e8f0; white-space: nowrap;
+                }
+                .istoric-table tbody tr:hover { background: #f8fafc; }
+                .istoric-table tbody tr.total-row td { font-weight: 700; background: #f0f4f8; border-top: 2px solid #cbd5e1; font-size: 13px; }
+            </style>
+            <div style="background:white;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);overflow:hidden;">
+                <div style="padding:16px 20px;border-bottom:1px solid #f0f4f8;display:flex;justify-content:space-between;align-items:center;">
+                    <h3 style="font-size:15px;font-weight:700;color:#1a202c;margin:0;">Istoric Plăți</h3>
+                    <span style="background:#fef3c7;color:#d97706;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;">{{ all_payments|length }}</span>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="istoric-table">
+                        <thead>
+                            <tr>
+                                <th>Nr.</th>
+                                <th>Data</th>
+                                {% if all_payments.0.2 %}
+                                <th>Sumă (MDL)</th>
+                                <th>Curs</th>
+                                <th>Sumă (EUR)</th>
+                                {% else %}
+                                <th>Sumă</th>
+                                {% endif %}
+                                <th>→ Penalitate</th>
+                                <th>→ Comision</th>
+                                <th>→ Dobândă</th>
+                                <th>→ Corp</th>
+                                <th>Rest</th>
+                                <th>Corp rămas</th>
+                                <th>Dob. rămasă</th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in all_payments %}
+                            {% with bd=payment.5 %}
+                            <tr>
+                                <td><b>{{ payment.1 }}</b></td>
+                                <td>{{ payment.0.date_paid|date:"d/m/Y" }}</td>
+                                {% if payment.2 %}
+                                <td style="color:#718096;">{{ payment.0.sum|floatformat:2 }} MDL</td>
+                                <td>{{ payment.3|floatformat:3 }}</td>
+                                <td style="font-weight:600;">{{ payment.4|floatformat:2 }} EUR</td>
+                                {% else %}
+                                <td>{{ payment.0.sum|floatformat:2 }}</td>
+                                {% endif %}
+                                <td style="color:#dc2626;">{% if bd.to_penalty > 0 %}{{ bd.to_penalty|floatformat:2 }}{% else %}—{% endif %}</td>
+                                <td style="color:#7c3aed;">{% if bd.to_commission > 0 %}{{ bd.to_commission|floatformat:2 }}{% else %}—{% endif %}</td>
+                                <td style="color:#d97706;">{% if bd.to_interest > 0 %}{{ bd.to_interest|floatformat:2 }}{% else %}—{% endif %}</td>
+                                <td style="color:#276749;font-weight:700;">{% if bd.to_principal > 0 %}{{ bd.to_principal|floatformat:2 }}{% else %}—{% endif %}</td>
+                                <td style="color:#64748b;">—</td>
+                                <td style="color:{% if bd.corp_remaining <= 0 %}#276749{% else %}#4a5568{% endif %};">{{ bd.corp_remaining|floatformat:2 }}</td>
+                                <td style="color:{% if bd.interest_remaining <= 0 %}#276749{% else %}#d97706{% endif %};">{{ bd.interest_remaining|floatformat:2 }}</td>
+                                <td><a class="btn btn-sm btn-info" href="{% url 'update_payment' payment.0.id %}">Modificare plată</a></td>
+                                <td><a class="btn btn-sm btn-danger" href="{% url 'delete_payment' payment.0.id %}">Șterge plată</a></td>
+                            </tr>
+                            {% endwith %}
+                            {% empty %}
+                            <tr><td colspan="{% if all_payments.0.2 %}16{% else %}14{% endif %}" style="text-align:center;color:#a0aec0;padding:20px;">Nicio plată înregistrată</td></tr>
+                            {% endfor %}
+                            <tr class="total-row">
+                                <td></td>
+                                <td>TOTAL:</td>
+                                {% if all_payments.0.2 %}
+                                <td>{{ total_payments.0 }}</td>
+                                <td></td>
+                                <td>{{ total_payments.1 }}</td>
+                                {% else %}
+                                <td>{{ total_payments.0 }}</td>
+                                {% endif %}
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
+
+        <div class="tab-pane fade" id="tracker">
+            <br>
+            <div style="background:white;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);overflow:hidden;">
+
+                <!-- Header -->
+                <div style="padding:16px 20px;border-bottom:1px solid #f0f4f8;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+                    <h3 style="font-size:15px;font-weight:700;color:#1a202c;margin:0;">Tracker Rambursări</h3>
+                    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                        <span style="background:#e0f2fe;color:#0369a1;padding:4px 14px;border-radius:20px;font-size:12px;font-weight:700;">{{ tracker_paid }} / {{ tracker_total }} plătite</span>
+                        {% if tracker_total_paid > 0 %}
+                        <span style="font-size:12px;color:#718096;">Total achitat: {{ tracker_total_paid|floatformat:2 }} {{ contract.currency }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Progress bar -->
+                {% if tracker_total > 0 %}
+                <div style="height:4px;background:#f0f4f8;">
+                    <div style="height:100%;background:#276749;width:{% widthratio tracker_paid tracker_total 100 %}%;"></div>
+                </div>
+                {% endif %}
+
+                <div style="overflow-x:auto;">
+                    <style>
+                        .tracker-table { width:100%;border-collapse:collapse;font-size:13px; }
+                        .tracker-table thead th {
+                            background:#f8fafc;padding:10px 12px;text-align:center;
+                            font-size:11px;font-weight:700;color:#1a202c;
+                            white-space:nowrap;border:1px solid #cbd5e1;
+                        }
+                        .tracker-table tbody td {
+                            padding:9px 12px;text-align:center;border:1px solid #e2e8f0;white-space:nowrap;vertical-align:middle;
+                        }
+                    </style>
+                    <table class="tracker-table">
+                        <thead>
+                            <tr>
+                                <th>Nr.</th>
+                                <th>Data scadentă</th>
+                                <th>Corp</th>
+                                <th>Dobândă</th>
+                                {% if profile.0.20 > 0 %}<th>Comision</th>{% endif %}
+                                <th>Total plătit</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in tracker_rows %}
+                            <tr style="{% if r.is_ca %}background:#fff7ed;{% elif r.status == 'closed' %}background:#f0fdf4;{% elif r.status == 'partial' %}background:#fffbeb;{% endif %}">
+
+                                <td style="color:{% if r.is_ca %}#c05621{% else %}#64748b{% endif %};font-weight:{% if r.is_ca %}700{% else %}400{% endif %};">{{ r.n }}</td>
+                                <td style="color:{% if r.is_ca %}#c05621{% else %}#4a5568{% endif %};font-weight:600;">{{ r.date }}</td>
+
+                                <!-- Corp -->
+                                {% if r.is_ca %}
+                                <td style="color:#a0aec0;">—</td>
+                                {% elif r.corp_done %}
+                                <td style="color:#276749;font-weight:600;">
+                                    {{ r.paid_corp|floatformat:2 }}<span style="color:#cbd5e1;font-size:11px;"> / {{ r.plan_corp|floatformat:2 }}</span>
+                                </td>
+                                {% elif r.paid_corp > 0 %}
+                                <td style="color:#d97706;font-weight:600;">
+                                    {{ r.paid_corp|floatformat:2 }}<span style="color:#cbd5e1;font-size:11px;"> / {{ r.plan_corp|floatformat:2 }}</span>
+                                </td>
+                                {% else %}
+                                <td style="color:#94a3b8;">
+                                    —<span style="color:#cbd5e1;font-size:11px;"> / {{ r.plan_corp|floatformat:2 }}</span>
+                                </td>
+                                {% endif %}
+
+                                <!-- Dobândă -->
+                                {% if r.is_ca %}
+                                <td style="color:#a0aec0;">—</td>
+                                {% elif r.dob_done %}
+                                <td style="color:#276749;font-weight:600;">
+                                    {{ r.paid_dob|floatformat:2 }}<span style="color:#cbd5e1;font-size:11px;"> / {{ r.plan_dob|floatformat:2 }}</span>
+                                </td>
+                                {% elif r.paid_dob > 0 %}
+                                <td style="color:#d97706;font-weight:600;">
+                                    {{ r.paid_dob|floatformat:2 }}<span style="color:#cbd5e1;font-size:11px;"> / {{ r.plan_dob|floatformat:2 }}</span>
+                                </td>
+                                {% else %}
+                                <td style="color:#94a3b8;">
+                                    —<span style="color:#cbd5e1;font-size:11px;"> / {{ r.plan_dob|floatformat:2 }}</span>
+                                </td>
+                                {% endif %}
+
+                                <!-- Comision (only shown if contract has commission) -->
+                                {% if profile.0.20 > 0 %}
+                                {% if r.paid_com >= r.plan_com and r.plan_com > 0 %}
+                                <td style="color:{% if r.is_ca %}#c05621{% else %}#276749{% endif %};font-weight:600;">
+                                    {{ r.paid_com|floatformat:2 }}<span style="color:#cbd5e1;font-size:11px;"> / {{ r.plan_com|floatformat:2 }}</span>
+                                </td>
+                                {% elif r.paid_com > 0 %}
+                                <td style="color:#7c3aed;font-weight:600;">
+                                    {{ r.paid_com|floatformat:2 }}<span style="color:#cbd5e1;font-size:11px;"> / {{ r.plan_com|floatformat:2 }}</span>
+                                </td>
+                                {% else %}
+                                <td style="color:#94a3b8;">
+                                    —<span style="color:#cbd5e1;font-size:11px;"> / {{ r.plan_com|floatformat:2 }}</span>
+                                </td>
+                                {% endif %}
+                                {% endif %}
+
+                                <!-- Total plătit -->
+                                <td style="font-weight:700;color:{% if r.is_ca and r.status == 'closed' %}#c05621{% elif r.status == 'closed' %}#276749{% elif r.status == 'partial' %}#d97706{% else %}#94a3b8{% endif %};">
+                                    {% if r.status != 'pending' %}{{ r.total_paid|floatformat:2 }}{% else %}—{% endif %}
+                                </td>
+
+                                <!-- Status badge -->
+                                <td>
+                                    {% if r.status == 'closed' %}
+                                    <span style="background:{% if r.is_ca %}#fff7ed{% else %}#dcfce7{% endif %};color:{% if r.is_ca %}#c05621{% else %}#276749{% endif %};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">✓ Achitat</span>
+                                    {% elif r.status == 'partial' %}
+                                    <span style="background:#fef3c7;color:#d97706;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">Parțial</span>
+                                    {% else %}
+                                    <span style="background:#f1f5f9;color:#94a3b8;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">Așteptare</span>
+                                    {% endif %}
+                                </td>
+
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <div class="tab-pane fade" id = "comments">
             <br>
 
@@ -352,9 +716,10 @@
 				{% for field in commentForm %}
                     <div>{{field}}</div>
 				{% endfor %}
-                <div><button class="btn btn-primary btn-sm mb-3" type="submit" />Save Comments</div>
+                <div><button class="btn btn-primary btn-sm mb-3" type="submit" />Salvează comentarii</div>
 			</form>
         </div>
+
     </div>
     </div>
 

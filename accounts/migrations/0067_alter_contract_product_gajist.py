@@ -17,7 +17,6 @@ class Migration(migrations.Migration):
             field=models.CharField(choices=[('Imobil', 'Imobil'), ('Special', 'Special'), (
                 'Consum', 'Consum'), ('Classic', 'Classic')], default='Classic', max_length=200, null=True),
         ),
-        '''
         migrations.CreateModel(
             name='Gajist',
             fields=[
@@ -42,5 +41,4 @@ class Migration(migrations.Migration):
                 ('contract', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='accounts.contract')),
             ],
         ),
-    '''
     ]

@@ -14,7 +14,7 @@
 						<form method="get">
 							<div class="row">
 								<div class="col-sm col-md-2">
-									<div class="mb-2">Client Count: </div>
+									<div class="mb-2">Nr. clienți: </div>
 									<h4>{{total_clients}}</h4>
 								</div>
 								{%for field in myFilter.form %}
@@ -24,7 +24,7 @@
 								</div>
 								{% endfor %}
 								<div class="col-sm mt-3 align-self-center">
-									<button class="btn btn-primary" type="submit">Search</button>
+									<button class="btn btn-primary" type="submit">Căutare</button>
 								</div>
 							</div>
 					  	</form>
@@ -38,10 +38,10 @@
 					<thead class="thead-dark text-center">
 					<tr>
 						<th class="col-1">ID</th>
-						<th class="col-2">First / Company Name</th>
-						<th class="col-2">Last Name</th>
-						<th class="col-2">Location</th>
-						<th class="col-1">Phone Num.</th>
+						<th class="col-2">Prenume / Companie</th>
+						<th class="col-2">Nume de familie</th>
+						<th class="col-2">Localitate</th>
+						<th class="col-1">Telefon</th>
 						<th class="col-1"></th>
 						<th class="col-1"></th>
 					</tr>
@@ -58,8 +58,8 @@
 							<td>{{client.last_name}}</td>
 							<td>{{client.location}}</td>
 							<td>{{client.phone_num}}</td>
-							<td><a class="btn btn-sm btn-block btn-info" href="{% url 'client' client.id %}">View</a></td>
-							<td><a class="btn btn-sm btn-block btn-danger" href="{% url 'delete_client' client.id %}">Del.</a></td>
+							<td><a class="btn btn-sm btn-block btn-info" href="{% url 'client' client.id %}">Vizualizare</a></td>
+							<td><a class="btn btn-sm btn-block btn-danger" href="{% url 'delete_client' client.id %}">Șterge</a></td>
 						</tr>
 					{% endfor %}
 					</tbody>

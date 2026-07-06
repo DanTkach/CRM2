@@ -14,7 +14,7 @@
                                 {% csrf_token %}
                                 {{ form.management_form }}
                                 <div class="form-group col-sm col-md-1">
-                                    <div class="mb-2">Contract Count: </div>
+                                    <div class="mb-2">Nr. contracte: </div>
                                     <h4>{{count}}</h4>
                                 </div>
                                 <div class="form-group col-sm col-md-1 mr-3">
@@ -30,7 +30,7 @@
                                     {% render_field additionalForm.person class="form-control" %}
                                 </div>
                                 <div class="form-group col-sm col-md-1 mr-3">
-                                    <label>Contract Nr: </label>
+                                    <label>Nr. contract: </label>
                                     {% render_field myFilter.form.id class="form-control" %}
                                 </div>
                                 <div class="form-group col-sm col-md-2 mr-3">
@@ -38,7 +38,7 @@
                                     {% render_field additionalForm.date class="form-control" %}
                                 </div>
                                 <div class="col-sm mt-3 align-self-center">
-                                    <button class="btn btn-primary" type="submit">Update</button>
+                                    <button class="btn btn-primary" type="submit">Actualizare</button>
                                 </div>
                             </div>
                         </form>
@@ -51,11 +51,11 @@
 			<table class="table table-bordered">
 				<thead class="thead-dark">
 				<tr>
-					<th scope="col">Total Principal</th>
-					<th scope="col">Total Outstanding Principal</th>
-					<th scope="col">Total Overdue Principal 30+</th>
-					<th scope="col">Danger Rate</th>
-					<th scope="col">Total Overdue Interest</th>
+					<th scope="col">Corp total</th>
+					<th scope="col">Corp neramburs.</th>
+					<th scope="col">Corp restant 30+</th>
+					<th scope="col">Rata de risc</th>
+					<th scope="col">Dobândă restantă</th>
 				</tr>
 				</thead>
 				<tbody>
@@ -76,18 +76,18 @@
 				<thead class="thead-dark">
 				<tr>
                         <th>ID</th>
-                        <th>Name</th>
-                        <th>Date Created</th>
+                        <th>Nume</th>
+                        <th>Data acordării</th>
                         {% if closed %}
-                            <th>Date Closed</th>
+                            <th>Data închiderii</th>
                         {% else %}
-                            <th>Repayment Date</th>
+                            <th>Data rambursării</th>
                         {% endif %}
-                        <th>Original Principal</th>
-                        <th>Outstanding Principal</th>
-                        <th>Day Delinquent</th>
-                        <th>Principal Overdue</th>
-                        <th>Interest Overdue</th>
+                        <th>Corp inițial</th>
+                        <th>Corp nerambur.</th>
+                        <th>Zile restant</th>
+                        <th>Corp restant</th>
+                        <th>Dobândă restantă</th>
                         <th>Total</th>
 				</tr>
 				</thead>

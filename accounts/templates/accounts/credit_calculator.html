@@ -1,0 +1,678 @@
+{% extends 'accounts/my_main.html' %}
+
+{% block content %}
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .calc-page {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f0f4f8;
+    min-height: calc(100vh - 80px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 16px;
+  }
+
+  .calc-header { text-align: center; margin-bottom: 32px; }
+  .calc-header h1 { font-size: 26px; font-weight: 700; color: #1a202c; }
+  .calc-header p { color: #718096; margin-top: 6px; font-size: 14px; }
+
+  .card-calc {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    padding: 28px;
+    width: 100%;
+    max-width: 620px;
+    margin-bottom: 24px;
+  }
+
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: #a0aec0;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 14px;
+    margin-top: 22px;
+  }
+  .section-title:first-child { margin-top: 0; }
+
+  .form-row-calc { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-group-calc { margin-bottom: 14px; }
+  .form-group-calc.full { grid-column: span 2; }
+
+  .form-group-calc label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 6px;
+  }
+  .form-group-calc input[type="number"],
+  .form-group-calc input[type="date"] {
+    width: 100%;
+    padding: 11px 14px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 15px;
+    color: #1a202c;
+    transition: border-color 0.2s;
+    outline: none;
+    background: white;
+  }
+  .form-group-calc input:focus { border-color: #4f46e5; }
+
+  .toggle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .type-btn {
+    padding: 11px 10px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    background: white;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: #718096;
+    transition: all 0.2s;
+    text-align: center;
+    line-height: 1.4;
+  }
+  .type-btn.active { border-color: #4f46e5; background: #4f46e5; color: white; }
+  .type-btn small { font-weight: 400; font-size: 11px; display: block; margin-top: 2px; }
+
+  .divider-calc { border: none; border-top: 2px solid #f0f4f8; margin: 20px 0; }
+
+  .eur-box {
+    background: #fffbeb;
+    border: 2px solid #fcd34d;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+  .eur-box label { color: #92400e; font-size: 12px; font-weight: 600; display: block; margin-bottom: 6px; }
+  .eur-box input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 2px solid #fcd34d;
+    border-radius: 10px;
+    font-size: 15px;
+    color: #1a202c;
+    outline: none;
+    background: white;
+  }
+  .eur-box input:focus { border-color: #f59e0b; }
+
+  .calc-btn {
+    width: 100%;
+    padding: 14px;
+    background: #4f46e5;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 6px;
+  }
+  .calc-btn:hover { background: #4338ca; }
+
+  /* Results */
+  .results { display: none; width: 100%; max-width: 1100px; }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .summary-item {
+    background: white;
+    border-radius: 12px;
+    padding: 16px 12px;
+    text-align: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  .summary-item .val { font-size: 16px; font-weight: 700; color: #1a202c; margin-bottom: 4px; }
+  .summary-item .lbl { font-size: 10px; color: #718096; text-transform: uppercase; letter-spacing: 0.4px; }
+  .summary-item.blue .val { color: #4f46e5; }
+  .summary-item.red .val { color: #e53e3e; }
+  .summary-item.orange .val { color: #dd6b20; }
+  .summary-item.green .val { color: #38a169; }
+
+  .schedule-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    overflow: hidden;
+  }
+  .schedule-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #f0f4f8;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .schedule-header h3 { font-size: 15px; font-weight: 700; color: #1a202c; }
+  .badge-calc {
+    background: #eef2ff;
+    color: #4f46e5;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .schedule-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .schedule-table thead th {
+    background: #f8fafc;
+    padding: 10px 12px;
+    text-align: right;
+    font-size: 11px;
+    font-weight: 700;
+    color: #718096;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    white-space: nowrap;
+  }
+  .schedule-table thead th:first-child,
+  .schedule-table thead th:nth-child(2) { text-align: center; }
+  .schedule-table tbody td {
+    padding: 9px 12px;
+    text-align: right;
+    color: #2d3748;
+    border-bottom: 1px solid #f7fafc;
+    white-space: nowrap;
+  }
+  .schedule-table tbody td:first-child { text-align: center; font-weight: 600; color: #a0aec0; }
+  .schedule-table tbody td:nth-child(2) { text-align: center; color: #4a5568; }
+  .schedule-table tbody tr:hover { background: #f8fafc; }
+  .schedule-table tbody tr.balloon-row td { background: #fff7ed; color: #c05621; font-weight: 700; }
+  .schedule-table tbody tr.total-row td { font-weight: 700; background: #f0f4f8; border-top: 2px solid #e2e8f0; font-size: 13px; }
+  .euro-col { color: #92400e !important; font-weight: 600; background: #fffbeb; }
+  .schedule-table thead th.euro-col { background: #fef3c7; color: #92400e; }
+
+  .show-more {
+    width: 100%;
+    padding: 12px;
+    background: #f8fafc;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    color: #4f46e5;
+    font-weight: 600;
+    border-top: 1px solid #e2e8f0;
+    transition: background 0.2s;
+  }
+  .show-more:hover { background: #eef2ff; }
+
+  .export-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: #1a202c;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .export-btn:hover { background: #2d3748; }
+
+  @media (max-width: 768px) {
+    .summary-grid { grid-template-columns: 1fr 1fr; }
+    .form-row-calc { grid-template-columns: 1fr; }
+    .form-group-calc.full { grid-column: span 1; }
+  }
+
+  /* ── PRINT STYLES ── */
+  @media print {
+    @page { size: A4 portrait; margin: 10mm 8mm; }
+
+    body { background: white; padding: 0; font-size: 9px; }
+
+    nav, .card-calc, .calc-header, .export-row { display: none !important; }
+
+    .calc-page { padding: 0; background: white; }
+
+    .results {
+      display: block !important;
+      max-width: 100%;
+      width: 100%;
+    }
+
+    .print-header {
+      display: flex !important;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #1a202c;
+    }
+
+    .summary-grid {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .summary-item {
+      box-shadow: none;
+      border: 1px solid #e2e8f0;
+      padding: 7px 6px;
+      border-radius: 6px;
+    }
+    .summary-item .val { font-size: 10px; }
+    .summary-item .lbl { font-size: 7px; }
+
+    .schedule-card { box-shadow: none; border: 1px solid #e2e8f0; }
+    .schedule-header { padding: 7px 10px; }
+    .schedule-header h3 { font-size: 11px; }
+    .badge-calc { font-size: 9px; padding: 2px 8px; }
+
+    .schedule-table { font-size: 8px; }
+    .schedule-table thead th { padding: 5px 6px; font-size: 7px; letter-spacing: 0; }
+    .schedule-table tbody td { padding: 4px 6px; white-space: nowrap; }
+
+    .show-more, .export-row { display: none !important; }
+    .schedule-table tbody tr { page-break-inside: avoid; }
+  }
+</style>
+
+<div class="calc-page">
+
+  <div class="calc-header">
+    <h1>Calculator Credit</h1>
+    <p>Dinar Capital — calcul preliminar</p>
+  </div>
+
+  <div class="card-calc">
+
+    <div class="section-title">Parametrii creditului</div>
+    <div class="form-row-calc">
+      <div class="form-group-calc">
+        <label>Suma creditului (MDL)</label>
+        <input type="number" id="amount" placeholder="100 000" min="0" />
+      </div>
+      <div class="form-group-calc">
+        <label>Termenul (luni)</label>
+        <input type="number" id="term" placeholder="12" min="1" max="360" />
+      </div>
+      <div class="form-group-calc">
+        <label>Rata dobânzii (% anual)</label>
+        <input type="number" id="rate" placeholder="18" step="0.1" min="0" />
+      </div>
+      <div class="form-group-calc">
+        <label>Data acordării creditului</label>
+        <input type="date" id="start-date" />
+      </div>
+    </div>
+
+    <div class="form-group-calc">
+      <label>Sold rezidual / Balloon (MDL) <span style="font-weight:400;color:#a0aec0;">— opțional</span></label>
+      <input type="number" id="residual" placeholder="0" min="0" />
+      <div style="font-size:11px;color:#718096;margin-top:4px;">Suma achitată de client la sfârșitul termenului printr-o singură plată</div>
+    </div>
+
+    <hr class="divider-calc" />
+
+    <div class="section-title">Tipul plăților</div>
+    <div class="toggle-grid">
+      <div class="type-btn active" id="btn-annuity" onclick="setType('annuity')">
+        Anuitate
+        <small>plăți egale lunar</small>
+      </div>
+      <div class="type-btn" id="btn-diff" onclick="setType('diff')">
+        Diferențiat
+        <small>plăți descrescătoare</small>
+      </div>
+    </div>
+
+    <hr class="divider-calc" />
+
+    <div class="section-title">Comisioane</div>
+    <div class="form-row-calc">
+      <div class="form-group-calc">
+        <label>Comision acordare (% din sumă)</label>
+        <input type="number" id="fee-issue" placeholder="0" step="0.1" min="0" max="100" />
+      </div>
+      <div class="form-group-calc">
+        <label>Distribuire pe (luni)</label>
+        <input type="number" id="fee-issue-months" placeholder="1" min="1" value="1" />
+        <div style="font-size:11px;color:#718096;margin-top:4px;">1 = achitat imediat · N = distribuit pe N luni</div>
+      </div>
+      <div class="form-group-calc" style="grid-column:span 2;">
+        <label>Comision întreținere (% din sumă, lunar)</label>
+        <input type="number" id="fee-monthly" placeholder="0" step="0.01" min="0" max="100" />
+      </div>
+    </div>
+
+    <hr class="divider-calc" />
+
+    <div class="eur-box">
+      <label>Curs EUR / MDL (la data acordării)</label>
+      <input type="number" id="eur-rate" placeholder="19.50" step="0.01" min="0" />
+      <div style="font-size:11px;color:#92400e;margin-top:4px;">Folosit pentru calculul coloanei „Total Euro"</div>
+    </div>
+
+    <button class="calc-btn" onclick="calculate()">Calculează</button>
+  </div>
+
+  <div class="results" id="results">
+
+    <!-- Shown only when printing -->
+    <div class="print-header" style="display:none;">
+      <div>
+        <div style="font-size:18px;font-weight:700;color:#1a202c;">Dinar Capital</div>
+        <div style="font-size:12px;color:#718096;margin-top:2px;">Calculator Credit — calcul preliminar</div>
+      </div>
+      <div id="print-meta" style="text-align:right;font-size:11px;color:#4a5568;line-height:1.8;"></div>
+    </div>
+
+    <div class="export-row" style="display:flex; justify-content:flex-end; margin-bottom:14px;">
+      <button class="export-btn" onclick="exportPDF()">
+        ⬇ Exportă PDF
+      </button>
+    </div>
+
+    <div class="summary-grid" id="summary"></div>
+    <div class="schedule-card">
+      <div class="schedule-header">
+        <h3>Graficul de rambursare</h3>
+        <span class="badge-calc" id="type-badge"></span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="schedule-table">
+          <thead>
+            <tr>
+              <th>Num</th>
+              <th>Data</th>
+              <th>Soldul creditului</th>
+              <th>Rata creditului</th>
+              <th>Dobânda</th>
+              <th>Comisionul</th>
+              <th>Plata lunară totală</th>
+              <th class="euro-col">Total Euro</th>
+            </tr>
+          </thead>
+          <tbody id="schedule-body"></tbody>
+        </table>
+      </div>
+      <button class="show-more" id="show-more-btn" onclick="toggleAll()" style="display:none">
+        Afișează tot graficul
+      </button>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+  let paymentType = 'annuity';
+  let fullSchedule = [];
+  let showingAll = false;
+
+  document.getElementById('start-date').value = new Date().toISOString().split('T')[0];
+
+  function setType(t) {
+    paymentType = t;
+    document.getElementById('btn-annuity').classList.toggle('active', t === 'annuity');
+    document.getElementById('btn-diff').classList.toggle('active', t === 'diff');
+  }
+
+  function fmt(n, decimals = 2) {
+    return n.toLocaleString('ro-MD', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+  }
+
+  function addMonths(dateStr, months) {
+    const d = new Date(dateStr);
+    d.setMonth(d.getMonth() + months);
+    return d.toLocaleDateString('ro-MD', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  }
+
+  function calculate() {
+    const amount    = parseFloat(document.getElementById('amount').value);
+    const term      = parseInt(document.getElementById('term').value);
+    const rate      = parseFloat(document.getElementById('rate').value);
+    const startDate = document.getElementById('start-date').value;
+    const feeIssue       = parseFloat(document.getElementById('fee-issue').value) || 0;
+    const feeIssueMonths = parseInt(document.getElementById('fee-issue-months').value) || 1;
+    const feeMo          = parseFloat(document.getElementById('fee-monthly').value) || 0;
+    const residual       = parseFloat(document.getElementById('residual').value) || 0;
+    const eurRate        = parseFloat(document.getElementById('eur-rate').value) || 0;
+
+    if (!amount || !term || !rate || amount <= 0 || term <= 0 || rate <= 0) {
+      alert('Completați toate câmpurile obligatorii corect'); return;
+    }
+    if (residual >= amount) {
+      alert('Soldul rezidual trebuie să fie mai mic decât suma creditului'); return;
+    }
+
+    const issueFeeAmt   = amount * feeIssue / 100;
+    const monthlyFeeAmt = amount * feeMo / 100;
+    const workingAmount = amount - residual;
+
+    fullSchedule = paymentType === 'annuity'
+      ? calcAnnuity(amount, workingAmount, term, rate, residual, issueFeeAmt, feeIssueMonths, monthlyFeeAmt, startDate, eurRate)
+      : calcDiff(amount, workingAmount, term, rate, residual, issueFeeAmt, feeIssueMonths, monthlyFeeAmt, startDate, eurRate);
+
+    const regularRows  = fullSchedule.filter(r => !r.isBalloon && !r.isIssueFee);
+    const totalPlata   = fullSchedule.reduce((s, r) => s + r.total, 0);
+    const totalEuro    = eurRate > 0 ? fullSchedule.reduce((s, r) => s + r.totalEur, 0) : 0;
+    const firstTotal   = (regularRows.find(r => !r.issueChunk) || regularRows[0]).total;
+    const amountEur    = eurRate > 0 ? amount / eurRate : 0;
+
+    document.getElementById('summary').innerHTML = `
+      <div class="summary-item blue">
+        <div class="val">${fmt(amount)} MDL</div>
+        <div class="lbl">Suma creditului MDL</div>
+      </div>
+      <div class="summary-item green">
+        <div class="val">${eurRate > 0 ? fmt(amountEur) + ' EUR' : '—'}</div>
+        <div class="lbl">Suma creditului Euro</div>
+      </div>
+      <div class="summary-item blue">
+        <div class="val">${fmt(firstTotal)} MDL</div>
+        <div class="lbl">Plata lunară MDL</div>
+      </div>
+      <div class="summary-item">
+        <div class="val">${fmt(totalPlata)} MDL</div>
+        <div class="lbl">Total plăți MDL</div>
+      </div>
+      ${eurRate > 0 ? `
+      <div class="summary-item green" style="grid-column: span 4; text-align: right; padding-right: 28px;">
+        <div class="val">${fmt(totalEuro)} EUR</div>
+        <div class="lbl">Total credit în Euro (curs ${fmt(eurRate, 2)} MDL/EUR)</div>
+      </div>` : ''}
+      ${residual > 0 ? `
+      <div class="summary-item orange" style="grid-column: span 4; border-top: 3px solid #f6ad55;">
+        <div class="val">${fmt(residual)} MDL${eurRate > 0 ? ` = ${fmt(residual / eurRate)} EUR` : ''}</div>
+        <div class="lbl">Plată Balloon (luna ${term})</div>
+      </div>` : ''}
+    `;
+
+    const typeLabel = (paymentType === 'annuity' ? 'Anuitate' : 'Diferențiat')
+      + (residual > 0 ? ' + Balloon' : '');
+    document.getElementById('type-badge').textContent = typeLabel;
+
+    showingAll = false;
+    renderSchedule();
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function calcAnnuity(amount, workingAmount, term, annualRate, residual, issueFee, issueMonths, monthlyFee, startDate, eurRate) {
+    const r = annualRate / 100 / 12;
+    const payment = workingAmount * r * Math.pow(1 + r, term) / (Math.pow(1 + r, term) - 1);
+    let balance = amount;
+    const rows = [];
+    const issuePerMonth = issueMonths > 1 && issueFee > 0 ? issueFee / issueMonths : 0;
+    if (issueFee > 0 && issueMonths === 1) {
+      const totalEur = eurRate > 0 ? issueFee / eurRate : 0;
+      rows.push({ n: '—', date: addMonths(startDate, 0), balance: amount, principal: 0, interest: 0, commission: issueFee, payment: 0, total: issueFee, totalEur, isIssueFee: true });
+    }
+    for (let i = 1; i <= term; i++) {
+      const interest   = balance * r;
+      const principal  = payment - interest;
+      balance         -= principal;
+      const issueChunk = (issueMonths > 1 && i <= issueMonths) ? issuePerMonth : 0;
+      const commission = monthlyFee + issueChunk;
+      const total      = payment + commission;
+      const totalEur   = eurRate > 0 ? total / eurRate : 0;
+      rows.push({ n: i, date: addMonths(startDate, i), balance: Math.max(0, balance), principal, interest, commission, issueChunk, payment, total, totalEur });
+    }
+    if (residual > 0) {
+      const totalEur = eurRate > 0 ? residual / eurRate : 0;
+      rows.push({ n: '—', date: addMonths(startDate, term), balance: 0, principal: residual, interest: 0, commission: 0, issueChunk: 0, payment: residual, total: residual, totalEur, isBalloon: true });
+    }
+    return rows;
+  }
+
+  function calcDiff(amount, workingAmount, term, annualRate, residual, issueFee, issueMonths, monthlyFee, startDate, eurRate) {
+    const r = annualRate / 100 / 12;
+    const principal = workingAmount / term;
+    let balance = amount;
+    const rows = [];
+    const issuePerMonth = issueMonths > 1 && issueFee > 0 ? issueFee / issueMonths : 0;
+    if (issueFee > 0 && issueMonths === 1) {
+      const totalEur = eurRate > 0 ? issueFee / eurRate : 0;
+      rows.push({ n: '—', date: addMonths(startDate, 0), balance: amount, principal: 0, interest: 0, commission: issueFee, payment: 0, total: issueFee, totalEur, isIssueFee: true });
+    }
+    for (let i = 1; i <= term; i++) {
+      const interest   = balance * r;
+      const payment    = principal + interest;
+      balance         -= principal;
+      const issueChunk = (issueMonths > 1 && i <= issueMonths) ? issuePerMonth : 0;
+      const commission = monthlyFee + issueChunk;
+      const total      = payment + commission;
+      const totalEur   = eurRate > 0 ? total / eurRate : 0;
+      rows.push({ n: i, date: addMonths(startDate, i), balance: Math.max(0, balance), principal, interest, commission, issueChunk, payment, total, totalEur });
+    }
+    if (residual > 0) {
+      const totalEur = eurRate > 0 ? residual / eurRate : 0;
+      rows.push({ n: '—', date: addMonths(startDate, term), balance: 0, principal: residual, interest: 0, commission: 0, issueChunk: 0, payment: residual, total: residual, totalEur, isBalloon: true });
+    }
+    return rows;
+  }
+
+  function renderSchedule() {
+    const issueFeeRow = fullSchedule.find(r => r.isIssueFee);
+    const regularRows = fullSchedule.filter(r => !r.isBalloon && !r.isIssueFee);
+    const balloonRow  = fullSchedule.find(r => r.isBalloon);
+    const limit       = showingAll ? regularRows.length : Math.min(6, regularRows.length);
+    const visible     = regularRows.slice(0, limit);
+
+    const totPlata = fullSchedule.reduce((s, r) => s + r.total, 0);
+    const totPrinc = regularRows.reduce((s, r) => s + r.principal, 0);
+    const totDob   = regularRows.reduce((s, r) => s + r.interest, 0);
+    const totCom   = fullSchedule.filter(r => !r.isBalloon).reduce((s, r) => s + r.commission, 0);
+    const totEur   = fullSchedule.reduce((s, r) => s + r.totalEur, 0);
+    const eurVisible = fullSchedule.some(r => r.totalEur > 0);
+
+    let html = '';
+
+    if (issueFeeRow) {
+      html += `
+        <tr style="background:#fff7ed;">
+          <td style="color:#c05621;font-weight:700;">CA</td>
+          <td style="color:#c05621;">${issueFeeRow.date}</td>
+          <td style="color:#a0aec0;">—</td>
+          <td style="color:#a0aec0;">—</td>
+          <td style="color:#a0aec0;">—</td>
+          <td style="color:#c05621;font-weight:700;">${fmt(issueFeeRow.commission)}</td>
+          <td style="color:#c05621;font-weight:700;">${fmt(issueFeeRow.total)}</td>
+          <td class="euro-col">${eurVisible ? fmt(issueFeeRow.totalEur) : '—'}</td>
+        </tr>
+      `;
+    }
+
+    html += visible.map(r => `
+      <tr${r.issueChunk > 0 ? ' style="background:#fffdf5;"' : ''}>
+        <td>${r.n}</td>
+        <td>${r.date}</td>
+        <td>${fmt(r.balance)}</td>
+        <td>${fmt(r.principal)}</td>
+        <td>${fmt(r.interest)}</td>
+        <td style="color:${r.commission > 0 ? '#dd6b20' : '#a0aec0'}">${r.commission > 0 ? fmt(r.commission) : '—'}</td>
+        <td><b>${fmt(r.total)}</b></td>
+        <td class="euro-col">${eurVisible ? fmt(r.totalEur) : '—'}</td>
+      </tr>
+    `).join('');
+
+    if (showingAll) {
+      if (balloonRow) {
+        html += `
+          <tr class="balloon-row">
+            <td>Balloon</td>
+            <td>${balloonRow.date}</td>
+            <td>0,00</td>
+            <td>${fmt(balloonRow.principal)}</td>
+            <td>—</td>
+            <td>—</td>
+            <td>${fmt(balloonRow.total)}</td>
+            <td class="euro-col">${eurVisible ? fmt(balloonRow.totalEur) : '—'}</td>
+          </tr>
+        `;
+      }
+      html += `
+        <tr class="total-row">
+          <td>Total</td>
+          <td>—</td>
+          <td>—</td>
+          <td>${fmt(totPrinc + (balloonRow ? balloonRow.principal : 0))}</td>
+          <td>${fmt(totDob)}</td>
+          <td>${fmt(totCom)}</td>
+          <td>${fmt(totPlata)}</td>
+          <td class="euro-col">${eurVisible ? fmt(totEur) : '—'}</td>
+        </tr>
+      `;
+    }
+
+    document.getElementById('schedule-body').innerHTML = html;
+
+    const btn = document.getElementById('show-more-btn');
+    if (regularRows.length > 6) {
+      btn.style.display = 'block';
+      btn.textContent = showingAll
+        ? 'Restrânge graficul'
+        : `Afișează tot graficul (${regularRows.length} rânduri)`;
+    } else {
+      btn.style.display = 'none';
+    }
+  }
+
+  function toggleAll() {
+    showingAll = !showingAll;
+    renderSchedule();
+  }
+
+  function exportPDF() {
+    const wasShowingAll = showingAll;
+    if (!showingAll) { showingAll = true; renderSchedule(); }
+
+    const amount  = document.getElementById('amount').value;
+    const term    = document.getElementById('term').value;
+    const rate    = document.getElementById('rate').value;
+    const eurRate = document.getElementById('eur-rate').value;
+    const dateVal = document.getElementById('start-date').value;
+    const dateStr = dateVal ? new Date(dateVal).toLocaleDateString('ro-MD') : '—';
+
+    document.getElementById('print-meta').innerHTML = `
+      Suma: <b>${parseFloat(amount).toLocaleString('ro-MD')} MDL</b><br>
+      Termen: <b>${term} luni</b> &nbsp;|&nbsp; Dobândă: <b>${rate}% anual</b><br>
+      Data acordării: <b>${dateStr}</b> &nbsp;|&nbsp; Curs EUR: <b>${eurRate} MDL</b><br>
+      Data tipăririi: <b>${new Date().toLocaleDateString('ro-MD')}</b>
+    `;
+
+    setTimeout(() => {
+      window.print();
+      if (!wasShowingAll) { showingAll = false; renderSchedule(); }
+    }, 100);
+  }
+</script>
+{% endblock js %}

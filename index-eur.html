@@ -1,0 +1,2005 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculator Credit EUR — Dinar Capital</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f0f4f8;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 16px;
+    }
+
+    .header { text-align: center; margin-bottom: 32px; }
+    .header h1 { font-size: 26px; font-weight: 700; color: #1a202c; }
+    .header p { color: #718096; margin-top: 6px; font-size: 14px; }
+    .eur-badge {
+      display: inline-block;
+      background: #d97706;
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 3px 12px;
+      border-radius: 20px;
+      margin-top: 8px;
+      letter-spacing: 1px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      padding: 28px;
+      width: 100%;
+      max-width: 620px;
+      margin-bottom: 24px;
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #a0aec0;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 14px;
+      margin-top: 22px;
+    }
+    .section-title:first-child { margin-top: 0; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-group { margin-bottom: 14px; }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #4a5568;
+      margin-bottom: 6px;
+    }
+    input[type="number"], input[type="date"], input[type="text"] {
+      width: 100%;
+      padding: 11px 14px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 15px;
+      color: #1a202c;
+      transition: border-color 0.2s;
+      outline: none;
+      background: white;
+    }
+    input:focus { border-color: #d97706; }
+
+    .toggle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    .type-btn {
+      padding: 11px 10px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      background: white;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      color: #718096;
+      transition: all 0.2s;
+      text-align: center;
+      line-height: 1.4;
+    }
+    .type-btn.active { border-color: #d97706; background: #d97706; color: white; }
+    .type-btn small { font-weight: 400; font-size: 11px; display: block; margin-top: 2px; }
+
+    .divider { border: none; border-top: 2px solid #f0f4f8; margin: 20px 0; }
+
+    .calc-btn {
+      width: 100%;
+      padding: 14px;
+      background: #d97706;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 6px;
+    }
+    .calc-btn:hover { background: #b45309; }
+
+    .results { display: none; width: 100%; max-width: 1000px; }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .summary-item {
+      background: white;
+      border-radius: 12px;
+      padding: 16px 12px;
+      text-align: center;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .summary-item .val { font-size: 16px; font-weight: 700; color: #1a202c; margin-bottom: 4px; }
+    .summary-item .lbl { font-size: 10px; color: #718096; text-transform: uppercase; letter-spacing: 0.4px; }
+    .summary-item.amber .val { color: #d97706; }
+    .summary-item.red .val { color: #e53e3e; }
+    .summary-item.orange .val { color: #dd6b20; }
+
+    .schedule-card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+    .schedule-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #f0f4f8;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .schedule-header h3 { font-size: 15px; font-weight: 700; color: #1a202c; }
+    .badge {
+      background: #fef3c7;
+      color: #d97706;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead th {
+      background: #f8fafc;
+      padding: 10px 12px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #1a202c;
+      white-space: nowrap;
+      border: 1px solid #cbd5e1;
+    }
+    tbody td {
+      padding: 8px 12px;
+      text-align: center;
+      color: #2d3748;
+      border: 1px solid #e2e8f0;
+      white-space: nowrap;
+    }
+    tbody tr:hover { background: #f8fafc; }
+    tbody tr.balloon-row td { background: #fff7ed; color: #c05621; font-weight: 700; }
+    tbody tr.total-row td { font-weight: 700; background: #f0f4f8; border-top: 2px solid #cbd5e1; font-size: 13px; }
+
+    .show-more {
+      width: 100%;
+      padding: 12px;
+      background: #f8fafc;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      color: #d97706;
+      font-weight: 600;
+      border-top: 1px solid #e2e8f0;
+      transition: background 0.2s;
+    }
+    .show-more:hover { background: #fef3c7; }
+
+    @media (max-width: 768px) {
+      .summary-grid { grid-template-columns: 1fr 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+
+    .export-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: #1a202c;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .export-btn:hover { background: #2d3748; }
+
+    .print-footer { display: none; }
+
+    @media print {
+      /* margin:0 suppresses the browser's default date/title header & footer */
+      @page { size: A4 portrait; margin: 0; }
+      body { background: white; padding: 12mm 13mm 10mm; font-size: 12px; color: #1a202c; }
+      .card, .header, .export-row { display: none !important; }
+      .results { display: block !important; max-width: 100%; width: 100%; }
+      .print-header { display: block !important; margin-bottom: 12px; }
+      .summary-grid { grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 12px; }
+      .summary-item { box-shadow: none; border: 1px solid #cbd5e1; padding: 8px 6px; border-radius: 6px; }
+      .summary-item .val,
+      .summary-item.amber .val,
+      .summary-item.red .val,
+      .summary-item.orange .val,
+      .summary-item .val[style] { font-size: 13px; color: #1a202c !important; }
+      .summary-item .lbl { font-size: 9px; color: #374151; }
+      .schedule-card { box-shadow: none; border: 1px solid #cbd5e1; }
+      .schedule-header { padding: 8px 12px; }
+      .schedule-header h3 { font-size: 13px; color: #1a202c; }
+      .badge { font-size: 10px; padding: 2px 8px; color: #1a202c !important; background: #f1f5f9 !important; }
+      table { font-size: 11px; border-collapse: collapse; color: #1a202c; }
+      thead th { padding: 6px 8px; font-size: 10px; letter-spacing: 0; border: 1px solid #1a202c; text-align: center; color: #1a202c; }
+      tbody td { padding: 5px 8px; white-space: nowrap; border: 1px solid #374151; text-align: center; color: #1a202c !important; }
+      tbody tr.balloon-row td { background: #f8fafc !important; color: #1a202c !important; font-weight: 700; }
+      tbody tr td[style*="color"] { color: #1a202c !important; }
+      .show-more, .export-row { display: none !important; }
+      tbody tr { page-break-inside: avoid; }
+      .print-footer { display: block !important; margin-top: 16px; page-break-inside: avoid; }
+    }
+
+    .tab-nav {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      width: 100%;
+      max-width: 620px;
+    }
+    .tab-nav-btn {
+      flex: 1;
+      padding: 12px 20px;
+      border-radius: 12px;
+      border: 2px solid #e2e8f0;
+      background: white;
+      color: #718096;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab-nav-btn:hover { background: #f8fafc; color: #4a5568; }
+    .tab-nav-btn.active { border-color: #d97706; background: #d97706; color: white; }
+    .tab-nav-btn.dark-active { border-color: #1a202c; background: #1a202c; color: white; }
+    .tab-panel { width: 100%; display: flex; flex-direction: column; align-items: center; }
+
+    .cp-hor-btn {
+      padding: 8px 18px; border-radius: 8px; border: 2px solid #e2e8f0;
+      background: white; color: #718096; font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .cp-hor-btn:hover { background: #f8fafc; }
+    .cp-hor-btn.active { border-color: #1a1a2e; background: #1a1a2e; color: white; }
+
+    .cp-scen-card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 2px 16px rgba(0,0,0,0.07); }
+    .cp-kpi-val  { font-size: 19px; font-weight: 800; color: #1a202c; }
+    .cp-kpi-lbl  { font-size: 10px; color: #718096; text-transform: uppercase; letter-spacing: 0.4px; margin-top: 2px; }
+
+    .cp-table th { font-size: 10px; padding: 6px 8px; }
+    .cp-table td { font-size: 12px; padding: 6px 8px; }
+    .ms-row td   { background: #fffbeb !important; }
+    .ms-row-hi td{ background: #f0fff4 !important; }
+
+    /* ── Reimbursement Modal ── */
+    .reimb-open-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 22px; background: #1a202c; color: white;
+      border: none; border-radius: 12px; font-size: 14px; font-weight: 700;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .reimb-open-btn:hover { background: #2d3748; }
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.55); overflow-y: auto;
+      padding: 32px 16px; justify-content: center; align-items: flex-start;
+    }
+    .modal-box {
+      background: white; border-radius: 20px; width: 100%; max-width: 640px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25); position: relative; margin: auto;
+    }
+    .modal-box-sm { max-width: 420px; }
+    .modal-head {
+      padding: 22px 28px 18px; border-bottom: 2px solid #f0f4f8;
+    }
+    .modal-head h2 { font-size: 18px; font-weight: 800; color: #1a202c; margin: 0; }
+    .modal-head p  { color: #718096; font-size: 13px; margin: 4px 0 0; }
+    .modal-close {
+      position: absolute; top: 16px; right: 16px;
+      background: none; border: none; cursor: pointer; color: #a0aec0;
+      font-size: 22px; line-height: 1; padding: 2px 6px;
+    }
+    .modal-close:hover { color: #1a202c; }
+    .modal-body { padding: 22px 28px 28px; }
+    .msec-title {
+      font-size: 11px; font-weight: 700; color: #a0aec0;
+      text-transform: uppercase; letter-spacing: 0.8px; margin: 18px 0 10px;
+    }
+    .msec-title:first-child { margin-top: 0; }
+    .debt-total-bar {
+      display: flex; gap: 12px; background: #fff7ed;
+      border: 2px solid #fcd34d; border-radius: 12px;
+      padding: 14px 18px; margin: 10px 0; flex-wrap: wrap;
+    }
+    .dtb-cell .lbl { font-size: 10px; color: #92400e; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px; }
+    .dtb-cell .val { font-size: 16px; font-weight: 800; color: #1a202c; }
+    .dtb-cell .val.red { color: #dc2626; }
+    .penalty-calc-btn {
+      padding: 8px 14px; background: #fee2e2; color: #dc2626;
+      border: none; border-radius: 8px; font-size: 12px; font-weight: 700;
+      cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    }
+    .penalty-calc-btn:hover { background: #fecaca; }
+    .eur-preview {
+      display: flex; align-items: flex-end; padding-bottom: 14px;
+      font-size: 14px; color: #718096;
+    }
+    .eur-preview b { color: #1a202c; font-size: 16px; margin: 0 4px; }
+    .dist-result {
+      background: #f0f9ff; border: 2px solid #bae6fd;
+      border-radius: 14px; padding: 6px 20px;
+    }
+    .dist-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 0; border-bottom: 1px solid #e0f2fe; font-size: 14px;
+    }
+    .dist-row:last-child { border-bottom: none; }
+    .dist-row .dlabel { color: #334155; font-weight: 500; }
+    .dist-row .damt   { font-weight: 700; font-size: 15px; }
+    .damt-penalty  { color: #dc2626; }
+    .damt-interest { color: #d97706; }
+    .damt-body     { color: #276749; }
+    .damt-change   { color: #718096; }
+    .new-balances {
+      background: #f0fdf4; border: 2px solid #86efac;
+      border-radius: 14px; padding: 14px 20px; margin-top: 14px;
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; text-align: center;
+    }
+    .nb-lbl { font-size: 10px; color: #718096; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px; }
+    .nb-val { font-size: 16px; font-weight: 800; color: #276749; }
+    .pc-result-box {
+      background: #fff7ed; border: 2px solid #fcd34d;
+      border-radius: 12px; padding: 18px 20px; text-align: center; margin-top: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Calculator Credit</h1>
+  <p>Dinar Capital — calcul preliminar</p>
+  <div class="eur-badge">€ EUR</div>
+  <div style="margin-top:12px;">
+    <a href="index.html" style="background:#f3f4f6;color:#718096;padding:5px 16px;border-radius:20px;font-size:12px;font-weight:700;text-decoration:none;">← MDL</a>
+    &nbsp;
+    <span style="background:#d97706;color:white;padding:5px 16px;border-radius:20px;font-size:12px;font-weight:700;">EUR</span>
+  </div>
+</div>
+
+<!-- TAB NAVIGATION -->
+<div class="tab-nav">
+  <button class="tab-nav-btn active" id="tab-btn-credit" onclick="switchTab('credit')">Calculare Credit</button>
+  <button class="tab-nav-btn" id="tab-btn-forecast" onclick="switchTab('forecast')">Prognoză Rentabilitate</button>
+</div>
+
+<div style="width:100%;max-width:620px;display:flex;justify-content:flex-end;margin-bottom:16px;margin-top:-12px;">
+  <button class="reimb-open-btn" onclick="switchToReimbPage()">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/><rect x="3" y="17" width="18" height="4" rx="1"/></svg>
+    Rambursare
+  </button>
+</div>
+
+<!-- PANEL: CALCULARE CREDIT -->
+<div id="panel-credit-forms" class="tab-panel">
+
+<div class="card">
+
+  <div class="section-title">Parametrii creditului</div>
+  <div class="form-row">
+    <div class="form-group">
+      <label>Suma creditului (EUR)</label>
+      <input type="number" id="amount" placeholder="5 000" min="0" />
+    </div>
+    <div class="form-group">
+      <label>Termenul (luni)</label>
+      <input type="number" id="term" placeholder="12" min="1" max="360" />
+    </div>
+    <div class="form-group">
+      <label>Rata dobânzii (% anual)</label>
+      <input type="number" id="rate" placeholder="12" step="0.1" min="0" />
+    </div>
+    <div class="form-group">
+      <label>Data achitării ratelor</label>
+      <input type="date" id="start-date" />
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>Sold rezidual / Balloon (EUR) <span style="font-weight:400;color:#a0aec0;">— opțional</span></label>
+    <input type="number" id="residual" placeholder="0" min="0" />
+    <div style="font-size:11px;color:#718096;margin-top:4px;">Suma achitată de client la sfârșitul termenului printr-o singură plată</div>
+  </div>
+
+  <hr class="divider" />
+
+  <div class="section-title">Tipul plăților</div>
+  <div class="toggle-grid">
+    <div class="type-btn active" id="btn-annuity" onclick="setType('annuity')">
+      Anuitate
+      <small>plăți egale lunar</small>
+    </div>
+    <div class="type-btn" id="btn-diff" onclick="setType('diff')">
+      Diferențiat
+      <small>plăți descrescătoare</small>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <div class="section-title">Comisioane</div>
+  <div class="form-row">
+    <div class="form-group">
+      <label>Comision acordare (% din sumă)</label>
+      <input type="number" id="fee-issue" placeholder="0" step="0.1" min="0" max="100" />
+    </div>
+    <div class="form-group">
+      <label>Distribuire pe (luni)</label>
+      <input type="number" id="fee-issue-months" placeholder="1" min="1" value="1" />
+      <div style="font-size:11px;color:#718096;margin-top:4px;">1 = achitat imediat · N = distribuit pe N luni</div>
+    </div>
+    <div class="form-group" style="grid-column:span 2;">
+      <label>Comision întreținere (% din sumă, lunar)</label>
+      <input type="number" id="fee-monthly" placeholder="0" step="0.01" min="0" max="100" />
+    </div>
+  </div>
+
+  <button class="calc-btn" onclick="calculate()">Calculează</button>
+</div>
+
+<div class="card">
+  <div class="section-title">Informații document</div>
+  <div class="form-row">
+    <div class="form-group">
+      <label>Anexa nr.</label>
+      <input type="number" id="anexa-nr" placeholder="1" min="1" />
+    </div>
+    <div class="form-group">
+      <label>Nr. contract</label>
+      <input type="text" id="contract-nr" placeholder="751" />
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label>Data contractului</label>
+      <input type="date" id="contract-date" />
+    </div>
+    <div class="form-group">
+      <label>Numele debitorului</label>
+      <input type="text" id="debtor-name" placeholder="Prenume Nume" />
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label>Curs valutar BNM (EUR/MDL)</label>
+      <input type="number" id="bnm-rate" placeholder="19.234" step="0.001" min="0" />
+    </div>
+    <div class="form-group" style="display:flex;align-items:flex-end;">
+      <div style="font-size:11px;color:#718096;padding-bottom:12px;">Curs BNM la data contractului — se va afișa în document</div>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group" style="grid-column:span 2;">
+      <label>Administratorul (CREDITOR)</label>
+      <input type="text" id="admin-name" placeholder="Afanasie Butucea, Administrator" value="Afanasie Butucea, Administrator" />
+    </div>
+  </div>
+</div>
+
+</div><!-- /panel-credit-forms -->
+
+<!-- PANEL: PROGNOZĂ RENTABILITATE -->
+<div id="panel-forecast" class="tab-panel" style="display:none;">
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!--          CALCULATOR CAPITALIZARE PORTOFOLIU          -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="card" style="max-width:840px;">
+  <!-- Header -->
+  <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px;padding-bottom:18px;border-bottom:2px solid #f0f4f8;">
+    <div style="width:48px;height:48px;background:linear-gradient(135deg,#1a1a2e,#2d3748);border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <svg width="22" height="22" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </div>
+    <div>
+      <div style="font-size:19px;font-weight:800;color:#1a202c;letter-spacing:-0.3px;">Calculator Capitalizare Portofoliu</div>
+      <div style="font-size:12px;color:#718096;margin-top:3px;">Model creștere compusă · 3 scenarii paralele · până la 36 luni</div>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-top:0;">Parametrii portofoliului actual</div>
+  <div class="form-row" style="grid-template-columns:repeat(3,1fr);">
+    <div class="form-group">
+      <label>Portofoliu curent (lei)</label>
+      <input type="text" id="cp-portfolio" value="3.281.063" oninput="fmtInput(this)"/>
+    </div>
+    <div class="form-group">
+      <label>Corp returnat / lună actual (lei)</label>
+      <input type="text" id="cp-body" value="195.000" oninput="fmtInput(this)"/>
+      <div style="font-size:11px;color:#718096;margin-top:3px;">Date reale din sistem — Mai 2026</div>
+    </div>
+    <div class="form-group">
+      <label>Rata dobânzii (% anual, flat)</label>
+      <input type="number" id="cp-rate" value="15" step="0.5" min="0"/>
+    </div>
+    <div class="form-group">
+      <label>Termen credite noi (luni)</label>
+      <input type="number" id="cp-term" value="24" min="1" max="120"/>
+    </div>
+    <div class="form-group">
+      <label>Cheltuieli lunare / OPEX (lei)</label>
+      <input type="text" id="cp-opex" value="20.000" oninput="fmtInput(this)"/>
+    </div>
+    <div class="form-group">
+      <label>Obiectiv profit / lună (lei)</label>
+      <input type="text" id="cp-target" value="100.000" oninput="fmtInput(this)"/>
+      <div style="font-size:11px;color:#718096;margin-top:3px;">★ Marcat în tabel la atingere</div>
+    </div>
+  </div>
+
+  <div class="section-title">Investiții externe lunare — 3 scenarii</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
+    <div style="background:#f8fafc;border-radius:12px;padding:14px 16px;border:2px solid #cbd5e1;">
+      <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;">● Scenariu 1 — Bază</div>
+      <label style="font-size:12px;font-weight:600;color:#4a5568;display:block;margin-bottom:5px;">Investiții / lună (lei)</label>
+      <input type="text" id="cp-inv1" value="0" oninput="fmtInput(this)" style="width:100%;padding:9px 12px;border:2px solid #cbd5e1;border-radius:8px;font-size:15px;font-weight:700;color:#1a202c;outline:none;"/>
+    </div>
+    <div style="background:#fffbeb;border-radius:12px;padding:14px 16px;border:2px solid #fcd34d;">
+      <div style="font-size:11px;font-weight:700;color:#d97706;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;">◆ Scenariu 2 — Creștere</div>
+      <label style="font-size:12px;font-weight:600;color:#4a5568;display:block;margin-bottom:5px;">Investiții / lună (lei)</label>
+      <input type="text" id="cp-inv2" value="200.000" oninput="fmtInput(this)" style="width:100%;padding:9px 12px;border:2px solid #fcd34d;border-radius:8px;font-size:15px;font-weight:700;color:#1a202c;outline:none;"/>
+    </div>
+    <div style="background:#f0fff4;border-radius:12px;padding:14px 16px;border:2px solid #68d391;">
+      <div style="font-size:11px;font-weight:700;color:#276749;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;">▲ Scenariu 3 — Agresiv</div>
+      <label style="font-size:12px;font-weight:600;color:#4a5568;display:block;margin-bottom:5px;">Investiții / lună (lei)</label>
+      <input type="text" id="cp-inv3" value="400.000" oninput="fmtInput(this)" style="width:100%;padding:9px 12px;border:2px solid #68d391;border-radius:8px;font-size:15px;font-weight:700;color:#1a202c;outline:none;"/>
+    </div>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px;padding:14px 16px;background:#f8fafc;border-radius:12px;flex-wrap:wrap;">
+    <span style="font-size:12px;font-weight:600;color:#4a5568;white-space:nowrap;">Orizont prognoză:</span>
+    <div style="display:flex;gap:8px;">
+      <button class="cp-hor-btn active" id="cp-hor-12" onclick="setCPHorizon(12)">12 luni</button>
+      <button class="cp-hor-btn" id="cp-hor-24" onclick="setCPHorizon(24)">24 luni</button>
+      <button class="cp-hor-btn" id="cp-hor-36" onclick="setCPHorizon(36)">36 luni</button>
+    </div>
+    <span style="font-size:11px;color:#a0aec0;">★ Portocaliu = atinge obiectivul · Verde intens = profit > 2× obiectiv</span>
+  </div>
+
+  <button class="calc-btn" style="background:linear-gradient(135deg,#1a1a2e,#2d3748);" onmouseenter="this.style.opacity='0.9'" onmouseleave="this.style.opacity='1'" onclick="calcCapitalizare()">
+    Calculează Capitalizarea →
+  </button>
+</div>
+
+<!-- REZULTATE CAPITALIZARE -->
+<div id="fc-results" style="display:none;width:100%;max-width:980px;">
+
+  <!-- 3 scenario summary cards -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;" id="cp-cards"></div>
+
+  <!-- Milestone bar -->
+  <div id="cp-milestones" style="background:white;border-radius:12px;padding:16px 20px;margin-bottom:16px;box-shadow:0 2px 12px rgba(0,0,0,0.06);font-size:13px;line-height:2;"></div>
+
+  <!-- Comparative table -->
+  <div class="schedule-card">
+    <div class="schedule-header">
+      <h3>Prognoză comparativă — capitalizare</h3>
+      <div style="display:flex;gap:8px;">
+        <span style="background:#e2e8f0;color:#64748b;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">● S1</span>
+        <span style="background:#fef3c7;color:#d97706;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">◆ S2</span>
+        <span style="background:#dcfce7;color:#276749;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">▲ S3</span>
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="cp-table">
+        <thead>
+          <tr>
+            <th rowspan="2" style="min-width:56px;vertical-align:middle;">Luna</th>
+            <th colspan="3" style="background:#f8fafc;text-align:center;">Portofoliu activ (lei)</th>
+            <th colspan="3" style="background:#f8fafc;text-align:center;">Corp returnat / lună</th>
+            <th colspan="3" style="background:#f8fafc;text-align:center;">Profit net / lună</th>
+            <th colspan="3" style="background:#f8fafc;text-align:center;">Profit cumulat</th>
+          </tr>
+          <tr>
+            <th style="background:#f1f5f9;color:#64748b;">S1</th><th style="background:#fffbeb;color:#d97706;">S2</th><th style="background:#f0fff4;color:#276749;">S3</th>
+            <th style="background:#f1f5f9;color:#64748b;">S1</th><th style="background:#fffbeb;color:#d97706;">S2</th><th style="background:#f0fff4;color:#276749;">S3</th>
+            <th style="background:#f1f5f9;color:#64748b;">S1</th><th style="background:#fffbeb;color:#d97706;">S2</th><th style="background:#f0fff4;color:#276749;">S3</th>
+            <th style="background:#f1f5f9;color:#64748b;">S1</th><th style="background:#fffbeb;color:#d97706;">S2</th><th style="background:#f0fff4;color:#276749;">S3</th>
+          </tr>
+        </thead>
+        <tbody id="cp-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+</div><!-- /panel-forecast -->
+
+<div class="results" id="results">
+
+  <div class="print-header" style="display:none;">
+    <!-- Top row: logo left, empty right -->
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <svg width="58" height="46" viewBox="0 0 58 46" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="15" cy="23" r="14" fill="#7B1111"/>
+          <path d="M10,13 L10,33 Q22,33 22,23 Q22,13 10,13 Z" fill="white" opacity="0.15"/>
+          <path d="M11,15 L11,31 Q19,31 19,23 Q19,15 11,15 Z" fill="white" opacity="0.9"/>
+          <path d="M13,18 L13,28 Q16.5,28 16.5,23 Q16.5,18 13,18 Z" fill="#7B1111"/>
+          <circle cx="37" cy="23" r="14" fill="#9E9E9E"/>
+          <path d="M43,15 A10,10 0 0,0 43,31" fill="none" stroke="white" stroke-width="4.5" stroke-linecap="round"/>
+          <path d="M44.5,15 L41,15" stroke="white" stroke-width="3" stroke-linecap="round"/>
+          <path d="M44.5,31 L41,31" stroke="white" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+        <div style="font-family:serif;font-size:13px;font-weight:700;line-height:1.35;color:#1a202c;letter-spacing:0.3px;">Dinar<br>Capital</div>
+      </div>
+      <div></div>
+    </div>
+    <!-- Anexa line -->
+    <div id="print-anexa-line" style="font-size:11px;color:#1a202c;margin-bottom:10px;"></div>
+    <!-- Document title -->
+    <div style="text-align:center;font-size:12px;font-weight:700;color:#1a202c;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">
+      GRAFICUL DE RAMBURSARE A RATELOR CREDITULUI ȘI DOBÂNZILOR
+    </div>
+    <!-- Info: left column + right column -->
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;font-size:10px;color:#1a202c;">
+      <div id="print-info-left" style="line-height:1.9;"></div>
+      <div id="print-info-right" style="text-align:right;line-height:1.9;"></div>
+    </div>
+    <!-- Client name -->
+    <div id="print-client-line" style="font-size:11px;color:#1a202c;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #cbd5e1;"></div>
+  </div>
+
+  <div class="export-row" style="display:flex; justify-content:flex-end; margin-bottom:14px;">
+    <button class="export-btn" onclick="exportPDF()">⬇ Exportă PDF</button>
+  </div>
+
+  <div class="summary-grid" id="summary"></div>
+
+  <div class="schedule-card">
+    <div class="schedule-header">
+      <h3>Graficul de rambursare</h3>
+      <span class="badge" id="type-badge"></span>
+    </div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>Nr.</th>
+            <th>Data</th>
+            <th>Zile</th>
+            <th>Suma rămasă</th>
+            <th>Rata împrumutului</th>
+            <th>Dobânda</th>
+            <th>Suma Total</th>
+          </tr>
+        </thead>
+        <tbody id="schedule-body"></tbody>
+      </table>
+    </div>
+    <button class="show-more" id="show-more-btn" onclick="toggleAll()" style="display:none">
+      Afișează tot graficul
+    </button>
+  </div>
+
+  <!-- Print footer -->
+  <div class="print-footer">
+    <p style="font-size:11px;color:#1a202c;margin-bottom:28px;line-height:1.6;">
+      Declar că înțeleg și sunt de acord cu modul prezentat de achitare a ratelor
+      împrumutului și dobânzii și că voi respecta acest mod de achitare.
+    </p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;font-size:11px;margin-bottom:32px;">
+      <div>
+        <div style="font-weight:700;font-size:12px;margin-bottom:40px;">CREDITOR</div>
+        <div style="border-top:1.5px solid #1a202c;padding-top:5px;">
+          <span id="print-footer-admin" style="font-weight:700;"></span>
+        </div>
+      </div>
+      <div>
+        <div style="font-weight:700;font-size:12px;margin-bottom:40px;">DEBITOR</div>
+        <div style="border-top:1.5px solid #1a202c;padding-top:5px;">
+          <span id="print-footer-debtor" style="font-weight:700;"></span>
+        </div>
+      </div>
+    </div>
+    <div style="border-top:1px solid #e2e8f0;padding-top:10px;font-size:9px;color:#4a5568;font-style:italic;line-height:1.8;">
+      <div>Autoritatea de supraveghere – Banca Nationala a Moldovei</div>
+      <div>Adresa - bd. Grigore Vieru 1, mun. Chișinău, MD-2005, Republica Moldova, official@bnm.md, secretariat@bnm.md</div>
+      <div style="margin-top:6px;">Condițiile au fost explicate<span style="display:inline-block;width:200px;border-bottom:1px solid #4a5568;margin-left:4px;">&nbsp;</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PAGINA RAMBURSARE ══════════════════════════════════════════ -->
+<div id="panel-rambursare" style="display:none;width:100%;max-width:1000px;flex-direction:column;align-items:center;">
+
+  <!-- Header row -->
+  <div style="width:100%;display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <div style="display:flex;align-items:center;gap:16px;">
+      <button onclick="closeReimbPage()" style="display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border:2px solid #e2e8f0;border-radius:10px;background:white;color:#4a5568;font-size:14px;font-weight:700;cursor:pointer;" onmouseenter="this.style.borderColor='#1a202c'" onmouseleave="this.style.borderColor='#e2e8f0'">← Înapoi</button>
+      <div>
+        <div style="font-size:20px;font-weight:800;color:#1a202c;">Rambursare Credit</div>
+        <div id="rm-subtitle" style="color:#718096;font-size:13px;margin-top:2px;">—</div>
+      </div>
+    </div>
+    <button onclick="toggleRpSchedule(this)" style="display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border:2px solid #e2e8f0;border-radius:10px;background:white;color:#718096;font-size:13px;font-weight:600;cursor:pointer;" onmouseenter="this.style.background='#f8fafc'" onmouseleave="this.style.background='white'">
+      <span id="rp-type-badge" style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;"></span>
+      Grafic de rambursare ▾
+    </button>
+  </div>
+
+  <!-- Balance cards — current remaining -->
+  <div style="width:100%;margin-bottom:20px;">
+    <div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;padding-left:2px;">Sold curent rămas</div>
+    <div id="rp-balances" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;"></div>
+  </div>
+
+  <!-- Main form card — 3 columns -->
+  <div class="card" style="max-width:none;width:100%;padding:28px;">
+    <div style="display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr;gap:0;align-items:start;">
+
+      <!-- COL 1: Datorie curentă -->
+      <div style="padding-right:28px;">
+        <div class="section-title" style="margin-top:0;">Datorie curentă</div>
+        <div class="form-group">
+          <label>Dobândă acumulată (EUR)</label>
+          <input type="number" id="rm-dobanda" placeholder="0.00" step="0.01" oninput="updateDebtTotal()" />
+        </div>
+        <div class="form-group">
+          <label>Comision (EUR)</label>
+          <input type="number" id="rm-comision" placeholder="0.00" step="0.01" oninput="updateDebtTotal()" />
+        </div>
+        <div class="form-group">
+          <label>Corp datorat (EUR)</label>
+          <input type="number" id="rm-corp" placeholder="0.00" step="0.01" oninput="updateDebtTotal()" />
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label>Zile întârziere</label>
+          <input type="number" id="rm-days" placeholder="0" min="0" />
+        </div>
+      </div>
+
+      <div style="background:#f0f4f8;width:1px;align-self:stretch;margin:0 4px;"></div>
+
+      <!-- COL 2: Penalitate + Total bar -->
+      <div style="padding:0 28px;">
+        <div class="section-title" style="margin-top:0;">Penalitate</div>
+        <div class="form-group">
+          <label>Penalitate (EUR)</label>
+          <input type="number" id="rm-penalty" placeholder="0.00" step="0.01" oninput="updateDebtTotal()" />
+        </div>
+        <button class="penalty-calc-btn" onclick="openPenaltyCalc()" style="width:100%;justify-content:center;padding:11px;">Calcul Penalitate ▸</button>
+        <div class="debt-total-bar" style="margin-top:20px;flex-direction:column;gap:0;">
+          <!-- Corp -->
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #fde68a;">
+            <span style="font-size:10px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:0.5px;min-width:80px;">Corp</span>
+            <span style="font-size:14px;font-weight:800;color:#1a202c;font-variant-numeric:tabular-nums;" id="rm-total-corp">0,00 EUR</span>
+          </div>
+          <!-- Dobândă -->
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #fde68a;">
+            <span style="font-size:10px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:0.5px;min-width:80px;">Dobândă</span>
+            <span style="font-size:14px;font-weight:800;color:#1a202c;font-variant-numeric:tabular-nums;" id="rm-total-dob">0,00 EUR</span>
+          </div>
+          <!-- Comision -->
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #fde68a;">
+            <span style="font-size:10px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:0.5px;min-width:80px;">Comision</span>
+            <span style="font-size:14px;font-weight:800;color:#1a202c;font-variant-numeric:tabular-nums;" id="rm-total-com">0,00 EUR</span>
+          </div>
+          <!-- Penalitate -->
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #fde68a;">
+            <span style="font-size:10px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:0.5px;min-width:80px;">Penalitate</span>
+            <span style="font-size:14px;font-weight:800;color:#1a202c;font-variant-numeric:tabular-nums;" id="rm-total-pen">0,00 EUR</span>
+          </div>
+          <!-- Total -->
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0 4px;">
+            <span style="font-size:10px;font-weight:800;color:#92400e;text-transform:uppercase;letter-spacing:0.5px;min-width:80px;">Total datorat</span>
+            <div style="text-align:right;line-height:1.3;">
+              <div style="font-size:17px;font-weight:800;color:#dc2626;font-variant-numeric:tabular-nums;" id="rm-total-all">0,00 EUR</div>
+              <div style="font-size:12px;font-weight:700;color:#92400e;font-variant-numeric:tabular-nums;opacity:0.85;" id="rm-total-all-mdl"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:#f0f4f8;width:1px;align-self:stretch;margin:0 4px;"></div>
+
+      <!-- COL 3: Plată — action column -->
+      <div style="background:#f8fafc;border-radius:14px;padding:16px 20px;border-left:3px solid #475569;margin-left:8px;align-self:flex-start;">
+        <div style="font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;display:flex;align-items:center;gap:6px;">
+          <svg width="11" height="11" fill="#475569" viewBox="0 0 24 24"><path d="M12 22V12M12 12L8 16M12 12l4 4M3 17h18"/></svg>
+          Plată înregistrată
+        </div>
+
+        <!-- Main MDL input — highlighted -->
+        <div style="background:#475569;border-radius:10px;padding:12px 14px;margin-bottom:10px;">
+          <div style="font-size:10px;font-weight:700;color:#cbd5e1;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:5px;">Suma plătită</div>
+          <div style="display:flex;align-items:baseline;gap:6px;">
+            <input type="number" id="rm-mdl" placeholder="0.00" step="0.01" oninput="updateEurPreview()"
+              style="background:transparent;border:none;outline:none;color:white;font-size:22px;font-weight:800;width:100%;letter-spacing:-0.5px;" />
+            <span style="color:#94a3b8;font-size:13px;font-weight:700;flex-shrink:0;">MDL</span>
+          </div>
+          <div style="border-top:1px solid #64748b;margin-top:8px;padding-top:7px;display:flex;align-items:center;gap:4px;font-size:12px;color:#94a3b8;">
+            = <b id="rm-eur-val" style="color:#f1f5f9;font-size:13px;font-weight:700;margin:0 2px;">—</b> EUR
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:8px;">
+          <label style="color:#4a5568;font-size:11px;">Data plății</label>
+          <input type="date" id="rm-date" />
+        </div>
+        <div class="form-group" style="margin-bottom:12px;">
+          <label style="color:#4a5568;font-size:11px;">Curs BNM (MDL/EUR)</label>
+          <input type="number" id="rm-bnm" placeholder="19.234" step="0.001" oninput="updateEurPreview(); updateDebtTotal();" />
+        </div>
+        <button class="calc-btn" style="margin-top:0;background:#475569;" onmouseenter="this.style.background='#334155'" onmouseleave="this.style.background='#475569'" onclick="distributePayment()">Distribuie Plata →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Istoric Plăți button + table -->
+  <div style="width:100%;margin-top:16px;">
+    <button onclick="togglePayHistory()" id="pay-hist-btn" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border:2px solid #e2e8f0;border-radius:10px;background:white;color:#4a5568;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;" onmouseenter="this.style.borderColor='#1a202c'" onmouseleave="this.style.borderColor='#e2e8f0'">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      Istoric Plăți <span id="pay-hist-count" style="background:#1a202c;color:white;border-radius:20px;padding:1px 8px;font-size:12px;">0</span>
+    </button>
+    <div id="pay-hist-wrap" style="display:none;margin-top:12px;">
+      <div class="schedule-card">
+        <div class="schedule-header">
+          <h3>Istoric Plăți</h3>
+          <button onclick="clearPayHistory()" style="padding:4px 12px;border:1.5px solid #fecaca;border-radius:8px;background:white;color:#dc2626;font-size:12px;font-weight:600;cursor:pointer;">✕ Șterge tot</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr>
+              <th>Nr.</th><th>Data</th><th>MDL plătit</th><th>EUR</th>
+              <th>→ Penalitate</th><th>→ Comision</th><th>→ Dobândă</th><th>→ Corp</th><th>Rest</th>
+              <th>Corp rămas</th><th>Dob. rămasă</th>
+            </tr></thead>
+            <tbody id="pay-hist-body">
+              <tr><td colspan="11" style="text-align:center;color:#a0aec0;padding:20px;">Niciun plată înregistrată</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Graficul de rambursare — collapsible -->
+  <div id="rp-schedule-wrap" style="display:none;width:100%;margin-top:16px;">
+    <div class="schedule-card">
+      <div class="schedule-header">
+        <h3>Graficul de rambursare</h3>
+        <button onclick="toggleRpSchedule()" style="padding:4px 12px;border:1.5px solid #e2e8f0;border-radius:8px;background:white;color:#718096;font-size:12px;font-weight:600;cursor:pointer;">✕ Închide</button>
+      </div>
+      <div style="overflow-x:auto;max-height:400px;overflow-y:auto;">
+        <table>
+          <thead><tr>
+            <th>Nr.</th><th>Data</th><th>Zile</th>
+            <th>Suma rămasă</th><th>Rata împrum.</th>
+            <th>Dobânda</th><th>Total</th>
+          </tr></thead>
+          <tbody id="rp-schedule-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tracker Rambursări -->
+  <div class="schedule-card" id="tracker-card" style="width:100%;margin-top:20px;margin-bottom:32px;">
+    <div class="schedule-header" style="flex-wrap:wrap;gap:10px;">
+      <h3>Tracker Rambursări</h3>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <span class="badge" id="tracker-badge">0 / 0 plătite</span>
+        <span id="tracker-total-paid" style="font-size:12px;color:#718096;"></span>
+        <button onclick="resetTracker()" style="padding:4px 12px;border:1.5px solid #e2e8f0;border-radius:8px;background:white;color:#718096;font-size:12px;font-weight:600;cursor:pointer;">↺ Reset</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead><tr>
+          <th>Nr.</th><th>Data scadentă</th>
+          <th>Corp</th><th>Dobândă</th><th>Comision</th>
+          <th>Penalitate</th><th>Total plătit</th><th>Status</th>
+        </tr></thead>
+        <tbody id="tracker-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ PENALITATE SUB-MODAL ══════════════════════════════════════ -->
+<div class="modal-overlay" id="penalty-modal" onclick="if(event.target===this)closePenaltyCalc()">
+  <div class="modal-box modal-box-sm">
+    <div class="modal-head">
+      <h2>Calcul Penalitate</h2>
+      <p>Corp × 0,04% × zile întârziere</p>
+      <button class="modal-close" onclick="closePenaltyCalc()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Corp (EUR)</label>
+        <input type="number" id="pc-corp" placeholder="0.00" step="0.01" oninput="calcPenaltyResult()" />
+      </div>
+      <div class="form-group">
+        <label>Zile întârziere</label>
+        <input type="number" id="pc-days" placeholder="0" min="0" oninput="calcPenaltyResult()" />
+      </div>
+      <div class="pc-result-box" id="pc-result" style="display:none;">
+        <div style="font-size:12px;color:#92400e;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:6px;">Penalitate calculată</div>
+        <div style="font-size:28px;font-weight:800;color:#dc2626;" id="pc-result-val">0,00 EUR</div>
+        <div style="font-size:11px;color:#92400e;margin-top:6px;" id="pc-result-formula"></div>
+        <button onclick="usePenalty()" style="margin-top:14px;background:#dc2626;color:white;border:none;border-radius:8px;padding:10px 20px;font-size:14px;font-weight:700;cursor:pointer;width:100%;">
+          Folosește această sumă →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let paymentType = 'annuity';
+  let fullSchedule = [];
+  let showingAll = false;
+  let reimbTracker = [];
+  let paymentHistory = [];
+
+  document.getElementById('start-date').value = new Date().toISOString().split('T')[0];
+
+  function setType(t) {
+    paymentType = t;
+    document.getElementById('btn-annuity').classList.toggle('active', t === 'annuity');
+    document.getElementById('btn-diff').classList.toggle('active', t === 'diff');
+  }
+
+  function fmt(n, decimals = 2) {
+    return n.toLocaleString('ro-MD', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+  }
+
+  function addMonths(dateStr, months) {
+    const d = new Date(dateStr);
+    d.setMonth(d.getMonth() + months);
+    return d.toLocaleDateString('ro-MD', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  }
+
+  function daysInPaymentMonth(dateStr, monthOffset) {
+    const d = new Date(dateStr);
+    d.setMonth(d.getMonth() + monthOffset);
+    return new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+  }
+
+  // DAE = Dobânda Anuală Efectivă (APR) — monthly IRR annualized via (1+r)^12 - 1
+  function calcDAE(principal, schedule) {
+    const payments = schedule.map(r => r.total);
+    function npv(r) {
+      let s = -principal;
+      for (let i = 0; i < payments.length; i++) s += payments[i] / Math.pow(1 + r, i + 1);
+      return s;
+    }
+    let lo = 0.0001, hi = 0.5;
+    for (let i = 0; i < 200; i++) {
+      const mid = (lo + hi) / 2;
+      npv(mid) > 0 ? lo = mid : hi = mid;
+    }
+    return (Math.pow(1 + (lo + hi) / 2, 12) - 1) * 100;
+  }
+
+  function calculate() {
+    const amount   = parseFloat(document.getElementById('amount').value);
+    const term     = parseInt(document.getElementById('term').value);
+    const rate     = parseFloat(document.getElementById('rate').value);
+    const startDate = document.getElementById('start-date').value;
+    const feeIssue       = parseFloat(document.getElementById('fee-issue').value) || 0;
+    const feeIssueMonths = parseInt(document.getElementById('fee-issue-months').value) || 1;
+    const feeMo          = parseFloat(document.getElementById('fee-monthly').value) || 0;
+    const residual = parseFloat(document.getElementById('residual').value) || 0;
+
+    if (!amount || !term || !rate || amount <= 0 || term <= 0 || rate <= 0) {
+      alert('Completați toate câmpurile obligatorii corect'); return;
+    }
+    if (residual >= amount) {
+      alert('Soldul rezidual trebuie să fie mai mic decât suma creditului'); return;
+    }
+
+    const issueFeeAmt   = amount * feeIssue / 100;
+    const monthlyFeeAmt = amount * feeMo / 100;
+    const workingAmount = amount - residual;
+
+    fullSchedule = paymentType === 'annuity'
+      ? calcAnnuity(amount, workingAmount, term, rate, residual, issueFeeAmt, feeIssueMonths, monthlyFeeAmt, startDate)
+      : calcDiff(amount, workingAmount, term, rate, residual, issueFeeAmt, feeIssueMonths, monthlyFeeAmt, startDate);
+
+    const regularRows  = fullSchedule.filter(r => !r.isBalloon && !r.isIssueFee);
+    const totalPlata   = fullSchedule.reduce((s, r) => s + r.total, 0);
+    const totalDobanda = regularRows.reduce((s, r) => s + r.interest, 0);
+    const totalComision = regularRows.reduce((s, r) => s + r.commission, 0);
+    const firstTotal   = (regularRows.find(r => !r.issueChunk) || regularRows[0]).total;
+    const dae          = calcDAE(amount, fullSchedule);
+
+    document.getElementById('summary').innerHTML = `
+      <div class="summary-item amber">
+        <div class="val">${fmt(amount)} EUR</div>
+        <div class="lbl">Suma creditului EUR</div>
+      </div>
+      <div class="summary-item red">
+        <div class="val">${fmt(totalDobanda)} EUR</div>
+        <div class="lbl">Total dobândă</div>
+      </div>
+      <div class="summary-item amber">
+        <div class="val">${fmt(firstTotal)} EUR</div>
+        <div class="lbl">Plata lunară EUR</div>
+      </div>
+      <div class="summary-item">
+        <div class="val">${fmt(totalPlata)} EUR</div>
+        <div class="lbl">Total plăți EUR</div>
+      </div>
+      ${residual > 0 ? `
+      <div class="summary-item orange" style="grid-column: span 4; border-top: 3px solid #f6ad55;">
+        <div class="val">${fmt(residual)} EUR</div>
+        <div class="lbl">Plată Balloon (luna ${term})</div>
+      </div>` : ''}
+    `;
+
+    const typeLabel = (paymentType === 'annuity' ? 'Anuitate' : 'Diferențiat')
+      + (residual > 0 ? ' + Balloon' : '');
+    document.getElementById('type-badge').textContent = typeLabel;
+
+    showingAll = false;
+    paymentHistory = [];
+    renderSchedule();
+    initTracker();
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function calcAnnuity(amount, workingAmount, term, annualRate, residual, issueFee, issueMonths, monthlyFee, startDate) {
+    const r = annualRate / 100 / 12;
+    const payment = workingAmount * r * Math.pow(1 + r, term) / (Math.pow(1 + r, term) - 1);
+    let balance = amount;
+    const rows = [];
+    const issuePerMonth = issueMonths > 1 && issueFee > 0 ? issueFee / issueMonths : 0;
+    if (issueFee > 0 && issueMonths === 1) {
+      rows.push({ n: '—', date: addMonths(startDate, 0), balance: amount, principal: 0, interest: 0, commission: issueFee, issueChunk: 0, total: issueFee, isIssueFee: true });
+    }
+    for (let i = 1; i <= term; i++) {
+      const interest   = balance * r;
+      const principal  = payment - interest;
+      balance         -= principal;
+      const issueChunk = (issueMonths > 1 && i <= issueMonths) ? issuePerMonth : 0;
+      const commission = monthlyFee + issueChunk;
+      const total      = payment + commission;
+      rows.push({ n: i, date: addMonths(startDate, i), days: daysInPaymentMonth(startDate, i), balance: Math.max(0, balance), principal, interest, commission, issueChunk, total });
+    }
+    if (residual > 0) {
+      rows.push({ n: '—', date: addMonths(startDate, term), days: null, balance: 0, principal: residual, interest: 0, commission: 0, issueChunk: 0, total: residual, isBalloon: true });
+    }
+    return rows;
+  }
+
+  function calcDiff(amount, workingAmount, term, annualRate, residual, issueFee, issueMonths, monthlyFee, startDate) {
+    const r = annualRate / 100 / 12;
+    const principal = workingAmount / term;
+    let balance = amount;
+    const rows = [];
+    const issuePerMonth = issueMonths > 1 && issueFee > 0 ? issueFee / issueMonths : 0;
+    if (issueFee > 0 && issueMonths === 1) {
+      rows.push({ n: '—', date: addMonths(startDate, 0), balance: amount, principal: 0, interest: 0, commission: issueFee, issueChunk: 0, total: issueFee, isIssueFee: true });
+    }
+    for (let i = 1; i <= term; i++) {
+      const interest   = balance * r;
+      const payment    = principal + interest;
+      balance         -= principal;
+      const issueChunk = (issueMonths > 1 && i <= issueMonths) ? issuePerMonth : 0;
+      const commission = monthlyFee + issueChunk;
+      const total      = payment + commission;
+      rows.push({ n: i, date: addMonths(startDate, i), days: daysInPaymentMonth(startDate, i), balance: Math.max(0, balance), principal, interest, commission, issueChunk, total });
+    }
+    if (residual > 0) {
+      rows.push({ n: '—', date: addMonths(startDate, term), days: null, balance: 0, principal: residual, interest: 0, commission: 0, issueChunk: 0, total: residual, isBalloon: true });
+    }
+    return rows;
+  }
+
+  function renderSchedule() {
+    const issueFeeRow = fullSchedule.find(r => r.isIssueFee);
+    const regularRows = fullSchedule.filter(r => !r.isBalloon && !r.isIssueFee);
+    const balloonRow  = fullSchedule.find(r => r.isBalloon);
+    const limit       = showingAll ? regularRows.length : Math.min(6, regularRows.length);
+    const visible     = regularRows.slice(0, limit);
+
+    const totPlata = fullSchedule.reduce((s, r) => s + r.total, 0);
+    const totPrinc = regularRows.reduce((s, r) => s + r.principal, 0);
+    const totDob   = regularRows.reduce((s, r) => s + r.interest, 0);
+    const totCom   = fullSchedule.filter(r => !r.isBalloon).reduce((s, r) => s + r.commission, 0);
+
+    let html = '';
+
+    if (issueFeeRow) {
+      html += `
+        <tr style="background:#fff7ed;">
+          <td style="color:#c05621;font-weight:700;">CA</td>
+          <td style="color:#c05621;">${issueFeeRow.date}</td>
+          <td style="color:#a0aec0;">—</td>
+          <td style="color:#a0aec0;">—</td>
+          <td style="color:#a0aec0;">—</td>
+          <td style="color:#a0aec0;">—</td>
+          <td style="color:#c05621;font-weight:700;">${fmt(issueFeeRow.total)}</td>
+        </tr>
+      `;
+    }
+
+    html += visible.map(r => `
+      <tr${r.issueChunk > 0 ? ' style="background:#fffdf5;"' : ''}>
+        <td>${r.n}</td>
+        <td>${r.date}</td>
+        <td>${r.days ?? '—'}</td>
+        <td>${fmt(r.balance)}</td>
+        <td>${fmt(r.principal)}</td>
+        <td>${fmt(r.interest)}</td>
+        <td><b>${fmt(r.total)}</b></td>
+      </tr>
+    `).join('');
+
+    if (showingAll) {
+      if (balloonRow) {
+        html += `
+          <tr class="balloon-row">
+            <td>Balloon</td>
+            <td>${balloonRow.date}</td>
+            <td>—</td>
+            <td>0,00</td>
+            <td>${fmt(balloonRow.principal)}</td>
+            <td>—</td>
+            <td>${fmt(balloonRow.total)}</td>
+          </tr>
+        `;
+      }
+      html += `
+        <tr class="total-row">
+          <td>Total</td>
+          <td>—</td>
+          <td>—</td>
+          <td>—</td>
+          <td>${fmt(totPrinc + (balloonRow ? balloonRow.principal : 0))}</td>
+          <td>${fmt(totDob)}</td>
+          <td>${fmt(totPlata)}</td>
+        </tr>
+      `;
+    }
+
+    document.getElementById('schedule-body').innerHTML = html;
+
+    const btn = document.getElementById('show-more-btn');
+    if (regularRows.length > 6) {
+      btn.style.display = 'block';
+      btn.textContent = showingAll
+        ? 'Restrânge graficul'
+        : `Afișează tot graficul (${regularRows.length} rânduri)`;
+    } else {
+      btn.style.display = 'none';
+    }
+  }
+
+  function toggleAll() {
+    showingAll = !showingAll;
+    renderSchedule();
+  }
+
+  function exportPDF() {
+    const wasShowingAll = showingAll;
+    if (!showingAll) { showingAll = true; renderSchedule(); }
+
+    const amount   = document.getElementById('amount').value;
+    const term     = document.getElementById('term').value;
+    const rate     = document.getElementById('rate').value;
+    const dateVal  = document.getElementById('start-date').value;
+    const dateStr  = dateVal ? new Date(dateVal).toLocaleDateString('ro-MD') : '—';
+
+    const anexaNr        = document.getElementById('anexa-nr').value || '—';
+    const contractNr     = document.getElementById('contract-nr').value || '—';
+    const contractDateV  = document.getElementById('contract-date').value;
+    const contractDateStr = contractDateV ? new Date(contractDateV).toLocaleDateString('ro-MD') : '—';
+    const debtorName     = document.getElementById('debtor-name').value || '—';
+
+    const totalDobanda = fullSchedule.filter(r => !r.isBalloon && !r.isIssueFee).reduce((s, r) => s + r.interest, 0);
+    const totalPlata   = fullSchedule.reduce((s, r) => s + r.total, 0);
+    const typeLabel    = paymentType === 'annuity' ? 'Anuitate' : 'Diferențiat';
+
+    document.getElementById('print-anexa-line').innerHTML =
+      `ANEXA nr. ${anexaNr} la Contractul de Împrumunt nr. ${contractNr} din ${contractDateStr}`;
+
+    const feeIssue = parseFloat(document.getElementById('fee-issue').value) || 0;
+    const issueFeeAmt = parseFloat(amount) * feeIssue / 100;
+    const feeMo = parseFloat(document.getElementById('fee-monthly').value) || 0;
+
+    let leftInfo = `<div style="line-height:1.9;">`;
+    leftInfo += `<div><span style="color:#4a5568;">Suma împrumutului, EUR:</span>&nbsp;&nbsp;<b>${parseFloat(amount).toLocaleString('ro-MD', {minimumFractionDigits:2,maximumFractionDigits:2})}</b></div>`;
+    leftInfo += `<div><span style="color:#4a5568;">Rata anuală a dobânzii, %:</span>&nbsp;&nbsp;<b>${rate}</b></div>`;
+    if (feeIssue > 0) leftInfo += `<div><span style="color:#4a5568;">Comision de eliberare ${feeIssue.toLocaleString('ro-MD',{minimumFractionDigits:2,maximumFractionDigits:2})}%:</span>&nbsp;&nbsp;<b>${fmt(issueFeeAmt)}</b></div>`;
+    if (feeMo > 0) leftInfo += `<div><span style="color:#4a5568;">Comision lunar, %:</span>&nbsp;&nbsp;<b>${feeMo}</b></div>`;
+    const bnmRate = parseFloat(document.getElementById('bnm-rate').value) || 0;
+    if (bnmRate > 0) leftInfo += `<div><span style="color:#4a5568;">Curs valutar BNM la ${contractDateStr}:</span>&nbsp;&nbsp;<b>${bnmRate.toLocaleString('ro-MD',{minimumFractionDigits:3,maximumFractionDigits:3})} MDL</b></div>`;
+    leftInfo += `</div>`;
+    document.getElementById('print-info-left').innerHTML = leftInfo;
+
+    const daeVal = calcDAE(parseFloat(amount), fullSchedule);
+
+    let rightInfo = `<div style="line-height:1.9;">`;
+    rightInfo += `<div><span style="color:#4a5568;">Perioada rambursare rate:</span>&nbsp;&nbsp;<b>${term} Luna</b></div>`;
+    rightInfo += `<div><span style="color:#4a5568;">Termen (luni) / Nr. de tranșe:</span>&nbsp;&nbsp;<b>${term} / ${term}</b></div>`;
+    const dayOfMonth = dateVal ? new Date(dateVal).getDate() : '—';
+    rightInfo += `<div><span style="color:#4a5568;">Data achitării ratelor:</span>&nbsp;&nbsp;<b>${dayOfMonth} lunar</b></div>`;
+    rightInfo += `<div><span style="color:#4a5568;">DAE:</span>&nbsp;&nbsp;<b>${daeVal.toLocaleString('ro-MD',{minimumFractionDigits:2,maximumFractionDigits:2})}%</b></div>`;
+    rightInfo += `</div>`;
+    document.getElementById('print-info-right').innerHTML = rightInfo;
+
+    document.getElementById('print-client-line').innerHTML =
+      `Numele clientului: <b>${debtorName}</b>`;
+
+    const adminName = document.getElementById('admin-name').value || 'Administrator';
+    document.getElementById('print-footer-admin').textContent = adminName;
+    document.getElementById('print-footer-debtor').textContent = debtorName;
+
+    setTimeout(() => {
+      window.print();
+      if (!wasShowingAll) { showingAll = false; renderSchedule(); }
+    }, 100);
+  }
+
+  // ── CAPITALIZARE CALCULATOR ──────────────────────────────────
+  let cpHorizon = 12;
+
+  function fmtInput(el) {
+    const raw = el.value.replace(/[^\d]/g, '');
+    if (!raw) { el.value = ''; return; }
+    el.value = Number(raw).toLocaleString('ro-MD', { maximumFractionDigits: 0 });
+  }
+  function getVal(id) {
+    return parseFloat((document.getElementById(id).value || '0').replace(/[^\d]/g, '')) || 0;
+  }
+  // Format on page load
+  window.addEventListener('DOMContentLoaded', () => {
+    ['cp-portfolio','cp-body','cp-opex','cp-target','cp-inv1','cp-inv2','cp-inv3'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) fmtInput(el);
+    });
+  });
+
+  function setCPHorizon(h) {
+    cpHorizon = h;
+    [12,24,36].forEach(x => document.getElementById('cp-hor-'+x).classList.toggle('active', x===h));
+  }
+
+  function fmtLei(n) {
+    return n.toLocaleString('ro-MD', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  }
+
+  function simulateScenario(portfolio0, bodyActual, rateM, newTerm, opex, newInvest, horizon) {
+    const existingTerm = Math.max(1, Math.round(portfolio0 / bodyActual));
+    let existingBal = portfolio0;
+    let newBal      = 0;
+    let cumProfit   = 0;
+    const rows = [];
+
+    for (let m = 1; m <= horizon; m++) {
+      const totalStart  = existingBal + newBal;
+
+      // Principal returning this month
+      const existBody = (m <= existingTerm && existingBal > 0)
+        ? existingBal / Math.max(1, existingTerm - m + 1) : 0;
+      const newBody   = newBal > 0 ? newBal / newTerm : 0;
+      const totalBody = existBody + newBody;
+
+      // Income & profit on start-of-month portfolio
+      const income  = totalStart * rateM;
+      const profit  = income - opex;
+      cumProfit    += profit;
+
+      // All cash flows reinvested: body + profit + external money
+      const reissued = totalBody + profit + newInvest;
+
+      // Update balances
+      existingBal = Math.max(0, existingBal - existBody);
+      newBal      = Math.max(0, newBal - newBody + reissued);
+
+      rows.push({ m, portfolio: existingBal + newBal, totalBody, income, profit, cumProfit });
+    }
+    return rows;
+  }
+
+  function calcCapitalizare() {
+    const portfolio0 = getVal('cp-portfolio') || 0;
+    const bodyActual = getVal('cp-body')      || 1;
+    const rate       = parseFloat(document.getElementById('cp-rate').value)      || 15;
+    const newTerm    = parseInt(document.getElementById('cp-term').value)        || 24;
+    const opex       = getVal('cp-opex')      || 0;
+    const target     = getVal('cp-target')    || 100000;
+    const inv1       = getVal('cp-inv1')      || 0;
+    const inv2       = getVal('cp-inv2')      || 0;
+    const inv3       = getVal('cp-inv3')      || 0;
+    const horizon    = cpHorizon;
+
+    if (!portfolio0 || !rate) { alert('Completați câmpurile obligatorii'); return; }
+    const rateM = rate / 100 / 12;
+
+    const scenConf = [
+      { inv: inv1, label: 'S1 · Bază',      color: '#64748b', border: '#cbd5e1', bg: '#f1f5f9', bgCard: '#f8fafc' },
+      { inv: inv2, label: 'S2 · Creștere',  color: '#d97706', border: '#fcd34d', bg: '#fffbeb', bgCard: '#fffbeb' },
+      { inv: inv3, label: 'S3 · Agresiv',   color: '#276749', border: '#68d391', bg: '#f0fff4', bgCard: '#f0fff4' },
+    ];
+    const results = scenConf.map(s =>
+      simulateScenario(portfolio0, bodyActual, rateM, newTerm, opex, s.inv, horizon)
+    );
+
+    const months = ['Ian','Feb','Mar','Apr','Mai','Iun','Iul','Aug','Sep','Oct','Nov','Dec'];
+    const now    = new Date();
+
+    // ── Summary cards ─────────────────────────────────────
+    document.getElementById('cp-cards').innerHTML = scenConf.map((s, i) => {
+      const rows     = results[i];
+      const last     = rows[rows.length - 1];
+      const tm       = rows.findIndex(r => r.profit >= target);
+      const be       = rows.findIndex(r => r.profit >= 0);
+      const totalIn  = portfolio0 + s.inv * horizon;
+      const roi      = totalIn > 0 ? (last.cumProfit / totalIn * 100) : 0;
+      const avg6     = rows.slice(-Math.min(6, horizon)).reduce((a,r) => a+r.profit, 0) / Math.min(6, horizon);
+      const pc       = avg6 >= 0 ? '#276749' : '#dc2626';
+      const cc       = last.cumProfit >= 0 ? '#276749' : '#dc2626';
+      return `
+      <div class="cp-scen-card" style="border-top:4px solid ${s.border};background:${s.bgCard};">
+        <div style="font-size:11px;font-weight:700;color:${s.color};text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px;">${s.label}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+          <div><div class="cp-kpi-val">${fmtLei(last.portfolio)}</div><div class="cp-kpi-lbl">Portofoliu luna ${horizon}</div></div>
+          <div><div class="cp-kpi-val" style="color:${cc};">${last.cumProfit>=0?'+':''}${fmtLei(last.cumProfit)}</div><div class="cp-kpi-lbl">Profit cumulat</div></div>
+          <div><div class="cp-kpi-val" style="color:${pc};">${avg6>=0?'+':''}${fmtLei(avg6)}</div><div class="cp-kpi-lbl">Profit mediu/lună (ult.6)</div></div>
+          <div><div class="cp-kpi-val" style="color:${roi>=0?'#276749':'#dc2626'};">${roi.toFixed(1)}%</div><div class="cp-kpi-lbl">ROI ${horizon} luni</div></div>
+        </div>
+        <div style="padding-top:12px;border-top:1px solid #e2e8f0;font-size:12px;">
+          <div style="color:${be>=0?'#276749':'#dc2626'};font-weight:600;">Break-even: ${be>=0?'luna '+(be+1):'neatins în '+horizon+' luni'}</div>
+          <div style="color:${tm>=0?s.color:'#dc2626'};font-weight:700;margin-top:3px;">${tm>=0?'★ Obiectiv '+fmtLei(target)+' lei atins în luna '+(tm+1):'Obiectiv '+fmtLei(target)+' lei — neatins'}</div>
+          ${s.inv>0?`<div style="color:#718096;margin-top:4px;font-size:11px;">Capital extern total: <b>${fmtLei(s.inv*horizon)} lei</b></div>`:''}
+        </div>
+      </div>`;
+    }).join('');
+
+    // ── Milestone bar ──────────────────────────────────────
+    document.getElementById('cp-milestones').innerHTML =
+      '<div style="font-weight:700;color:#1a202c;margin-bottom:6px;">Puncte cheie</div>' +
+      scenConf.map((s,i) => {
+        const rows = results[i];
+        const tm = rows.findIndex(r => r.profit >= target);
+        const be = rows.findIndex(r => r.profit >= 0);
+        const b1 = rows[0].totalBody;
+        const bLast = rows[horizon-1].totalBody;
+        return `<div><span style="color:${s.color};font-weight:700;">${s.label}:</span>
+          &nbsp;Break-even: <b style="color:${be>=0?'#276749':'#dc2626'}">${be>=0?'luna '+(be+1):'neatins'}</b>
+          &nbsp;·&nbsp;Obiectiv: <b style="color:${tm>=0?'#276749':'#dc2626'}">${tm>=0?'luna '+(tm+1):'neatins'}</b>
+          &nbsp;·&nbsp;Corp luna 1: <b>${fmtLei(b1)} lei</b>
+          &nbsp;·&nbsp;Corp luna ${horizon}: <b>${fmtLei(bLast)} lei</b>
+        </div>`;
+      }).join('');
+
+    // ── Table ──────────────────────────────────────────────
+    let tHtml = '';
+    for (let m = 0; m < horizon; m++) {
+      const mo    = months[(now.getMonth() + m) % 12];
+      const yr    = now.getFullYear() + Math.floor((now.getMonth() + m) / 12);
+      const label = mo + ' \'' + String(yr).slice(-2);
+
+      const profits = [0,1,2].map(i => results[i][m].profit);
+      const anyTarget = profits.some(p => p >= target);
+      const allTarget = profits.every(p => p >= 2 * target);
+      const rowCls = allTarget ? 'class="ms-row-hi"' : (anyTarget ? 'class="ms-row"' : '');
+      const altBg  = !anyTarget && !allTarget && m % 2 !== 0 ? 'style="background:#fafafa;"' : '';
+      const star   = anyTarget ? ' ★' : '';
+
+      const fP = (p) => {
+        const c = p >= 2*target ? '#065f46' : (p >= target ? '#276749' : (p >= 0 ? '#4a5568' : '#dc2626'));
+        const w = p >= target ? '700' : '400';
+        return `<td style="color:${c};font-weight:${w};">${p>=0?'+':''}${fmtLei(p)}</td>`;
+      };
+      const fC = (c) => `<td style="color:${c>=0?'#276749':'#dc2626'};font-weight:600;">${c>=0?'+':''}${fmtLei(c)}</td>`;
+
+      tHtml += `<tr ${rowCls} ${altBg}>
+        <td><b>${label}</b>${star}</td>
+        ${[0,1,2].map(i=>`<td><b>${fmtLei(results[i][m].portfolio)}</b></td>`).join('')}
+        ${[0,1,2].map(i=>`<td style="color:#4a5568;">${fmtLei(results[i][m].totalBody)}</td>`).join('')}
+        ${[0,1,2].map(i=>fP(results[i][m].profit)).join('')}
+        ${[0,1,2].map(i=>fC(results[i][m].cumProfit)).join('')}
+      </tr>`;
+    }
+    // Total row
+    tHtml += `<tr class="total-row"><td><b>Total</b></td>
+      ${[0,1,2].map(i=>`<td>${fmtLei(results[i][horizon-1].portfolio)}</td>`).join('')}
+      ${[0,1,2].map(i=>`<td>—</td>`).join('')}
+      ${[0,1,2].map(i=>{const t=results[i].reduce((s,r)=>s+r.profit,0);return`<td style="color:${t>=0?'#276749':'#dc2626'};font-weight:700;">${t>=0?'+':''}${fmtLei(t)}</td>`}).join('')}
+      ${[0,1,2].map(i=>{const c=results[i][horizon-1].cumProfit;return`<td style="color:${c>=0?'#276749':'#dc2626'};font-weight:700;">${c>=0?'+':''}${fmtLei(c)}</td>`}).join('')}
+    </tr>`;
+
+    document.getElementById('cp-table-body').innerHTML = tHtml;
+    document.getElementById('fc-results').style.display = 'block';
+    document.getElementById('fc-results').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function calcForecast() {
+    const capital      = parseFloat(document.getElementById('fc-capital').value)    || 0;
+    const avgLoan      = parseFloat(document.getElementById('fc-avg-loan').value)   || 100000;
+    const rate         = parseFloat(document.getElementById('fc-rate').value)       || 15;
+    const term         = parseInt(document.getElementById('fc-term').value)         || 24;
+    const opex         = parseFloat(document.getElementById('fc-opex').value)       || 0;
+    const startCl      = parseInt(document.getElementById('fc-clients').value)      || 30;
+    const growth       = parseInt(document.getElementById('fc-growth').value)       || 0;
+    const newInvest    = parseFloat(document.getElementById('fc-newinvest').value)  || 0;
+    const reinvestPct  = parseFloat(document.getElementById('fc-reinvest').value);
+    const reinvestRate = Math.min(1, Math.max(0, isNaN(reinvestPct) ? 1 : reinvestPct / 100));
+    const provRate     = Math.min(50, Math.max(0, parseFloat(document.getElementById('fc-provision').value) || 0));
+
+    if (!capital || !rate || !term) { alert('Completați câmpurile obligatorii'); return; }
+    if (term < 1 || term > 360)     { alert('Termenul trebuie să fie între 1 și 360 luni'); return; }
+
+    const rateM      = rate / 100 / 12;
+    const provisionM = provRate / 100 / 12;
+
+    const scLabels = { stable: 'Stabil', slow: 'Creștere lentă (+1/lună)', active: 'Creștere activă (+2/lună)', custom: `+${growth}/lună` };
+    document.getElementById('fc-scen-badge').textContent = scLabels[fcScen] || `+${growth}/lună`;
+
+    let portfolio = startCl * avgLoan;
+    let clients   = startCl;
+    let cumProfit = 0;
+    let totalIncome = 0, totalProfit = 0, totalBodyReturn = 0, totalIdleCash = 0;
+    let totalNewInvest = 0, totalProvision = 0;
+    let rows = '';
+    const months = ['Ian','Feb','Mar','Apr','Mai','Iun','Iul','Aug','Sep','Oct','Nov','Dec'];
+    const now = new Date();
+
+    for (let m = 1; m <= 12; m++) {
+      const bodyReturn  = portfolio / term;
+      const income      = portfolio * rateM;
+      const provision   = portfolio * provisionM;
+      const profit      = income - opex - provision;
+
+      const redeployed  = bodyReturn * reinvestRate;
+      const idleCash    = bodyReturn * (1 - reinvestRate);
+
+      // New portfolio: subtract returned body, add re-deployed portion + new external investment
+      portfolio = portfolio - bodyReturn + redeployed + newInvest;
+      if (!isFinite(portfolio) || portfolio > 1e15) { alert('Valori de intrare invalide — portofoliul depășește limitele realiste. Verificați câmpurile.'); return; }
+
+      if (m >= 2 && growth > 0) {
+        clients   += growth;
+        portfolio += growth * avgLoan;
+      }
+      const approxClients = Math.round(portfolio / avgLoan);
+
+      cumProfit        += profit;
+      totalIncome      += income;
+      totalProfit      += profit;
+      totalBodyReturn  += bodyReturn;
+      totalIdleCash    += idleCash;
+      totalNewInvest   += newInvest;
+      totalProvision   += provision;
+
+      const monthLabel = months[(now.getMonth() + m - 1) % 12];
+      const profColor  = profit >= 0 ? '#276749' : '#c53030';
+      const cumColor   = cumProfit >= 0 ? '#276749' : '#c53030';
+      const rowBg      = m % 2 === 0 ? 'background:#fafafa;' : '';
+
+      rows += `<tr style="${rowBg}">
+        <td><b>${monthLabel}</b></td>
+        <td>${approxClients}</td>
+        <td>${fmtLei(portfolio)}</td>
+        <td style="color:#4a5568;">${fmtLei(bodyReturn)}</td>
+        <td style="color:#2b6cb0;">${fmtLei(redeployed)}</td>
+        <td style="color:#276749;">${fmtLei(newInvest)}</td>
+        <td style="color:#d97706;font-weight:600;">${fmtLei(income)}</td>
+        <td style="color:#e53e3e;">${fmtLei(provision)}</td>
+        <td style="color:#718096;">${fmtLei(opex)}</td>
+        <td style="color:${profColor};font-weight:700;">${profit >= 0 ? '+' : ''}${fmtLei(profit)}</td>
+        <td style="color:${cumColor};font-weight:700;">${cumProfit >= 0 ? '+' : ''}${fmtLei(cumProfit)}</td>
+      </tr>`;
+    }
+
+    rows += `<tr class="total-row">
+      <td><b>Total</b></td><td>—</td>
+      <td>${fmtLei(portfolio)}</td>
+      <td>${fmtLei(totalBodyReturn)}</td>
+      <td>—</td>
+      <td>${fmtLei(totalNewInvest)}</td>
+      <td style="font-weight:700;">${fmtLei(totalIncome)}</td>
+      <td style="font-weight:700;color:#e53e3e;">${fmtLei(totalProvision)}</td>
+      <td style="font-weight:700;">${fmtLei(opex * 12)}</td>
+      <td style="font-weight:700;color:${totalProfit>=0?'#276749':'#c53030'};">${totalProfit>=0?'+':''}${fmtLei(totalProfit)}</td>
+      <td style="font-weight:700;color:${cumProfit>=0?'#276749':'#c53030'};">${cumProfit>=0?'+':''}${fmtLei(cumProfit)}</td>
+    </tr>`;
+    document.getElementById('fc-table-body').innerHTML = rows;
+
+    // Summary (6 cards, 3 per row)
+    const totalCapitalIn   = capital + totalNewInvest;
+    const roi              = totalCapitalIn > 0 ? (totalProfit / totalCapitalIn * 100) : 0;
+    const avgMonthlyProfit = totalProfit / 12;
+    document.getElementById('fc-summary').innerHTML = `
+      <div class="summary-item amber">
+        <div class="val">${fmtLei(totalCapitalIn)}</div>
+        <div class="lbl">Capital total introdus</div>
+      </div>
+      <div class="summary-item">
+        <div class="val">${fmtLei(portfolio)}</div>
+        <div class="lbl">Portofoliu la luna 12</div>
+      </div>
+      <div class="summary-item">
+        <div class="val" style="color:${avgMonthlyProfit>=0?'#276749':'#c53030'}">${avgMonthlyProfit>=0?'+':''}${fmtLei(avgMonthlyProfit)}</div>
+        <div class="lbl">Profit mediu / lună</div>
+      </div>
+      <div class="summary-item">
+        <div class="val" style="color:${totalProfit>=0?'#276749':'#c53030'}">${totalProfit>=0?'+':''}${fmtLei(totalProfit)}</div>
+        <div class="lbl">Profit net / an</div>
+      </div>
+      <div class="summary-item">
+        <div class="val">${fmtLei(totalBodyReturn)}</div>
+        <div class="lbl">Corp returnat total (12 luni)</div>
+      </div>
+      <div class="summary-item">
+        <div class="val" style="color:${roi>=0?'#276749':'#c53030'}">${roi.toFixed(1)}%</div>
+        <div class="lbl">ROI / an (capital total)</div>
+      </div>
+    `;
+
+    // Break-even
+    const netYield   = rate - provRate;
+    const bepPort    = netYield > 0 ? (opex * 12 * 100 / netYield) : 0;
+    const bepClients = bepPort > 0 ? Math.ceil(bepPort / avgLoan) : 0;
+    const initNet    = (startCl * avgLoan) * (rateM - provisionM);
+    const beStatus   = initNet >= opex
+      ? `<span style="color:#276749;font-weight:700;">✓ Portofoliu actual este deasupra pragului</span>`
+      : `<span style="color:#c53030;font-weight:700;">⚠ Sub pragul de rentabilitate</span>`;
+    document.getElementById('fc-breakeven').innerHTML = `
+      <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:center;">
+        <div><span style="color:#718096;">Prag rentabilitate:</span>
+          <b style="margin-left:6px;color:#1a202c;">${fmtLei(bepPort)} lei</b>
+          <span style="color:#718096;margin-left:6px;">≈ ${bepClients} clienți</span></div>
+        <div><span style="color:#718096;">Corp returnat / lună (start):</span>
+          <b style="margin-left:6px;color:#4a5568;">${fmtLei(startCl * avgLoan / term)} lei/lună</b></div>
+        <div><span style="color:#718096;">Capital inactiv total (12 luni):</span>
+          <b style="margin-left:6px;color:#e53e3e;">${fmtLei(totalIdleCash)} lei</b></div>
+        <div>${beStatus}</div>
+      </div>
+    `;
+
+    // Scenario comparison
+    const scenClients = [15, 20, 25, 30, 35, 40, 50, 60];
+    let cmpRows = '';
+    scenClients.forEach(n => {
+      const port  = n * avgLoan;
+      const body  = port / term;
+      const inc   = port * rateM;
+      const prov  = port * provisionM;
+      const prof  = inc - opex - prov;
+      const roi2  = capital > 0 ? (prof * 12 / capital * 100) : 0;
+      const isCur = n === startCl;
+      const bg    = isCur ? 'background:#fffbeb;font-weight:700;' : '';
+      const mark  = isCur ? ' ◄' : '';
+      const pc    = prof >= 0 ? '#276749' : '#c53030';
+      cmpRows += `<tr style="${bg}">
+        <td><b>${n}${mark}</b></td>
+        <td>${fmtLei(port)}</td>
+        <td style="color:#4a5568;">${fmtLei(body)}</td>
+        <td style="color:#d97706;">${fmtLei(inc)}</td>
+        <td style="color:#e53e3e;">${fmtLei(prov)}</td>
+        <td style="color:${pc};">${prof>=0?'+':''}${fmtLei(prof)}</td>
+        <td style="color:${pc};">${prof>=0?'+':''}${fmtLei(prof*12)}</td>
+        <td style="color:${pc};">${roi2.toFixed(1)}%</td>
+      </tr>`;
+    });
+    document.getElementById('fc-compare-body').innerHTML = cmpRows;
+
+    document.getElementById('fc-results').style.display = 'block';
+    document.getElementById('fc-results').scrollIntoView({ behavior: 'smooth' });
+  }
+  // ── END FORECAST CALCULATOR ──────────────────────────────────
+
+  // ── TRACKER RAMBURSĂRI ───────────────────────────────────────
+  function initTracker() {
+    reimbTracker = fullSchedule
+      .filter(r => !r.isIssueFee && !r.isBalloon)
+      .map(r => {
+        const p = r.date.split('.');
+        const isoDate = p.length === 3 ? `${p[2]}-${p[1]}-${p[0]}` : '';
+        return {
+          n: r.n, date: r.date,
+          isoDate,
+          isoMonth: isoDate.substring(0, 7),
+          planCorp: r.principal  || 0,
+          planDob:  r.interest   || 0,
+          planCom:  r.commission || 0,
+          paidCorp: 0, paidDob: 0, paidCom: 0, paidPenalty: 0
+        };
+      });
+    renderTracker();
+  }
+
+  function renderTracker() {
+    const closed = reimbTracker.filter(r =>
+      r.paidCorp >= r.planCorp - 0.005 && r.paidDob >= r.planDob - 0.005
+    ).length;
+    document.getElementById('tracker-badge').textContent = closed + ' / ' + reimbTracker.length + ' plătite';
+
+    const grandTotal = reimbTracker.reduce((s, r) => s + r.paidCorp + r.paidDob + r.paidCom + r.paidPenalty, 0);
+    document.getElementById('tracker-total-paid').textContent =
+      grandTotal > 0 ? 'Total achitat: ' + fmt(grandTotal) + ' EUR' : '';
+
+    const html = reimbTracker.map(r => {
+      const totalPaid  = r.paidCorp + r.paidDob + r.paidCom + r.paidPenalty;
+      const corpDone   = r.paidCorp >= r.planCorp - 0.005;
+      const dobDone    = r.paidDob  >= r.planDob  - 0.005;
+      const fullyClosed = corpDone && dobDone;
+      const partial     = totalPaid > 0.005 && !fullyClosed;
+
+      const rowBg = fullyClosed ? 'background:#f0fdf4;' : partial ? 'background:#fffbeb;' : '';
+      const statusHtml = fullyClosed
+        ? '<span style="background:#dcfce7;color:#276749;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">✓ Achitat</span>'
+        : partial
+          ? '<span style="background:#fef3c7;color:#d97706;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">Parțial</span>'
+          : '<span style="background:#f1f5f9;color:#94a3b8;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">Așteptare</span>';
+
+      const corpColor = r.paidCorp > 0.005 ? (corpDone ? '#276749' : '#d97706') : '#4a5568';
+      const dobColor  = r.paidDob  > 0.005 ? (dobDone  ? '#276749' : '#d97706') : '#4a5568';
+
+      return `<tr style="${rowBg}">
+        <td>${r.n}</td>
+        <td>${r.date}</td>
+        <td style="color:${corpColor};font-weight:600;">
+          ${r.paidCorp > 0.005 ? fmt(r.paidCorp) : '—'}
+          <span style="color:#cbd5e1;font-size:11px;"> / ${fmt(r.planCorp)}</span>
+        </td>
+        <td style="color:${dobColor};font-weight:600;">
+          ${r.paidDob > 0.005 ? fmt(r.paidDob) : '—'}
+          <span style="color:#cbd5e1;font-size:11px;"> / ${fmt(r.planDob)}</span>
+        </td>
+        <td style="color:${r.paidCom > 0.005 ? '#276749' : '#4a5568'};">
+          ${r.paidCom > 0.005 ? fmt(r.paidCom) : '—'}
+          <span style="color:#cbd5e1;font-size:11px;"> / ${fmt(r.planCom)}</span>
+        </td>
+        <td style="color:${r.paidPenalty > 0.005 ? '#dc2626' : '#4a5568'};">
+          ${r.paidPenalty > 0.005 ? fmt(r.paidPenalty) : '—'}
+        </td>
+        <td><b>${totalPaid > 0.005 ? fmt(totalPaid) : '—'}</b></td>
+        <td>${statusHtml}</td>
+      </tr>`;
+    }).join('');
+
+    document.getElementById('tracker-body').innerHTML = html ||
+      '<tr><td colspan="8" style="text-align:center;color:#a0aec0;padding:20px;">Calculați graficul pentru a activa tracker-ul</td></tr>';
+  }
+
+  function applyPaymentToTracker(toCorp, toDob, toComision, toPenalty, paymentDate) {
+    if (!reimbTracker.length) return;
+
+    // Dobândă + Comision: only rows with due date ≤ payment date (no future advance)
+    // Corp: all rows including future (advance reduces principal)
+    function cascade(amount, paidField, planField, onlyDue) {
+      let rem = amount;
+      for (let i = 0; i < reimbTracker.length && rem > 0.005; i++) {
+        if (onlyDue && paymentDate && reimbTracker[i].isoDate > paymentDate) break;
+        const needed = Math.max(0, reimbTracker[i][planField] - reimbTracker[i][paidField]);
+        const apply  = Math.min(rem, needed);
+        reimbTracker[i][paidField] += apply;
+        rem -= apply;
+      }
+    }
+
+    cascade(toDob,      'paidDob',  'planDob',  true);   // due rows only
+    cascade(toComision, 'paidCom',  'planCom',  true);   // due rows only
+    cascade(toCorp,     'paidCorp', 'planCorp', false);  // all rows — advance ok
+
+    // Penalitate → row matching payment month, fallback to last due row
+    if (toPenalty > 0.005 && paymentDate) {
+      const payMonth   = paymentDate.substring(0, 7);
+      const penRow     = reimbTracker.findIndex(r => r.isoMonth === payMonth);
+      const lastDueIdx = reimbTracker.reduce((last, r, i) =>
+        r.isoDate <= paymentDate ? i : last, 0);
+      const targetRow  = penRow >= 0 ? penRow : lastDueIdx;
+      reimbTracker[targetRow].paidPenalty += toPenalty;
+    }
+
+    renderTracker();
+    document.getElementById('tracker-card').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function resetTracker() {
+    reimbTracker.forEach(r => { r.paidCorp = 0; r.paidDob = 0; r.paidCom = 0; r.paidPenalty = 0; });
+    renderTracker();
+  }
+  // ── END TRACKER ───────────────────────────────────────────────
+
+  // ── RAMBURSARE MODAL ─────────────────────────────────────────
+  let _prevTab = 'credit';
+
+  function switchToReimbPage() {
+    if (!fullSchedule || !fullSchedule.length) {
+      alert('Calculați mai întâi graficul de rambursare (apăsați "Calculează")');
+      return;
+    }
+    _prevTab = document.getElementById('tab-btn-forecast').classList.contains('dark-active') ? 'forecast' : 'credit';
+
+    // Hide main UI
+    document.getElementById('panel-credit-forms').style.display = 'none';
+    document.getElementById('panel-forecast').style.display     = 'none';
+    document.getElementById('results').style.display            = 'none';
+    document.querySelector('.tab-nav').style.display            = 'none';
+    document.querySelector('.reimb-open-btn').parentElement.style.display = 'none';
+    document.querySelector('.header').style.display             = 'none';
+
+    // Schedule
+    document.getElementById('rp-type-badge').textContent = paymentType === 'annuity' ? 'Anuitate' : 'Diferențiat';
+    document.getElementById('rp-schedule-body').innerHTML = fullSchedule
+      .filter(r => !r.isIssueFee).map(r => r.isBalloon
+        ? `<tr class="balloon-row"><td>B</td><td>${r.date}</td><td>—</td><td>0,00</td><td>${fmt(r.principal)}</td><td>—</td><td>${fmt(r.total)}</td></tr>`
+        : `<tr><td>${r.n}</td><td>${r.date}</td><td>${r.days??'—'}</td><td>${fmt(r.balance)}</td><td>${fmt(r.principal)}</td><td>${fmt(r.interest)}</td><td><b>${fmt(r.total)}</b></td></tr>`
+      ).join('');
+
+    // Auto-fill form
+    const debtor   = document.getElementById('debtor-name').value || '—';
+    const contract = document.getElementById('contract-nr').value || '—';
+    document.getElementById('rm-subtitle').textContent = debtor + ' · Contract nr. ' + contract;
+    document.getElementById('rm-date').value = new Date().toISOString().split('T')[0];
+    const bnm = document.getElementById('bnm-rate').value;
+    if (bnm) document.getElementById('rm-bnm').value = bnm;
+
+    const today = new Date(); today.setHours(0,0,0,0);
+    const todayISO = today.toISOString().split('T')[0];
+
+    // Use reimbTracker (already accounts for paid amounts) — not fullSchedule
+    let totalDob = 0, totalCom = 0, totalCorp = 0, earliestOverdue = null;
+    reimbTracker.forEach(r => {
+      if (r.isoDate && r.isoDate <= todayISO) {
+        totalDob  += Math.max(0, r.planDob  - r.paidDob);
+        totalCom  += Math.max(0, r.planCom  - r.paidCom);
+        totalCorp += Math.max(0, r.planCorp - r.paidCorp);
+        const rowDate = new Date(r.isoDate);
+        if (!earliestOverdue || rowDate < earliestOverdue) earliestOverdue = rowDate;
+      }
+    });
+    let daysOverdue = 0;
+    if (earliestOverdue) {
+      const refDate = new Date(document.getElementById('start-date').value || earliestOverdue);
+      refDate.setHours(0,0,0,0);
+      daysOverdue = Math.max(0, Math.floor((today - refDate) / 86400000));
+    }
+    document.getElementById('rm-dobanda').value  = totalDob  > 0.005 ? totalDob.toFixed(2)  : '';
+    document.getElementById('rm-comision').value = totalCom  > 0.005 ? totalCom.toFixed(2)  : '';
+    document.getElementById('rm-corp').value     = totalCorp > 0.005 ? totalCorp.toFixed(2) : '';
+    document.getElementById('rm-days').value     = daysOverdue > 0 ? daysOverdue : '';
+    updateDebtTotal();
+
+    document.getElementById('panel-rambursare').style.display = 'flex';
+    updateBalanceCards();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function updateBalanceCards() {
+    const el = document.getElementById('rp-balances');
+    if (!el || !reimbTracker.length) return;
+
+    const totCorp = reimbTracker.reduce((s, r) => s + r.planCorp, 0);
+    const totDob  = reimbTracker.reduce((s, r) => s + r.planDob,  0);
+    const totCom  = reimbTracker.reduce((s, r) => s + r.planCom,  0);
+    const remCorp = reimbTracker.reduce((s, r) => s + Math.max(0, r.planCorp - r.paidCorp), 0);
+    const remDob  = reimbTracker.reduce((s, r) => s + Math.max(0, r.planDob  - r.paidDob),  0);
+    const remCom  = reimbTracker.reduce((s, r) => s + Math.max(0, r.planCom  - r.paidCom),  0);
+    const remTotal = remCorp + remDob + remCom;
+
+    function pct(rem, tot) { return tot > 0 ? Math.min(100, Math.round((tot - rem) / tot * 100)) : 0; }
+    function bar(p, color) {
+      return `<div style="margin-top:10px;height:4px;background:#e2e8f0;border-radius:4px;overflow:hidden;">
+        <div style="height:100%;width:${p}%;background:${color};border-radius:4px;transition:width 0.4s;"></div>
+      </div><div style="font-size:10px;color:#94a3b8;margin-top:4px;">${p}% achitat</div>`;
+    }
+    function card(label, rem, tot, color, textColor) {
+      const p = pct(rem, tot);
+      const isDone = rem < 0.01;
+      return `<div style="background:white;border-radius:14px;padding:16px 18px;box-shadow:0 2px 12px rgba(0,0,0,0.06);border-top:4px solid ${color};${isDone?'opacity:0.6;':''} ">
+        <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">${label}</div>
+        <div style="font-size:18px;font-weight:800;color:${isDone?'#276749':textColor};">${isDone?'✓ Achitat':fmt(rem)+' EUR'}</div>
+        ${!isDone ? bar(p, color) : ''}
+      </div>`;
+    }
+
+    el.innerHTML =
+      card('Corp creditu',  remCorp,  totCorp,  '#276749', '#1a202c') +
+      card('Dobândă',       remDob,   totDob,   '#d97706', '#d97706') +
+      card('Comision',      remCom,   totCom,   '#7c3aed', '#7c3aed') +
+      `<div style="background:#1a202c;border-radius:14px;padding:16px 18px;box-shadow:0 2px 12px rgba(0,0,0,0.1);border-top:4px solid #0f172a;">
+        <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Total rămas</div>
+        <div style="font-size:18px;font-weight:800;color:${remTotal<0.01?'#4ade80':'#f87171'};">${remTotal<0.01?'✓ Achitat complet':fmt(remTotal)+' EUR'}</div>
+        ${remTotal > 0.01 ? `<div style="margin-top:10px;height:4px;background:#334155;border-radius:4px;overflow:hidden;"><div style="height:100%;width:${pct(remTotal,totCorp+totDob+totCom)}%;background:#94a3b8;border-radius:4px;transition:width 0.4s;"></div></div><div style="font-size:10px;color:#64748b;margin-top:4px;">${pct(remTotal,totCorp+totDob+totCom)}% achitat</div>` : ''}
+      </div>`;
+  }
+
+  function toggleRpSchedule() {
+    const wrap = document.getElementById('rp-schedule-wrap');
+    wrap.style.display = wrap.style.display === 'none' ? 'block' : 'none';
+    if (wrap.style.display === 'block') wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function closeReimbPage() {
+    document.getElementById('panel-rambursare').style.display  = 'none';
+    document.querySelector('.header').style.display            = '';
+    document.querySelector('.tab-nav').style.display           = '';
+    document.querySelector('.reimb-open-btn').parentElement.style.display = '';
+    switchTab(_prevTab);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function updateDebtTotal() {
+    const corp    = parseFloat(document.getElementById('rm-corp').value)    || 0;
+    const dob     = parseFloat(document.getElementById('rm-dobanda').value) || 0;
+    const com     = parseFloat(document.getElementById('rm-comision').value)|| 0;
+    const pen     = parseFloat(document.getElementById('rm-penalty').value) || 0;
+    const rate    = parseFloat(document.getElementById('rm-bnm').value)     || 0;
+    const total   = corp + dob + com + pen;
+    document.getElementById('rm-total-corp').textContent = fmt(corp) + ' EUR';
+    document.getElementById('rm-total-dob').textContent  = fmt(dob)  + ' EUR';
+    document.getElementById('rm-total-com').textContent  = fmt(com)  + ' EUR';
+    document.getElementById('rm-total-pen').textContent  = fmt(pen)  + ' EUR';
+    document.getElementById('rm-total-all').textContent  = fmt(total)+ ' EUR';
+    const mdlEl = document.getElementById('rm-total-all-mdl');
+    if (mdlEl) mdlEl.textContent = (rate > 0 && total > 0) ? fmt(total * rate) + ' MDL' : '';
+  }
+
+  function updateEurPreview() {
+    const mdl  = parseFloat(document.getElementById('rm-mdl').value) || 0;
+    const rate = parseFloat(document.getElementById('rm-bnm').value) || 0;
+    document.getElementById('rm-eur-val').textContent = (mdl > 0 && rate > 0) ? fmt(mdl / rate) : '—';
+  }
+
+  function distributePayment() {
+    const mdl     = parseFloat(document.getElementById('rm-mdl').value)      || 0;
+    const rate    = parseFloat(document.getElementById('rm-bnm').value)      || 0;
+    const corp    = parseFloat(document.getElementById('rm-corp').value)     || 0;
+    const dob     = parseFloat(document.getElementById('rm-dobanda').value)  || 0;
+    const com     = parseFloat(document.getElementById('rm-comision').value) || 0;
+    const penalty = parseFloat(document.getElementById('rm-penalty').value)  || 0;
+    const payDate = document.getElementById('rm-date').value;
+    if (!mdl || !rate) { alert('Introduceți suma MDL și cursul BNM'); return; }
+
+    // Distribution: ① Penalitate → ② Comision → ③ Dobândă → ④ Corp curent → ⑤ Avans Corp (surplus)
+    let remaining    = mdl / rate;
+    const toPenalty  = Math.min(remaining, penalty); remaining -= toPenalty;
+    const toComision = Math.min(remaining, com);      remaining -= toComision;
+    const toDob      = Math.min(remaining, dob);      remaining -= toDob;
+    const toCorpDue  = remaining > 0.005 ? Math.min(remaining, corp) : 0;
+    const toCorpAvans = remaining > 0.005 ? Math.max(0, remaining - corp) : 0; // surplus → avans
+    const toCorp     = toCorpDue + toCorpAvans;
+    remaining        = 0; // fully applied
+
+    const newPenalty = Math.max(0, penalty - toPenalty);
+    const newCom     = Math.max(0, com - toComision);
+    const newDob     = Math.max(0, dob - toDob);
+    const newCorp    = Math.max(0, corp - toCorpDue);
+
+    // Save to history
+    paymentHistory.push({
+      n: paymentHistory.length + 1,
+      date: payDate || new Date().toLocaleDateString('ro-MD'),
+      mdl, rate, eur: mdl / rate,
+      toPenalty, toComision, toDob, toCorp, toCorpAvans, change: 0,
+      newPenalty, newCom, newDob, newCorp
+    });
+    renderPayHistory();
+
+    // Update tracker — toCorp includes avans for future rows (cascade onlyDue=false)
+    applyPaymentToTracker(toCorp, toDob, toComision, toPenalty, payDate);
+    updateBalanceCards();
+
+    // Reset form to remaining balances
+    document.getElementById('rm-penalty').value  = newPenalty  > 0.005 ? newPenalty.toFixed(2)  : '';
+    document.getElementById('rm-comision').value = newCom      > 0.005 ? newCom.toFixed(2)      : '';
+    document.getElementById('rm-dobanda').value  = newDob      > 0.005 ? newDob.toFixed(2)      : '';
+    document.getElementById('rm-corp').value     = newCorp     > 0.005 ? newCorp.toFixed(2)     : '';
+    document.getElementById('rm-mdl').value      = '';
+    document.getElementById('rm-days').value     = '';
+    document.getElementById('rm-eur-val').textContent = '—';
+    updateDebtTotal();
+  }
+
+  function renderPayHistory() {
+    const count = paymentHistory.length;
+    document.getElementById('pay-hist-count').textContent = count;
+    if (!count) {
+      document.getElementById('pay-hist-body').innerHTML =
+        '<tr><td colspan="11" style="text-align:center;color:#a0aec0;padding:20px;">Niciun plată înregistrată</td></tr>';
+      return;
+    }
+    document.getElementById('pay-hist-body').innerHTML = paymentHistory.map(p => `
+      <tr style="${p.toCorpAvans > 0.005 ? 'background:#f0fdf4;' : ''}">
+        <td><b>${p.n}</b></td>
+        <td>${p.date}</td>
+        <td style="color:#718096;">${fmt(p.mdl)} MDL</td>
+        <td style="font-weight:600;">${fmt(p.eur)} EUR</td>
+        <td style="color:#dc2626;">${p.toPenalty > 0.005 ? fmt(p.toPenalty) : '—'}</td>
+        <td style="color:#7c3aed;">${p.toComision > 0.005 ? fmt(p.toComision) : '—'}</td>
+        <td style="color:#d97706;">${p.toDob > 0.005 ? fmt(p.toDob) : '—'}</td>
+        <td style="color:#276749;font-weight:700;">${p.toCorp > 0.005 ? fmt(p.toCorp) : '—'}${p.toCorpAvans > 0.005 ? `<br><span style="font-size:10px;color:#16a34a;font-weight:600;">+${fmt(p.toCorpAvans)} avans</span>` : ''}</td>
+        <td style="color:#64748b;">—</td>
+        <td style="color:${p.newCorp < 0.005 ? '#276749' : '#4a5568'};">${fmt(p.newCorp)}</td>
+        <td style="color:${p.newDob < 0.005 ? '#276749' : '#d97706'};">${fmt(p.newDob)}</td>
+      </tr>`).join('');
+    // Auto-open history after first payment
+    if (count === 1) {
+      document.getElementById('pay-hist-wrap').style.display = 'block';
+    }
+  }
+
+  function togglePayHistory() {
+    const w = document.getElementById('pay-hist-wrap');
+    w.style.display = w.style.display === 'none' ? 'block' : 'none';
+  }
+
+  function clearPayHistory() {
+    if (!confirm('Șterge tot istoricul plăților?')) return;
+    paymentHistory = [];
+    renderPayHistory();
+    document.getElementById('pay-hist-wrap').style.display = 'none';
+  }
+
+  function openPenaltyCalc() {
+    const corp = document.getElementById('rm-corp').value;
+    const days = document.getElementById('rm-days').value;
+    if (corp) document.getElementById('pc-corp').value = corp;
+    if (days) document.getElementById('pc-days').value = days;
+    calcPenaltyResult();
+    document.getElementById('penalty-modal').style.display = 'flex';
+  }
+
+  function closePenaltyCalc() {
+    document.getElementById('penalty-modal').style.display = 'none';
+  }
+
+  function calcPenaltyResult() {
+    const corp = parseFloat(document.getElementById('pc-corp').value) || 0;
+    const days = parseInt(document.getElementById('pc-days').value)   || 0;
+    const pen  = corp * 0.0004 * days;
+    const box  = document.getElementById('pc-result');
+    if (corp > 0 && days > 0) {
+      document.getElementById('pc-result-val').textContent     = fmt(pen) + ' EUR';
+      document.getElementById('pc-result-formula').textContent =
+        fmt(corp) + ' × 0,04% × ' + days + ' zile = ' + fmt(pen) + ' EUR';
+      box.style.display = 'block';
+    } else {
+      box.style.display = 'none';
+    }
+  }
+
+  function usePenalty() {
+    const corp = parseFloat(document.getElementById('pc-corp').value) || 0;
+    const days = parseInt(document.getElementById('pc-days').value)   || 0;
+    document.getElementById('rm-penalty').value = (corp * 0.0004 * days).toFixed(2);
+    updateDebtTotal();
+    closePenaltyCalc();
+  }
+  // ── END RAMBURSARE ────────────────────────────────────────────
+
+  // ── TAB SWITCHING ────────────────────────────────────────────
+  function switchTab(tab) {
+    const isCredit = tab === 'credit';
+    document.getElementById('panel-credit-forms').style.display = isCredit ? 'flex' : 'none';
+    document.getElementById('panel-forecast').style.display     = isCredit ? 'none' : 'flex';
+    if (!isCredit) document.getElementById('results').style.display    = 'none';
+    if (isCredit)  document.getElementById('fc-results').style.display = 'none';
+    document.getElementById('tab-btn-credit').className   = 'tab-nav-btn' + (isCredit  ? ' active'      : '');
+    document.getElementById('tab-btn-forecast').className = 'tab-nav-btn' + (!isCredit ? ' dark-active' : '');
+  }
+</script>
+</body>
+</html>

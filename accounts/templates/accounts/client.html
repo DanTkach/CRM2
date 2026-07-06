@@ -13,23 +13,23 @@
 				<h5>Client: {{client.company_name}}</h5>
 			{% endif %}
 			<hr>
-			<a class="btn btn-outline-info  btn-sm btn-block" href="{% url 'update_client' client.id %}">Update Client</a>
-			<a class="btn btn-outline-info  btn-sm btn-block" href="{% url 'create_contract' client.id %}">Add Contract</a>
+			<a class="btn btn-outline-info  btn-sm btn-block" href="{% url 'update_client' client.id %}">Actualizare client</a>
+			<a class="btn btn-outline-info  btn-sm btn-block" href="{% url 'create_contract' client.id %}">Adaugă contract</a>
 
 		</div>
 	</div>
 
 	<div class="col-md">
 		<div class="card card-body">
-			<h5>Contact Information</h5>
+			<h5>Informații de contact</h5>
 			<hr>
-			<p>Location: {{client.location}} <br> Phone: {{client.phone_num}}</p>
+			<p>Localitate: {{client.location}} <br> Telefon: {{client.phone_num}}</p>
 		</div>
 	</div>
 
 	<div class="col-md">
 		<div class="card card-body">
-			<h5>Total Contracts</h5>
+			<h5>Total contracte</h5>
 			<hr>
 			<h1 style="text-align: center;padding: 10px">{{contracts_count}}</h1>
 		</div>
@@ -43,12 +43,12 @@
 		<div class="card card-body">
 			<table class="table table-sm">
 				<tr>
-					<th>Contract Code</th>
-					<th>Date Created</th>
-					<th>Product</th>
-					<th>Loan</th>
-					<th>Principal Paid</th>
-					<th>Total Balance</th>
+					<th>Nr. contract</th>
+					<th>Data acordării</th>
+					<th>Produs</th>
+					<th>Sumă credit</th>
+					<th>Corp achitat</th>
+					<th>Sold total</th>
 					<th>Status</th>
 					<th></th>
 					<th></th>
@@ -64,8 +64,8 @@
 					<td>{{contract.5.0.7}}</td>
 					<td>{{contract.5.0.3}}</td>
 					<td>{{contract.4}}</td>
-					<td><a class="btn btn-sm btn-info" href="{% url 'view_contract' contract.0 %}">View</a></td>
-					<td><a class="btn btn-sm btn-danger" href="{% url 'delete_contract' contract.0 %}">Delete</a></td>
+					<td><a class="btn btn-sm btn-info" href="{% url 'view_contract' contract.0 %}">Vizualizare</a></td>
+					<td><a class="btn btn-sm btn-danger" href="{% url 'delete_contract' contract.0 %}">Șterge</a></td>
 				</tr>
 				{% endfor %}
 

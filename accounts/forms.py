@@ -54,6 +54,15 @@ class ContractForm(ModelForm):
             'date_closed': DateInput()
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # These model fields have null=True but no blank=True, so Django's form
+        # treats them as required. Make them optional so the form can save when
+        # these are empty (e.g. month_sum is irrelevant for Fixed Flat contracts).
+        for field_name in ['month_sum', 'grace_period', 'annual_payments', 'comission']:
+            if field_name in self.fields:
+                self.fields[field_name].required = False
+
 
 class CreateUserForm(UserCreationForm):
     class Meta:

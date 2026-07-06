@@ -113,6 +113,9 @@ class Contract(models.Model):
                                         default=1, blank=True)
     comments = models.TextField(null=True)
     comission = models.DecimalField(max_digits=10, decimal_places=3, null=True)
+    residual = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True, default=0)
+    fee_issue = models.DecimalField(max_digits=10, decimal_places=3, null=True, blank=True, default=0)
+    fee_issue_months = models.IntegerField(null=True, blank=True, default=1)
 
     def __str__(self):
         if self.client.person == "Physical":
@@ -172,6 +175,8 @@ class Payment(models.Model):
     date_paid = models.DateField(null=True)
     exchange_rate = models.DecimalField(max_digits=15, decimal_places=3,
                                         default=1, blank=True)
+    penalty = models.DecimalField(max_digits=15, decimal_places=2,
+                                  null=True, blank=True, default=0)
 
     def __str__(self):
         if self.contract.client.person == "Physical":

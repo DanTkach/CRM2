@@ -7,15 +7,14 @@
 	<div class="col-md-6">
 		<div class="card card-body">
 
-
-			<p>Are you sure you want to delete guarantor <b>{{item.last_name}} {{item.first_name}}</b>?</p>
+			<p>Sigur doriți să ștergeți fidejusorul <b>{{item.last_name}} {{item.first_name}}</b>?</p>
 
 			<form action="{% url 'delete_guarantor' item.id  %}" method="POST">
-				
-				{% csrf_token %}
-				<a class="btn btn-warning" href="{% url 'update_contract' item.contract.id %}">Cancel</a>
 
-				<input class="btn btn-danger" type="submit" name="Confirm">
+				{% csrf_token %}
+				<a class="btn btn-warning" href="{% url 'update_contract' item.contract.id %}">Anulare</a>
+
+				<input class="btn btn-danger" type="submit" name="Confirmă">
 			</form>
 		</div>
 	</div>

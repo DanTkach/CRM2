@@ -1,86 +1,605 @@
-{%  extends 'accounts/my_main.html' %}
-{% load static %}
+{% extends 'accounts/my_main.html' %}
+{% load l10n %}
 {% block content %}
-<br>
-{% if created %}
-<a class="btn btn-outline-info btn-sm-3" href="{% url 'view_contract' contract.id %}">Back To Contract</a>
-{% endif %}
-<br>
-<br>
-<div class="row">
-	<div class="col-md-6">
-		<div class="card card-body">
-			<form action="" method="POST">
-				{% csrf_token %}
-				{{ form.management_form }}
-				{% for field in form %}
-				<div class="row">
-					<div class="col text-left">{{field.label}} : </div>
-					<div class="col">{{field}}</div>
-					<hr>
-				</div>
-				{% endfor %}
-				<br>
-				<div class="row">
-					<div class="col"></div>
-					<div class="col"><input type="submit" name="Submit"></div>
-				</div>
-			</form>
+<style>
+  * { box-sizing: border-box; }
+  .calc-page {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f0f4f8;
+    min-height: calc(100vh - 80px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px;
+  }
+  .card-calc {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    padding: 28px;
+    width: 100%;
+    margin-bottom: 24px;
+  }
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: #a0aec0;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 14px;
+    margin-top: 22px;
+  }
+  .section-title:first-child { margin-top: 0; }
+  .form-row-calc { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-group-calc { margin-bottom: 14px; }
+  .form-group-calc label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 6px;
+  }
+  .cf-input, .cf-select {
+    width: 100%;
+    padding: 11px 14px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 15px;
+    color: #1a202c;
+    transition: border-color 0.2s;
+    outline: none;
+    background: white;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .cf-input:focus, .cf-select:focus { border-color: #d97706; }
+  .cf-readonly { background: #f7fafc !important; color: #718096 !important; cursor: not-allowed; }
+  .toggle-grid   { display: grid; grid-template-columns: 1fr 1fr;      gap: 8px; margin-bottom: 14px; }
+  .toggle-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .type-btn {
+    padding: 11px 10px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    background: white;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: #718096;
+    transition: all 0.2s;
+    text-align: center;
+    line-height: 1.4;
+    user-select: none;
+  }
+  .type-btn.active { border-color: #d97706; background: #d97706; color: white; }
+  .type-btn small  { font-weight: 400; font-size: 11px; display: block; margin-top: 2px; }
+  .divider-calc { border: none; border-top: 2px solid #f0f4f8; margin: 20px 0; }
+  .eur-box {
+    background: #fffbeb;
+    border: 2px solid #fcd34d;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+  .eur-box label { color: #92400e; font-size: 12px; font-weight: 600; display: block; margin-bottom: 6px; }
+  .eur-box .cf-input { border-color: #fcd34d; }
+  .eur-box .cf-input:focus { border-color: #d97706; }
+  .calc-btn {
+    width: 100%;
+    padding: 13px;
+    background: #1a202c;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-bottom: 8px;
+  }
+  .calc-btn:hover { background: #2d3748; }
+  .save-btn {
+    width: 100%;
+    padding: 14px;
+    background: #d97706;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .save-btn:hover { background: #b45309; }
+  /* Results */
+  .cf-results { display: none; width: 100%; max-width: 1100px; margin-top: 20px; }
+  .summary-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 20px; }
+  .summary-item { background: white; border-radius: 12px; padding: 16px 12px; text-align: center; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+  .summary-item .val { font-size: 16px; font-weight: 700; color: #1a202c; margin-bottom: 4px; }
+  .summary-item .lbl { font-size: 10px; color: #718096; text-transform: uppercase; letter-spacing: 0.4px; }
+  .summary-item.amber  .val { color: #d97706; }
+  .summary-item.red    .val { color: #e53e3e; }
+  .summary-item.orange .val { color: #dd6b20; }
+  .schedule-card { background: white; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); overflow: hidden; }
+  .schedule-header { padding: 16px 20px; border-bottom: 1px solid #f0f4f8; display: flex; justify-content: space-between; align-items: center; }
+  .schedule-header h3 { font-size: 15px; font-weight: 700; color: #1a202c; }
+  .badge-calc { background: #fef3c7; color: #d97706; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .schedule-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .schedule-table thead th {
+    background: #f8fafc;
+    padding: 10px 12px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #1a202c;
+    white-space: nowrap;
+    border: 1px solid #cbd5e1;
+  }
+  .schedule-table tbody td {
+    padding: 8px 12px;
+    text-align: center;
+    color: #2d3748;
+    border: 1px solid #e2e8f0;
+    white-space: nowrap;
+  }
+  .schedule-table tbody tr:hover { background: #f8fafc; }
+  .schedule-table tbody tr.balloon-row td { background: #fff7ed; color: #c05621; font-weight: 700; }
+  .schedule-table tbody tr.total-row td  { font-weight: 700; background: #f0f4f8; border-top: 2px solid #cbd5e1; }
+  .euro-col { color: #92400e !important; font-weight: 600; background: #fffbeb; }
+  .schedule-table thead th.euro-col { background: #fef3c7; color: #d97706; }
+  .show-more { width: 100%; padding: 12px; background: #f8fafc; border: none; cursor: pointer; font-size: 13px; color: #d97706; font-weight: 600; border-top: 1px solid #e2e8f0; transition: background 0.2s; }
+  .show-more:hover { background: #fef3c7; }
+  @media (max-width: 768px) {
+    .summary-grid  { grid-template-columns: 1fr 1fr; }
+    .form-row-calc { grid-template-columns: 1fr; }
+    .toggle-grid-3 { grid-template-columns: 1fr; }
+  }
+</style>
 
-		</div>
-	</div>
+<div class="calc-page">
+  <div style="display:flex;gap:24px;width:100%;max-width:1200px;align-items:flex-start;">
 
-	{% if created %}
-	<div class="col-md-3">
-		<h5>Guarantors: {{count}}</h5>
-		<a class="btn btn-outline-success  btn-sm btn-block" href="{% url 'create_guarantor' contract.id %}">Add Guarantor</a>
-		<hr>
-		<div class="card card-body">
-			<table class="table table-sm">
-				<tr>
-					<th>Nr.</th>
-					<th>Name</th>
-					<th></th>
-					<th></th>
-				</tr>
+    <!-- ── FORM ── -->
+    <div style="flex:1;min-width:0;">
+      {% if created %}
+      <a href="{% url 'view_contract' contract.id %}" style="display:inline-flex;align-items:center;gap:6px;margin-bottom:16px;color:#d97706;font-size:14px;font-weight:600;text-decoration:none;">
+        ← Înapoi la contract #{{ contract.id }}
+      </a>
+      {% endif %}
 
-				{% for guarantor in guarantors %}
-				<tr>
-					<td>{{guarantor.num}}</td>
-					<td>{{guarantor.last_name}} {{guarantor.first_name}}</td>
-					<td><a class="btn btn-sm btn-success" href="{% url 'update_guarantor' guarantor.id %}">Update</a></td>
-					<td><a class="btn btn-sm btn-danger" href="{% url 'delete_guarantor' guarantor.id %}">Delete</a></td>
-				</tr>
-				{% endfor %}
-			</table>
-		</div>
-	</div>
-	<div class="col-md-3">
-		<h5>Gaj: {{lienholders.count}}</h5>
-		<a class="btn btn-outline-success  btn-sm btn-block" href="{% url 'create_lienholder' contract.id %}">Add Gaj</a>
-		<hr>
-		<div class="card card-body">
-			<table class="table table-sm">
-				<tr>
-					<th>Nr.</th>
-					<th>Name</th>
-					<th></th>
-					<th></th>
-				</tr>
+      <form action="" method="POST">
+        {% csrf_token %}
+        {% localize off %}
 
-				{% for lienholder in lienholders %}
-				<tr>
-					<td>{{lienholder.num}}</td>
-					<td>{{lienholder.last_name}} {{lienholder.first_name}}</td>
-					<td><a class="btn btn-sm btn-success" href="{% url 'update_lienholder' lienholder.id %}">Update</a></td>
-					<td><a class="btn btn-sm btn-danger" href="{% url 'delete_lienholder' lienholder.id %}">Delete</a></td>
-				</tr>
-				{% endfor %}
-			</table>
-		</div>
-	</div>
-	{% endif %}
+        <!-- Hidden fields -->
+        {{ form.client.as_hidden }}
+        <input type="hidden" name="calc_method" id="id_calc_method" value="{{ contract.calc_method|default:'Declining Balance' }}" />
+        <input type="hidden" name="currency"    id="id_currency"    value="{{ contract.currency|default:'MDL' }}" />
+        <input type="hidden" name="term"        id="id_term"        value="{{ contract.term|default:'Long' }}" />
 
-</div>
+        <div class="card-calc">
 
+          {% if form.errors %}
+          <div style="background:#fff5f5;border:2px solid #fc8181;border-radius:10px;padding:12px 16px;margin-bottom:20px;">
+            <strong style="color:#c53030;font-size:13px;">Erori — contractul nu a fost salvat:</strong>
+            <ul style="margin:8px 0 0 0;padding-left:20px;font-size:13px;color:#742a2a;">
+              {% for field in form %}{% for error in field.errors %}<li><b>{{ field.label }}:</b> {{ error }}</li>{% endfor %}{% endfor %}
+              {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+
+          <!-- ── Parametrii creditului ── -->
+          <div class="section-title">Parametrii creditului</div>
+          <div class="form-row-calc">
+
+            <div class="form-group-calc">
+              <label>Nr. Contract</label>
+              {% if created %}
+                <input type="number" name="id" value="{{ contract.id }}" readonly class="cf-input cf-readonly" />
+              {% else %}
+                <input type="number" name="id" class="cf-input" value="{{ form.id.value|default_if_none:'' }}" placeholder="Nr. contract" />
+              {% endif %}
+            </div>
+
+            <div class="form-group-calc">
+              <label>Suma creditului (MDL)</label>
+              <input type="number" name="loan" id="cf-amount" class="cf-input" value="{{ contract.loan|default_if_none:'' }}" placeholder="100 000" min="0" step="0.01" />
+            </div>
+
+            <div class="form-group-calc">
+              <label>Termenul (luni)</label>
+              <input type="number" name="months" id="cf-term" class="cf-input" value="{{ contract.months|default_if_none:'' }}" placeholder="12" min="1" max="360" />
+            </div>
+
+            <div class="form-group-calc">
+              <label>Rata dobânzii (% anual)</label>
+              <input type="number" name="interest_rate" id="cf-rate" class="cf-input" value="{{ contract.interest_rate|default_if_none:'' }}" placeholder="18" step="0.001" min="0" />
+            </div>
+
+            <div class="form-group-calc">
+              <label>Data acordării</label>
+              <input type="date" name="date_created" id="cf-start-date" class="cf-input" value="{{ contract.date_created|date:'Y-m-d'|default:'' }}" />
+            </div>
+
+            <div class="form-group-calc">
+              <label>Data închiderii <span style="font-weight:400;color:#a0aec0;">— opțional</span></label>
+              <input type="date" name="date_closed" class="cf-input" value="{{ contract.date_closed|date:'Y-m-d'|default:'' }}" />
+            </div>
+
+          </div>
+
+          <div class="form-group-calc">
+            <label>Sold rezidual / Balloon (MDL) <span style="font-weight:400;color:#a0aec0;">— opțional</span></label>
+            <input type="number" name="residual" id="cf-residual" class="cf-input" value="{{ contract.residual|default_if_none:'' }}" placeholder="0" min="0" step="0.01" />
+            <div style="font-size:11px;color:#718096;margin-top:4px;">Suma achitată de client la sfârșitul termenului printr-o singură plată</div>
+          </div>
+
+          <hr class="divider-calc" />
+
+          <!-- ── Metoda de calcul ── -->
+          <div class="section-title">Metoda de calcul</div>
+          <div class="toggle-grid-3">
+            <div class="type-btn" id="cf-btn-db"     onclick="cfSetCalcMethod('Declining Balance')">Declining Balance<small>anuitate descrescătoare</small></div>
+            <div class="type-btn" id="cf-btn-db-old" onclick="cfSetCalcMethod('Declining Balance (OLD)')">Declining Balance (V)<small>variantă veche</small></div>
+            <div class="type-btn" id="cf-btn-ff"     onclick="cfSetCalcMethod('Fixed Flat')">Fixed Flat<small>dobândă pe suma inițială</small></div>
+          </div>
+
+          <div id="cf-month-sum-row" style="display:none;">
+            <div class="form-group-calc">
+              <label>Plata lunară (MDL) <span style="font-weight:400;color:#a0aec0;">— calculat automat</span></label>
+              <input type="number" name="month_sum" id="cf-month-sum" class="cf-input" value="{{ contract.month_sum|default_if_none:'' }}" placeholder="0" step="0.001" min="0" />
+            </div>
+          </div>
+
+          <div class="form-row-calc" style="margin-top:14px;">
+            <div class="form-group-calc">
+              <label>Perioadă de grație (luni)</label>
+              <input type="number" name="grace_period" class="cf-input" value="{{ contract.grace_period|default_if_none:'' }}" placeholder="0" min="0" />
+            </div>
+            <div class="form-group-calc">
+              <label>Plăți pe an</label>
+              <input type="number" name="annual_payments" class="cf-input" value="{{ contract.annual_payments|default_if_none:'' }}" placeholder="12" min="1" max="12" />
+            </div>
+          </div>
+
+          <hr class="divider-calc" />
+
+          <!-- ── Comisioane ── -->
+          <div class="section-title">Comisioane</div>
+          <div class="form-row-calc">
+            <div class="form-group-calc">
+              <label>Comision acordare (% din sumă)</label>
+              <input type="number" name="fee_issue" id="cf-fee-issue" class="cf-input" value="{{ contract.fee_issue|default_if_none:'' }}" placeholder="0" step="0.1" min="0" max="100" />
+            </div>
+            <div class="form-group-calc">
+              <label>Distribuire pe (luni)</label>
+              <input type="number" name="fee_issue_months" id="cf-fee-issue-months" class="cf-input" value="{{ contract.fee_issue_months|default_if_none:'' }}" placeholder="1" min="1" />
+              <div style="font-size:11px;color:#718096;margin-top:4px;">1 = achitat imediat · N = distribuit pe N luni</div>
+            </div>
+            <div class="form-group-calc" style="grid-column:span 2;">
+              <label>Comision întreținere (% din sumă, lunar)</label>
+              <input type="number" name="comission" id="cf-fee-monthly" class="cf-input" value="{{ contract.comission|default_if_none:'' }}" placeholder="0" step="0.01" min="0" max="100" />
+            </div>
+          </div>
+
+          <hr class="divider-calc" />
+
+          <!-- ── Valuta ── -->
+          <div class="section-title">Valuta</div>
+          <div class="toggle-grid">
+            <div class="type-btn" id="cf-btn-mdl" onclick="cfSetCurrency('MDL')">MDL</div>
+            <div class="type-btn" id="cf-btn-eur" onclick="cfSetCurrency('EUR')">EUR</div>
+          </div>
+          <div class="eur-box" id="cf-eur-box">
+            <label>Curs EUR / MDL</label>
+            <input type="number" name="exchange_rate" id="cf-eur-rate" class="cf-input" value="{{ contract.exchange_rate|default_if_none:'1' }}" placeholder="19.50" step="0.01" min="0" />
+            <div style="font-size:11px;color:#92400e;margin-top:4px;">Folosit pentru calculul coloanei „Total Euro"</div>
+          </div>
+
+          <hr class="divider-calc" />
+
+          <!-- ── Detalii contract ── -->
+          <div class="section-title">Detalii contract</div>
+          <div class="form-row-calc">
+            <div class="form-group-calc">
+              <label>Status</label>
+              <select name="status" class="cf-select">
+                {% for val, lbl in form.fields.status.choices %}
+                  <option value="{{ val }}" {% if contract.status == val %}selected{% endif %}>{{ lbl }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group-calc">
+              <label>Produs</label>
+              <select name="product" class="cf-select">
+                {% for val, lbl in form.fields.product.choices %}
+                  <option value="{{ val }}" {% if contract.product == val %}selected{% endif %}>{{ lbl }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group-calc">
+            <label>Destinație credit</label>
+            <input type="text" name="scope" class="cf-input" value="{{ contract.scope|default_if_none:'' }}" placeholder="Scopul creditului" />
+          </div>
+
+          <div class="form-group-calc">
+            <label>Sector economic</label>
+            <select name="sector" class="cf-select">
+              {% for val, lbl in form.fields.sector.choices %}
+                <option value="{{ val }}" {% if contract.sector == val %}selected{% endif %}>{{ lbl }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="section-title" style="margin-top:8px;">Termen</div>
+          <div class="toggle-grid">
+            <div class="type-btn" id="cf-btn-long"  onclick="cfSetTerm('Long')">Lung</div>
+            <div class="type-btn" id="cf-btn-short" onclick="cfSetTerm('Short')">Scurt</div>
+          </div>
+
+          <hr class="divider-calc" />
+
+          <button type="button" class="calc-btn" onclick="cfCalculate()">▶ Calculează graficul</button>
+          <button type="submit" class="save-btn">✓ Salvează contractul</button>
+
+        </div><!-- /.card-calc -->
+        {% endlocalize %}
+      </form>
+    </div><!-- /form col -->
+
+    <!-- ── SIDEBAR: Fidejusori / Gaj ── -->
+    {% if created %}
+    <div style="width:280px;flex-shrink:0;padding-top:50px;">
+      <h5 style="font-size:14px;font-weight:700;margin-bottom:8px;">Fidejusori: {{ count }}</h5>
+      <a class="btn btn-outline-success btn-sm btn-block mb-2" href="{% url 'create_guarantor' contract.id %}">+ Adaugă fidejusor</a>
+      <div class="card card-body p-2 mb-4">
+        <table class="table table-sm mb-0">
+          <tr><th>Nr.</th><th>Nume</th><th colspan="2"></th></tr>
+          {% for g in guarantors %}
+          <tr>
+            <td>{{ g.num }}</td>
+            <td>{{ g.last_name }} {{ g.first_name }}</td>
+            <td><a class="btn btn-sm btn-success py-0" href="{% url 'update_guarantor' g.id %}">Modif.</a></td>
+            <td><a class="btn btn-sm btn-danger  py-0" href="{% url 'delete_guarantor'  g.id %}">Șterge</a></td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+      <h5 style="font-size:14px;font-weight:700;margin-bottom:8px;">Gaj: {{ lienholders.count }}</h5>
+      <a class="btn btn-outline-success btn-sm btn-block mb-2" href="{% url 'create_lienholder' contract.id %}">+ Adaugă gaj</a>
+      <div class="card card-body p-2">
+        <table class="table table-sm mb-0">
+          <tr><th>Nr.</th><th>Nume</th><th colspan="2"></th></tr>
+          {% for l in lienholders %}
+          <tr>
+            <td>{{ l.num }}</td>
+            <td>{{ l.last_name }} {{ l.first_name }}</td>
+            <td><a class="btn btn-sm btn-success py-0" href="{% url 'update_lienholder' l.id %}">Modif.</a></td>
+            <td><a class="btn btn-sm btn-danger  py-0" href="{% url 'delete_lienholder'  l.id %}">Șterge</a></td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+    {% endif %}
+
+  </div><!-- /flex row -->
+
+  <!-- ── Calculator results ── -->
+  <div class="cf-results" id="cf-results">
+    <div class="summary-grid" id="cf-summary"></div>
+    <div class="schedule-card">
+      <div class="schedule-header">
+        <h3>Graficul de rambursare</h3>
+        <span class="badge-calc" id="cf-type-badge"></span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="schedule-table">
+          <thead>
+            <tr>
+              <th>Nr.</th><th>Data</th><th>Zile</th>
+              <th>Soldul creditului</th><th>Rata creditului</th>
+              <th>Dobânda</th><th>Comisionul</th>
+              <th>Plata lunară totală</th>
+              <th class="euro-col">Total Euro</th>
+            </tr>
+          </thead>
+          <tbody id="cf-schedule-body"></tbody>
+        </table>
+      </div>
+      <button class="show-more" id="cf-show-more-btn" onclick="cfToggleAll()" style="display:none">Afișează tot graficul</button>
+    </div>
+  </div>
+
+</div><!-- /.calc-page -->
 {% endblock %}
+
+{% block js %}
+<script>
+  var cfCalcMethod   = document.getElementById('id_calc_method').value || 'Declining Balance';
+  var cfCurrency     = document.getElementById('id_currency').value    || 'MDL';
+  var cfTerm         = document.getElementById('id_term').value        || 'Long';
+  var cfFullSchedule = [];
+  var cfShowingAll   = false;
+
+  cfUpdateCalcMethodUI();
+  cfUpdateMonthSumVisibility();
+  cfUpdateCurrencyUI();
+  cfUpdateTermUI();
+
+  function cfSetCalcMethod(m) {
+    cfCalcMethod = m;
+    document.getElementById('id_calc_method').value = m;
+    cfUpdateCalcMethodUI();
+    cfUpdateMonthSumVisibility();
+    if (m === 'Declining Balance') cfAutoComputeMonthSum();
+  }
+  function cfUpdateCalcMethodUI() {
+    document.getElementById('cf-btn-db').classList.toggle('active',     cfCalcMethod === 'Declining Balance');
+    document.getElementById('cf-btn-db-old').classList.toggle('active', cfCalcMethod === 'Declining Balance (OLD)');
+    document.getElementById('cf-btn-ff').classList.toggle('active',     cfCalcMethod === 'Fixed Flat');
+  }
+  function cfUpdateMonthSumVisibility() {
+    document.getElementById('cf-month-sum-row').style.display = cfCalcMethod === 'Declining Balance' ? 'block' : 'none';
+  }
+  function cfAutoComputeMonthSum() {
+    var a = parseFloat(document.getElementById('cf-amount').value) || 0;
+    var t = parseInt(document.getElementById('cf-term').value)     || 0;
+    var r = parseFloat(document.getElementById('cf-rate').value)   || 0;
+    if (a > 0 && t > 0 && r > 0) {
+      var mr = r / 100 / 12;
+      var ms = a * mr * Math.pow(1+mr,t) / (Math.pow(1+mr,t)-1);
+      document.getElementById('cf-month-sum').value = ms.toFixed(3);
+    }
+  }
+  ['cf-amount','cf-term','cf-rate'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('input', function() { if (cfCalcMethod==='Declining Balance') cfAutoComputeMonthSum(); });
+  });
+
+  function cfSetCurrency(c) {
+    cfCurrency = c;
+    document.getElementById('id_currency').value = c;
+    if (c === 'MDL') document.getElementById('cf-eur-rate').value = '1.000';
+    cfUpdateCurrencyUI();
+  }
+  function cfUpdateCurrencyUI() {
+    document.getElementById('cf-btn-mdl').classList.toggle('active', cfCurrency === 'MDL');
+    document.getElementById('cf-btn-eur').classList.toggle('active', cfCurrency === 'EUR');
+    document.getElementById('cf-eur-box').style.display = cfCurrency === 'EUR' ? 'block' : 'none';
+  }
+
+  function cfSetTerm(t) {
+    cfTerm = t;
+    document.getElementById('id_term').value = t;
+    cfUpdateTermUI();
+  }
+  function cfUpdateTermUI() {
+    document.getElementById('cf-btn-long').classList.toggle('active',  cfTerm === 'Long');
+    document.getElementById('cf-btn-short').classList.toggle('active', cfTerm === 'Short');
+  }
+
+  function cfFmt(n, dec) {
+    dec = (dec===undefined) ? 2 : dec;
+    return n.toLocaleString('ro-MD', {minimumFractionDigits:dec, maximumFractionDigits:dec});
+  }
+  function cfAddMonths(dateStr, months) {
+    var d = new Date(dateStr);
+    d.setMonth(d.getMonth()+months);
+    return d.toLocaleDateString('ro-MD', {day:'2-digit', month:'2-digit', year:'numeric'});
+  }
+  function cfDaysInPaymentMonth(dateStr, monthOffset) {
+    var d = new Date(dateStr);
+    d.setMonth(d.getMonth() + monthOffset);
+    return new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+  }
+
+  function cfCalculate() {
+    var amount    = parseFloat(document.getElementById('cf-amount').value);
+    var term      = parseInt(document.getElementById('cf-term').value);
+    var rate      = parseFloat(document.getElementById('cf-rate').value);
+    var startDate = document.getElementById('cf-start-date').value;
+    var feeIssue       = parseFloat(document.getElementById('cf-fee-issue').value)        || 0;
+    var feeIssueMonths = parseInt(document.getElementById('cf-fee-issue-months').value)   || 1;
+    var feeMo          = parseFloat(document.getElementById('cf-fee-monthly').value)      || 0;
+    var residual       = parseFloat(document.getElementById('cf-residual').value)         || 0;
+    var eurRate        = parseFloat(document.getElementById('cf-eur-rate').value)         || 0;
+    if (!amount||!term||!rate||amount<=0||term<=0||rate<=0) { alert('Completați câmpurile: sumă, termen, rată.'); return; }
+    if (residual>=amount) { alert('Soldul rezidual trebuie să fie mai mic decât suma creditului.'); return; }
+    var issueFeeAmt = amount*feeIssue/100;
+    var monthlyFeeAmt = amount*feeMo/100;
+    var wa = amount-residual;
+    if (cfCalcMethod==='Declining Balance') {
+      cfFullSchedule = cfCalcAnnuity(amount,wa,term,rate,residual,issueFeeAmt,feeIssueMonths,monthlyFeeAmt,startDate,eurRate);
+      cfAutoComputeMonthSum();
+    } else if (cfCalcMethod==='Declining Balance (OLD)') {
+      cfFullSchedule = cfCalcDiff(amount,wa,term,rate,residual,issueFeeAmt,feeIssueMonths,monthlyFeeAmt,startDate,eurRate);
+    } else {
+      cfFullSchedule = cfCalcFlat(amount,wa,term,rate,residual,issueFeeAmt,feeIssueMonths,monthlyFeeAmt,startDate,eurRate);
+    }
+    var rr = cfFullSchedule.filter(function(r){return !r.isBalloon&&!r.isIssueFee;});
+    var tot = cfFullSchedule.reduce(function(s,r){return s+r.total;},0);
+    var totDob = rr.reduce(function(s,r){return s+r.interest;},0);
+    var totE = eurRate>0 ? cfFullSchedule.reduce(function(s,r){return s+r.totalEur;},0) : 0;
+    var fr = rr.find(function(r){return !r.issueChunk;})||rr[0];
+    var ft = fr ? fr.total : 0;
+    var ae = eurRate>0 ? amount/eurRate : 0;
+    document.getElementById('cf-summary').innerHTML =
+      '<div class="summary-item amber"><div class="val">'+cfFmt(amount)+' MDL</div><div class="lbl">Suma creditului MDL</div></div>'+
+      '<div class="summary-item red"><div class="val">'+cfFmt(totDob)+' MDL</div><div class="lbl">Total dobândă</div></div>'+
+      '<div class="summary-item amber"><div class="val">'+cfFmt(ft)+' MDL</div><div class="lbl">Plata lunară MDL</div></div>'+
+      '<div class="summary-item"><div class="val">'+cfFmt(tot)+' MDL</div><div class="lbl">Total plăți MDL</div></div>'+
+      (eurRate>0&&ae>0?'<div class="summary-item" style="grid-column:span 4;text-align:right;padding-right:28px;"><div class="val" style="color:#d97706;">'+cfFmt(ae)+' EUR</div><div class="lbl">Suma creditului Euro (curs '+cfFmt(eurRate,2)+')</div></div>':'')+
+      (residual>0?'<div class="summary-item orange" style="grid-column:span 4;border-top:3px solid #f6ad55;"><div class="val">'+cfFmt(residual)+' MDL'+(eurRate>0?' = '+cfFmt(residual/eurRate)+' EUR':'')+'</div><div class="lbl">Plată Balloon (luna '+term+')</div></div>':'');
+    document.getElementById('cf-type-badge').textContent = cfCalcMethod+(residual>0?' + Balloon':'');
+    cfShowingAll = false; cfRenderSchedule();
+    document.getElementById('cf-results').style.display = 'block';
+    document.getElementById('cf-results').scrollIntoView({behavior:'smooth'});
+  }
+
+  function cfCalcAnnuity(amount,wa,term,rate,residual,issueFee,issueMonths,monthlyFee,startDate,eurRate) {
+    var r=rate/100/12, payment=wa*r*Math.pow(1+r,term)/(Math.pow(1+r,term)-1), balance=amount, rows=[], ipm=issueMonths>1&&issueFee>0?issueFee/issueMonths:0;
+    if (issueFee>0&&issueMonths===1) rows.push({n:'—',date:cfAddMonths(startDate,0),days:null,balance:amount,principal:0,interest:0,commission:issueFee,payment:0,total:issueFee,totalEur:eurRate>0?issueFee/eurRate:0,isIssueFee:true});
+    for (var i=1;i<=term;i++) {
+      var interest=balance*r, principal=payment-interest; balance-=principal;
+      var ic=(issueMonths>1&&i<=issueMonths)?ipm:0, commission=monthlyFee+ic, total=payment+commission;
+      rows.push({n:i,date:cfAddMonths(startDate,i),days:cfDaysInPaymentMonth(startDate,i),balance:Math.max(0,balance),principal:principal,interest:interest,commission:commission,issueChunk:ic,payment:payment,total:total,totalEur:eurRate>0?total/eurRate:0});
+    }
+    if (residual>0) rows.push({n:'—',date:cfAddMonths(startDate,term),days:null,balance:0,principal:residual,interest:0,commission:0,issueChunk:0,payment:residual,total:residual,totalEur:eurRate>0?residual/eurRate:0,isBalloon:true});
+    return rows;
+  }
+  function cfCalcDiff(amount,wa,term,rate,residual,issueFee,issueMonths,monthlyFee,startDate,eurRate) {
+    var r=rate/100/12, principal=wa/term, balance=amount, rows=[], ipm=issueMonths>1&&issueFee>0?issueFee/issueMonths:0;
+    if (issueFee>0&&issueMonths===1) rows.push({n:'—',date:cfAddMonths(startDate,0),days:null,balance:amount,principal:0,interest:0,commission:issueFee,payment:0,total:issueFee,totalEur:eurRate>0?issueFee/eurRate:0,isIssueFee:true});
+    for (var i=1;i<=term;i++) {
+      var interest=balance*r, payment=principal+interest; balance-=principal;
+      var ic=(issueMonths>1&&i<=issueMonths)?ipm:0, commission=monthlyFee+ic, total=payment+commission;
+      rows.push({n:i,date:cfAddMonths(startDate,i),days:cfDaysInPaymentMonth(startDate,i),balance:Math.max(0,balance),principal:principal,interest:interest,commission:commission,issueChunk:ic,payment:payment,total:total,totalEur:eurRate>0?total/eurRate:0});
+    }
+    if (residual>0) rows.push({n:'—',date:cfAddMonths(startDate,term),days:null,balance:0,principal:residual,interest:0,commission:0,issueChunk:0,payment:residual,total:residual,totalEur:eurRate>0?residual/eurRate:0,isBalloon:true});
+    return rows;
+  }
+  function cfCalcFlat(amount,wa,term,rate,residual,issueFee,issueMonths,monthlyFee,startDate,eurRate) {
+    var fi=amount*rate/100/12, principal=wa/term, balance=amount, rows=[], ipm=issueMonths>1&&issueFee>0?issueFee/issueMonths:0;
+    if (issueFee>0&&issueMonths===1) rows.push({n:'—',date:cfAddMonths(startDate,0),days:null,balance:amount,principal:0,interest:0,commission:issueFee,payment:0,total:issueFee,totalEur:eurRate>0?issueFee/eurRate:0,isIssueFee:true});
+    for (var i=1;i<=term;i++) {
+      var payment=principal+fi; balance-=principal;
+      var ic=(issueMonths>1&&i<=issueMonths)?ipm:0, commission=monthlyFee+ic, total=payment+commission;
+      rows.push({n:i,date:cfAddMonths(startDate,i),days:cfDaysInPaymentMonth(startDate,i),balance:Math.max(0,balance),principal:principal,interest:fi,commission:commission,issueChunk:ic,payment:payment,total:total,totalEur:eurRate>0?total/eurRate:0});
+    }
+    if (residual>0) rows.push({n:'—',date:cfAddMonths(startDate,term),days:null,balance:0,principal:residual,interest:0,commission:0,issueChunk:0,payment:residual,total:residual,totalEur:eurRate>0?residual/eurRate:0,isBalloon:true});
+    return rows;
+  }
+
+  function cfRenderSchedule() {
+    var ifr=cfFullSchedule.find(function(r){return r.isIssueFee;}),
+        rr=cfFullSchedule.filter(function(r){return !r.isBalloon&&!r.isIssueFee;}),
+        br=cfFullSchedule.find(function(r){return r.isBalloon;}),
+        vis=rr.slice(0,cfShowingAll?rr.length:Math.min(6,rr.length));
+    var tp=cfFullSchedule.reduce(function(s,r){return s+r.total;},0),
+        tpr=rr.reduce(function(s,r){return s+r.principal;},0),
+        td=rr.reduce(function(s,r){return s+r.interest;},0),
+        tc=cfFullSchedule.filter(function(r){return !r.isBalloon;}).reduce(function(s,r){return s+r.commission;},0),
+        te=cfFullSchedule.reduce(function(s,r){return s+r.totalEur;},0),
+        ev=cfFullSchedule.some(function(r){return r.totalEur>0;});
+    var html='';
+    if (ifr) html+='<tr style="background:#fff7ed;"><td style="color:#c05621;font-weight:700;">CA</td><td style="color:#c05621;">'+ifr.date+'</td><td style="color:#a0aec0;">—</td><td style="color:#a0aec0;">—</td><td style="color:#a0aec0;">—</td><td style="color:#a0aec0;">—</td><td style="color:#c05621;font-weight:700;">'+cfFmt(ifr.commission)+'</td><td style="color:#c05621;font-weight:700;">'+cfFmt(ifr.total)+'</td><td class="euro-col">'+(ev?cfFmt(ifr.totalEur):'—')+'</td></tr>';
+    html+=vis.map(function(r){return '<tr'+(r.issueChunk>0?' style="background:#fffdf5;"':'')+'>'+
+      '<td>'+r.n+'</td><td>'+r.date+'</td><td>'+(r.days!==null?r.days:'—')+'</td><td>'+cfFmt(r.balance)+'</td><td>'+cfFmt(r.principal)+'</td>'+
+      '<td>'+cfFmt(r.interest)+'</td><td style="color:'+(r.commission>0?'#dd6b20':'#a0aec0')+'">'+
+      (r.commission>0?cfFmt(r.commission):'—')+'</td><td><b>'+cfFmt(r.total)+'</b></td>'+
+      '<td class="euro-col">'+(ev?cfFmt(r.totalEur):'—')+'</td></tr>';}).join('');
+    if (cfShowingAll) {
+      if (br) html+='<tr class="balloon-row"><td>Balloon</td><td>'+br.date+'</td><td>—</td><td>0,00</td><td>'+cfFmt(br.principal)+'</td><td>—</td><td>—</td><td>'+cfFmt(br.total)+'</td><td class="euro-col">'+(ev?cfFmt(br.totalEur):'—')+'</td></tr>';
+      html+='<tr class="total-row"><td>Total</td><td>—</td><td>—</td><td>—</td><td>'+cfFmt(tpr+(br?br.principal:0))+'</td><td>'+cfFmt(td)+'</td><td>'+cfFmt(tc)+'</td><td>'+cfFmt(tp)+'</td><td class="euro-col">'+(ev?cfFmt(te):'—')+'</td></tr>';
+    }
+    document.getElementById('cf-schedule-body').innerHTML = html;
+    var btn=document.getElementById('cf-show-more-btn');
+    if (rr.length>6) { btn.style.display='block'; btn.textContent=cfShowingAll?'Restrânge graficul':'Afișează tot graficul ('+rr.length+' rânduri)'; }
+    else btn.style.display='none';
+  }
+  function cfToggleAll() { cfShowingAll=!cfShowingAll; cfRenderSchedule(); }
+</script>
+{% endblock js %}
